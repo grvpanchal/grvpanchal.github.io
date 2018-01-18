@@ -1,7 +1,23 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flowers Light DOM form</title>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
     <style>
+        body {
+            padding: 15px;
+        }
+
         input,
         select,
         textarea {
@@ -15,6 +31,10 @@
 </head>
 
 <body>
+    <h3> This form is cloned from
+        <b>mdot</b>. The functionality of autofill/autocomplete relies on HTML tags of form and its children (input/textarea/select).
+        So the CSS can be ignored (Labels are below inputs).
+    </h3>
     <form novalidate="novalidate" class="styled_form container" data-id="AddressForm_100154657">
 
         <div class="h1 row full_width no_margin no_background bb">Delivery Address</div>
@@ -225,8 +245,8 @@
                             <div class="fake_place">Zip Code
                                 <span class="error_color">*</span>
                             </div>
-                            <a href="javascript:updateZipCode('100154657','AddressForm_100154657','','20051')" id="_Apply_zipcode"
-                                class="_edit_input small hide" tabindex="-1">Apply</a>
+                            <a href="javascript:updateZipCode('100154657','AddressForm_100154657','','20051')" id="_Apply_zipcode" class="_edit_input small hide"
+                                tabindex="-1">Apply</a>
 
                             <br>
                         </div>
@@ -286,8 +306,7 @@
         <div class="row no_margin hide" data-visibility="div#ShippingCheckbox div#Shipping_UpdateStored">
             <div class="input_holder">
                 <label>
-                    <input type="checkbox" class="custom check_val" data-id="UpdateStoredAddress" placeholder="" required="required"
-                        autocomplete="none">
+                    <input type="checkbox" class="custom check_val" data-id="UpdateStoredAddress" placeholder="" required="required" autocomplete="none">
                     <span></span>Update existing address</label>
             </div>
         </div>
@@ -298,8 +317,8 @@
         <div class="row no_margin">
             <div class="input_holder">
                 <label>
-                    <input type="checkbox" class="custom check_val" data-id="billingAddress" placeholder="" required="required"
-                        autocomplete="none" value="on">
+                    <input type="checkbox" class="custom check_val" data-id="billingAddress" placeholder="" required="required" autocomplete="none"
+                        value="on">
                     <span></span>Use as my billing address</label>
             </div>
         </div>
@@ -310,8 +329,8 @@
         <div class="row no_margin hide" data-visibility="Shipping_UseForAll">
             <div class="input_holder">
                 <label>
-                    <input type="checkbox" class="custom check_val" data-id="useAddress" data-onclick="useAddress" placeholder=""
-                        required="required" autocomplete="none">
+                    <input type="checkbox" class="custom check_val" data-id="useAddress" data-onclick="useAddress" placeholder="" required="required"
+                        autocomplete="none">
                     <span></span>Use this address for all</label>
             </div>
         </div>
@@ -324,8 +343,8 @@
             <div class="row no_margin half_padding">
                 <div class="input_holder">
                     <label>
-                        <input type="checkbox" class="custom check_val" data-id="_wantGiftMessage" placeholder="" required="required"
-                            autocomplete="none" value="on">
+                        <input type="checkbox" class="custom check_val" data-id="_wantGiftMessage" placeholder="" required="required" autocomplete="none"
+                            value="on">
                         <span></span>Add optional gift message</label>
                 </div>
             </div>
