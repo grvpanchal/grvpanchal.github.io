@@ -1,0 +1,390 @@
+<html>
+
+<head>
+    <style>
+        input,
+        select,
+        textarea {
+            width: 100%;
+        }
+
+        .fake_place {
+            display: none
+        }
+    </style>
+</head>
+
+<body>
+    <form novalidate="novalidate" class="styled_form container" data-id="AddressForm_100154657">
+
+        <div class="h1 row full_width no_margin no_background bb">Delivery Address</div>
+
+
+        <!-- Saved Address 
+                    - [data-visibility="div#_saved_address > select"]: hide if div#_saved_address > select not found
+                -->
+        <div class="row bb half_margin full_width hide" data-visibility="div#_saved_address > select">
+            <div id="_saved_address" class="input_holder">
+
+            </div>
+        </div>
+        <!-- /Saved Address -->
+
+
+        <!-- Enter New Address button 
+                    - [data-visibility="div#_enter_new_address > a"]: hide if div#_enter_new_address > a not found
+                -->
+        <div id="_enter_new_address" class="row bb no_margin align_center hide" data-visibility="div#_enter_new_address > a">
+
+        </div>
+        <!-- /Enter New Address button -->
+
+
+        <!-- First and Last name -->
+        <div class="row split bb no_margin">
+            <div class="input_holder">
+                <input type="text" placeholder="" class="check_val required" data-id="firstName" name="firstName" autocomplete="given-name"
+                    maxlength="14" required="required" autocorrect="off">
+                <div class="label">First Name
+                    <span class="error_color">*</span>
+                </div>
+                <div class="fake_place">First Name
+                    <span class="error_color">*</span>
+                </div>
+            </div>
+            <div class="input_holder">
+                <input type="text" placeholder="" class="check_val required" data-id="lastName" name="lastName" autocomplete="family-name"
+                    maxlength="14" required="required" autocorrect="off">
+                <div class="label">Last Name
+                    <span class="error_color">*</span>
+                </div>
+                <div class="fake_place">Last Name
+                    <span class="error_color">*</span>
+                </div>
+            </div>
+        </div>
+        <!-- /First and last name -->
+
+
+        <!-- Location Type -->
+        <div class="row bb no_margin">
+            <div class="input_holder">
+                <select class="check_val required icon-drop_down has_value" placeholder="" data-id="addressTypeSelection" required="required"
+                    autocomplete="none">
+                    <option value="">Location Type: Residence, etc. *</option>
+                    <option value="Residence" selected="selected">Residence
+                    </option>
+                    <option value="Business">Business
+                    </option>
+                    <option value="Funeral home">Funeral home
+                    </option>
+                    <option value="Hospital">Hospital
+                    </option>
+                    <option value="Apartment">Apartment
+                    </option>
+                    <option value="School">School
+                    </option>
+                    <option value="Church">Church
+                    </option>
+                </select>
+                <div class="label">Location Type: Residence, etc.
+                    <span class="error_color">*</span>
+                </div>
+            </div>
+        </div>
+        <!-- /Location Type -->
+
+
+        <!-- Company name 
+                    - [data-visibility="organizationNameRow_100154657"]: link visibility to #organizationNameRow_100154657
+                -->
+        <div class="row bb no_margin hide" data-visibility="organizationNameRow_100154657">
+            <div class="input_holder">
+                <input type="text" placeholder="" class="check_val required" data-id="WC_ShoppingCartAddressEntryForm_FormInput_company_1"
+                    maxlength="30" required="required" autocomplete="none" autocorrect="off">
+                <!-- Get label and fake_place from #company_label_100154657 and filter the output with regex 
+                            *Note* JS framework will add div.label and div.fake_place only if they can't be found
+                        -->
+                <div class="label" data-listener="company_label_100154657" data-listener-reset="false" data-listener-content="/(<[^>]+>\s*(\*)\s*<[^>]+>)?([^\:]+)\:?\s*$/|'$3 $2'">Company name *</div>
+                <div class="fake_place" data-listener="company_label_100154657" data-listener-reset="false" data-listener-content="/(<[^>]+>\s*(\*)\s*<[^>]+>)?([^\:]+)\:?\s*$/|'$3 $2'">Company name *</div>
+
+            </div>
+        </div>
+        <!-- /Company name -->
+
+
+        <!-- Address Line 1 and Line 2 -->
+        <div class="row bb no_margin">
+            <div class="input_holder">
+                <input type="text" placeholder="" class="check_val required" data-id="QAS_lineone" name="address1" autocomplete="address-line1"
+                    maxlength="30" required="required" autocorrect="off">
+                <div class="label">Delivery Address
+                    <span class="error_color">*</span>
+                </div>
+                <div class="fake_place">Delivery Address
+                    <span class="error_color">*</span>
+                </div>
+                <i class="mw-disable-opt sprites-fw_info-dark">&nbsp;</i>
+                <div class="fw_msg info_msg">Delivery Notes: Gifts cannot be delivered to P.O. Boxes or APO installations.</div>
+            </div>
+        </div>
+
+        <div class="row bb no_margin">
+            <div class="input_holder">
+                <input type="text" placeholder="" class="check_val" data-id="QAS_linetwo" name="address2" autocomplete="address-line2" maxlength="30"
+                    required="required" autocorrect="off">
+                <div class="label">(Apartment, Building, Floor, etc.)</div>
+                <div class="fake_place">(Apartment, Building, Floor, etc.)</div>
+            </div>
+        </div>
+        <!-- /Address Line 1 and Line 2 -->
+
+        <div id="_cityDiv_wrapper" data-listener="QAS_cityDiv_100154657" data-placeholder="City" data-listener-content="_fw:Recipient.DOM_city_override(html,data_listener,placeholder);">
+            <div data-visibility="city12" class="row bb no_margin">
+                <div class="input_holder">
+                    <select data-name="city" data-id="city12" class="addressSelectSmall icon-drop_down check_val icon-drop_down required has_value"
+                        placeholder="" required="required" autocomplete="none">
+
+
+
+                        <option value="">City *</option>
+                        <option value="LONG ISLAND CITY" selected="selected">
+                            LONG ISLAND CITY
+                        </option>
+                        <option value="ASTORIA">
+                            ASTORIA
+                        </option>
+                        <option value="PLAZA">
+                            PLAZA
+                        </option>
+                        <option value="City Not Shown">
+                            City Not Shown
+                        </option>
+                    </select>
+                    <div class="label">City
+                        <span class="error_color">*</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row split bb no_margin hide" data-visibility="div#enterCity">
+            <div class="input_holder">
+                <input type="text" data-name="enterCity" placeholder="" data-id="QAS_city" name="enterCity" class="check_val required" autocomplete="address-level2"
+                    maxlength="20" required="required" autocorrect="off">
+                <div class="label">Enter City Name
+                    <span class="error_color">*</span>
+                </div>
+                <div class="fake_place">Enter City Name
+                    <span class="error_color">*</span>
+                </div>
+            </div>
+        </div>
+        <!-- /City fields -->
+        <div class="row split bb no_margin">
+            <!-- State -->
+            <div class="input_holder" id="_state_block" data-listener="QAS_stateDiv_100154657" data-placeholder="State" data-listener-content="_fw:Recipient.DOM_state_override(html,data_listener);">
+                <input type="text" value="NY" data-get-value="text()" data-id="QAS_stateDiv_100154657" placeholder="" class="required custom has_value"
+                    required="required" autocomplete="none" autocorrect="off" disabled="">
+                <div class="label">State
+                    <span class="error_color">*</span>
+                </div>
+                <div class="fake_place">State
+                    <span class="error_color">*</span>
+                </div>
+            </div>
+            <!-- /State -->
+            <!-- Zip Code -->
+            <div class="input_holder no_error_icon" id="_zipcode_block" data-listener="zipInput_100154657" data-placeholder="Zip Code"
+                data-listener-content="_fw:Recipient.DOM_zipCode_override(html,data_listener);">
+                <div>
+
+                    <div data-id="zip1" onclick="Recipient.zip_onclick('zip1')" data-onvisibility="_fw:Recipient.resetErrorZipCode_State();"
+                        data-visibility="zip1">
+                        <input type="tel" data-get-value="text()" data-id="zip1" onfocus="Recipient.zip_onfocus('zip1');" onblur="Recipient.zip_onblur('zip1');"
+                            placeholder="" class="required error_no_scroll custom has_value" required="required" autocomplete="none"
+                            autocorrect="off" disabled="">
+                        <div class="label">Zip Code
+                            <span class="error_color">*</span>
+                        </div>
+                        <div class="fake_place">Zip Code
+                            <span class="error_color">*</span>
+                        </div>
+                        <a href="javascript:onZipEdit()" id="_Edit_zipcode" class="_edit_input small hide" tabindex="-1">Edit</a>
+
+                    </div>
+
+                    <div data-id="zipEdit" data-onvisibility="_fw:Recipient.zipCodeFocus('editZipCode');" data-visibility="zipEdit" class="hide">
+                        <div data-id="passContainer" data-visibility="passContainer">
+                            <input type="tel" data-name="editZipCode" data-id="editZipCode" onfocus="Recipient.zip_onfocus('editZipCode');" onblur="Recipient.zip_onblur('editZipCode');"
+                                maxlength="10" value="11101" placeholder="" class="check_val required error_no_scroll has_value"
+                                name="editZipCode" autocomplete="postal-code" required="required" autocorrect="off">
+                            <div class="label">Zip Code
+                                <span class="error_color">*</span>
+                            </div>
+                            <div class="fake_place">Zip Code
+                                <span class="error_color">*</span>
+                            </div>
+                            <a href="javascript:updateZipCode('100154657','AddressForm_100154657','','20051')" id="_Apply_zipcode"
+                                class="_edit_input small hide" tabindex="-1">Apply</a>
+
+                            <br>
+                        </div>
+                    </div>
+                    <div data-id="zipAddNew" data-onvisibility="_fw:Recipient.zipCodeFocus('zip');" data-visibility="zipAddNew" class="hide">
+                        <input type="tel" data-name="zipCode1" data-id="zip" onfocus="Recipient.zip_onfocus();" onblur="Recipient.zip_onblur('zip');"
+                            maxlength="10" class="addressSelectSmall check_val required error_no_scroll" value="" placeholder=""
+                            name="zipCode1" autocomplete="postal-code" required="required" autocorrect="off">
+                        <div class="label">Zip Code
+                            <span class="error_color">*</span>
+                        </div>
+                        <div class="fake_place">Zip Code
+                            <span class="error_color">*</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- /Zip Code -->
+        </div>
+
+        <!-- Country name -->
+        <div id="_country_name" class="row bb no_margin hide">
+            <div class="input_holder" data-placeholder="Country" data-listener-content="_fw:Recipient.DOM_country_override(html,data_listener,placeholder);"
+                data-listener="div#shipAddr div div#cName">
+                <input type="text" placeholder="" class="check_val custom has_value" data-get-value="text()" data-id="div#shipAddr div div#cName"
+                    required="required" autocomplete="none" autocorrect="off" disabled="">
+                <div class="label">Country</div>
+                <div class="fake_place">Country</div>
+            </div>
+        </div>
+        <!-- /Country name -->
+
+
+        <!-- Phone number -->
+        <div class="row quarter_margin bb">
+            <div class="input_holder">
+                <input type="tel" placeholder="" class="check_val required" data-id="WC_ShoppingCartAddressEntryForm_FormInput_phone1_1"
+                    name="phone1" autocomplete="tel" maxlength="10" required="required" autocorrect="off">
+                <div class="label">Recipient Phone Number
+                    <span class="error_color">*</span>
+                </div>
+                <div class="fake_place">Recipient Phone Number
+                    <span class="error_color">*</span>
+                </div>
+            </div>
+        </div>
+        <div id="_phone_note" class="row extra_small no_margin half_padding ghosted_color">
+            <strong>Note:</strong> We will only contact your recipient for customer service purposes. If unknown recipient number,
+            please enter your own.
+        </div>
+
+        <!-- /Phone number -->
+
+
+        <!-- Checkbox: Update existing address -->
+        <div class="row no_margin hide" data-visibility="div#ShippingCheckbox div#Shipping_UpdateStored">
+            <div class="input_holder">
+                <label>
+                    <input type="checkbox" class="custom check_val" data-id="UpdateStoredAddress" placeholder="" required="required"
+                        autocomplete="none">
+                    <span></span>Update existing address</label>
+            </div>
+        </div>
+        <!-- /Checkbox: Update existing address -->
+
+
+        <!-- Checkbox: Use as my billing address -->
+        <div class="row no_margin">
+            <div class="input_holder">
+                <label>
+                    <input type="checkbox" class="custom check_val" data-id="billingAddress" placeholder="" required="required"
+                        autocomplete="none" value="on">
+                    <span></span>Use as my billing address</label>
+            </div>
+        </div>
+        <!-- /Checkbox: Use as my billing address -->
+
+
+        <!-- Checkbox: Use this address for all-->
+        <div class="row no_margin hide" data-visibility="Shipping_UseForAll">
+            <div class="input_holder">
+                <label>
+                    <input type="checkbox" class="custom check_val" data-id="useAddress" data-onclick="useAddress" placeholder=""
+                        required="required" autocomplete="none">
+                    <span></span>Use this address for all</label>
+            </div>
+        </div>
+        <!-- /Checkbox: Use this address for all -->
+
+
+        <div id="_add_gift_message" class="">
+
+            <!-- Checkbox: Add complementary gift message -->
+            <div class="row no_margin half_padding">
+                <div class="input_holder">
+                    <label>
+                        <input type="checkbox" class="custom check_val" data-id="_wantGiftMessage" placeholder="" required="required"
+                            autocomplete="none" value="on">
+                        <span></span>Add optional gift message</label>
+                </div>
+            </div>
+            <!-- /Checkbox: Add complementary gift message -->
+
+            <div class="h1 row full_width no_margin bb hide" data-visibility="input[data-id='_wantGiftMessage']">Card Message: (optional)</div>
+
+            <!-- Gift Message 
+                        - [data-visibility="input[data-id='_wantGiftMessage']"]: linked visibility with checkbox
+                    -->
+            <div class="row hide" data-visibility="input[data-id='_wantGiftMessage']">
+                <div id="_gift_message_wrapper" class="input_holder bb">
+                    <!--
+                                - [data-maxlength-label="true"]: shows max character on own label
+                                - [data-maxlength-label="div#any_id"]: shows max character on div#any_id
+                            -->
+                    <textarea id="resrictSchar" class="check_val" placeholder="" data-maxlength-label="true" data-id="giftMessages_1" data-onkeypress="giftMessages_1"
+                        maxlength="200" required="required" autocomplete="none" autocorrect="off" onkeypress="javascript:return restrictCharacters(event,this,/^[A-Za-z0-9\s\.,:;\?\(\)\'\/\-_&amp;\+%\*=<>\!]+$/);"></textarea>
+                    <div class="label">Max Characters:
+                        <i> 200</i>
+                        <span> characters left.</span>
+                    </div>
+                    <div class="fake_place">Max Characters:
+                        <i>200</i>
+                        <span> characters left.</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Gift Message -->
+
+            <input id="itemID" type="hidden" value="100154657">
+        </div>
+
+        <!-- Proceed To Checkout button -->
+
+        <div class="row full_margin_top _next_gift_btn hide" data-visibility="div#ContinueSaveBtn > a#ContinueSaveBtn1">
+            <a class="fake_button secondary_bg" data-href="div#ContinueSaveBtn > a#ContinueSaveBtn1" mw-text="Next Gift">Next Gift</a>
+        </div>
+        <div class="row full_margin_top _next_gift_btn hide" data-visibility="div#ContinueSaveBtn > a#ContinueSaveBtn2">
+            <a class="fake_button secondary_bg" data-href="div#ContinueSaveBtn > a#ContinueSaveBtn2" mw-text="Next Gift">Next Gift</a>
+        </div>
+
+        <!-- Another Next Gift button found -->
+        <div class="row full_margin_top _next_gift_btn hide" data-visibility="div#ContinueSaveBtn > a[href*='checkShipFormSubmit']">
+            <a class="fake_button secondary_bg" data-href="div#ContinueSaveBtn > a[href*='checkShipFormSubmit']" mw-text="Next Gift">Next Gift</a>
+        </div>
+        <div class="row full_margin_top _next_gift_btn" data-visibility="div#ContinueDeliverBtn > a">
+            <a id="_proceed_to_checkout" class="fake_button secondary_bg" data-href="div#ContinueDeliverBtn > a" mw-text="Delivery &amp;amp; Gift Message"
+                href="javascript:Recipient.checkGiftMessage();Recipient.saveDeliveryAddress('form%5Bname=AddressForm_100154657%5D');checkDeliveryOptionsSubmit();">Continue to Review &amp; Place Order</a>
+        </div>
+        <!-- /Proceed To Checkout button -->
+
+
+        <div id="verification-toggle" class="container no_margin">
+            <div class="row full_width no_margin">
+                <div class="h3 _description"></div>
+            </div>
+        </div>
+    </form>
+</body>
+
+</html>
