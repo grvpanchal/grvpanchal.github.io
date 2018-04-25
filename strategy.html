@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulate Loan Payment</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.3/css/ion.rangeSlider.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.3/css/ion.rangeSlider.skinFlat.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+</head>
+
+<body>
+    <h1 class="text-center">Simulate Loan Payment</h1>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-9">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Loans</h3>
+                    </div>
+                    <div class="panel-body">
+                        <label>Home</label>
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <input type="text" id="home" name="home" value="1425000" class="form-control" />
+                            </div>
+                            <div class="col-xs-6">
+                                <input type="text" id="home_emi" name="home_emi" value="17000" />
+                            </div>
+                            <div class="col-xs-4">
+                                <input type="text" id="home_rate" name="home_rate" value="8.3" />
+                            </div>
+                        </div>
+                        <label>Home Topup</label>
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <input type="text" id="topup" name="topup" value="1568000" class="form-control" />
+                            </div>
+                            <div class="col-xs-6">
+                                <input type="text" id="topup_emi" name="topup_emi" value="" />
+                            </div>
+                            <div class="col-xs-4">
+                                <input type="text" id="topup_rate" name="topup_rate" value="" />
+                            </div>
+                        </div>
+                        <label>Education</label>
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <input type="text" id="education" name="education" value="900000" class="form-control" />
+                            </div>
+                            <div class="col-xs-6">
+                                <input type="text" id="education_emi" name="education_emi" value="" />
+                            </div>
+                            <div class="col-xs-4">
+                                <input type="text" id="education_rate" name="education_rate" value="" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="panel-footer">
+                        <div id="loan_total"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Earnings</h3>
+                    </div>
+                    <div class="panel-body">
+                        <label>Gaurav</label>
+                        <input type="text" id="gaurav_earning" name="gaurav_earning" value="" />
+                        <label>Radhika</label>
+                        <input type="text" id="radhika_earning" name="radhika_earning" value="" />
+                        <label>Pappa</label>
+                        <input type="text" id="pappa_earning" name=pappa_earning value="" />
+                        <label>Increment Rate</label>
+                        <input type="text" id="increment_earning" name="increment_earning" value="" />
+                    </div>
+                    <div class="panel-footer">
+                        <div id="earning_total"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Home Calculation</h3>
+                    </div>
+                    <div id="home_pie"></div>
+                    <div id="home_result" class="pre-scrollable"></div>
+                    <div class="panel-footer">
+                        <div id="home_result_footer"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Topup Calculation</h3>
+                    </div>
+                    <div id="topup_pie"></div>
+                    <div id="topup_result" class="pre-scrollable"></div>
+                    <div class="panel-footer">
+                        <div id="topup_result_footer"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Education Calculation</h3>
+                    </div>
+                    <div id="education_pie"></div>
+                    <div id="education_result" class="pre-scrollable"></div>
+                    <div class="panel-footer">
+                        <div id="education_result_footer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- IonRangeSlider -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.3/js/ion.rangeSlider.min.js"></script>
+
+    <script>
+        $("#home").on('change', function (data) {
+            emiCalc('home', 120000, 12, 0.3);
+        });
+
+        $("#home_emi").ionRangeSlider({
+            min: 0,
+            max: 30000,
+            from: 16913,
+            onChange: function (data) {
+                emiCalc('home', 120000, 12, 0.3);
+            }
+        });
+
+        $("#home_rate").ionRangeSlider({
+            min: 4.00,
+            max: 15.00,
+            from: 8.30,
+            step: 0.1,
+            onChange: function (data) {
+                emiCalc('topup');
+            }
+        });
+
+        $("#topup").on('change', function (data) {
+            emiCalc('education', 60000, 12, 0.3);
+        });
+
+        $("#topup_emi").ionRangeSlider({
+            min: 0,
+            max: 60000,
+            from: 15000,
+            onChange: function (data) {
+                emiCalc('topup');
+            }
+        });
+
+        $("#topup_rate").ionRangeSlider({
+            min: 4.00,
+            max: 15.00,
+            from: 9.30,
+            step: 0.1,
+            onChange: function (data) {
+                emiCalc('topup');
+            }
+        });
+
+        $("#education").on('change', function (data) {
+            emiCalc('education', 60000, 12, 0.3);
+        });
+
+        $("#education_emi").ionRangeSlider({
+            min: 0,
+            max: 30000,
+            from: 12500,
+            onChange: function (data) {
+                emiCalc('education', 60000, 12, 0.3);
+            }
+        });
+
+        $("#education_rate").ionRangeSlider({
+            min: 4.00,
+            max: 15.00,
+            from: 13.50,
+            step: 0.1,
+            onChange: function (data) {
+                emiCalc('education', 60000, 12, 0.3);
+            }
+        });
+
+        $("#gaurav_earning").ionRangeSlider({
+            min: 0,
+            max: 100000,
+            from: 62000
+        });
+
+        $("#radhika_earning").ionRangeSlider({
+            min: 0,
+            max: 100000,
+            from: 42000
+        });
+
+        $("#pappa_earning").ionRangeSlider({
+            min: 0,
+            max: 100000,
+            from: 15000
+        });
+
+        $("#increment_earning").ionRangeSlider({
+            min: 0,
+            max: 70,
+            from: 30
+        });
+
+        function totalMonthEmi() {
+            var homeEmi = parseFloat($("#home_emi").val());
+            var topupEmi = parseFloat($("#topup_emi").val());
+            var eduEmi = parseFloat($("#education_emi").val());
+
+            var total = homeEmi + topupEmi + eduEmi;
+            $("#loan_total").html("<div class='text-right'>Total EMI:" + total + "</div>");
+        }
+
+        function totalEarning() {
+            var gauravEarning = parseFloat($("#gaurav_earning").val());
+            var radhikaEarning = parseFloat($("#radhika_earning").val());
+            var pappaEarning = parseFloat($("#pappa_earning").val());
+
+            var total = gauravEarning + radhikaEarning + pappaEarning;
+            $("#earning_total").html("<div class='text-right'>Total Earning:" + total + "</div>");
+        }
+
+        function incrementCalc(name) {
+
+        }
+
+        function expenditureCalc() {
+
+        }
+
+        function emiCalc(loanName, flushAmount, flushInterval, incrementRate) {
+            var tableStart = '<table class="table"><thead><tr><th>Month</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead><tbody>';
+            var loanPrincipal = parseFloat($("#" + loanName).val());
+            var loanEmi = parseFloat($("#" + loanName + "_emi").val());
+            var loanRate = parseFloat($("#" + loanName + "_rate").val());
+            var monthRate = parseFloat(loanRate / 12);
+
+            var totalInterest = 0
+            var totalPrincipal = 0
+            var htmlBuffer = tableStart;
+            var month = 0;
+            while (loanPrincipal > 0 && month < 500) {
+                console.log(loanPrincipal, loanEmi, loanRate);
+                var monthInterest = loanPrincipal * (monthRate / 100);
+                totalInterest += monthInterest;
+                var principal = loanEmi - monthInterest;
+                month++;
+                if (flushAmount && flushInterval && incrementRate) {
+                    if (month % flushInterval === 0 && loanPrincipal > flushAmount) {
+                        loanPrincipal = loanPrincipal + monthInterest - loanEmi - flushAmount;
+                        flush = '(' + flushAmount + ')';
+                        totalPrincipal += principal + flushAmount;
+                        flushAmount = flushAmount + (flushAmount * incrementRate)
+                        htmlBuffer += '<tr><td>' + month + '</td><td>' + principal.toFixed(2) + '</td><td>' + monthInterest.toFixed(2) + '</td><td>' + loanPrincipal.toFixed(2) + ' ' + flush + '</td></tr>';
+                        htmlBuffer += '</tbody><tfoot><td>' + (month / 12).toFixed(2) + ' years</td><td>' + totalPrincipal.toFixed(2) + '</td><td>' + totalInterest.toFixed(2) + '</td><td></td></tfoot></table>' + tableStart;
+                    } else if (loanPrincipal < loanEmi) {
+                        loanEmi = loanPrincipal + monthInterest;
+                        loanPrincipal = loanPrincipal + monthInterest - loanEmi;
+                        flush = '';
+                        principal = loanEmi - monthInterest;
+                        totalPrincipal += principal;
+                        htmlBuffer += '<tr><td>' + month + '</td><td>' + principal.toFixed(2) + '</td><td>' + monthInterest.toFixed(2) + '</td><td>' + loanPrincipal.toFixed(2) + ' ' + flush + '</td></tr>';
+                    } else {
+                        loanPrincipal = loanPrincipal + monthInterest - loanEmi;
+                        flush = '';
+                        totalPrincipal += principal;
+                        htmlBuffer += '<tr><td>' + month + '</td><td>' + principal.toFixed(2) + '</td><td>' + monthInterest.toFixed(2) + '</td><td>' + loanPrincipal.toFixed(2) + ' ' + flush + '</td></tr>';
+                    }
+                } else {
+                    loanPrincipal = loanPrincipal + monthInterest - loanEmi;
+                    totalPrincipal += principal;
+                    htmlBuffer += '<tr><td>' + month + '</td><td>' + principal.toFixed(2) + '</td><td>' + monthInterest.toFixed(2) + '</td><td>' + loanPrincipal.toFixed(2) + '</td></tr>';
+                }
+            }
+
+            htmlBuffer += '</tbody><tfoot><td>' + (month / 12).toFixed(2) + ' years</td><td>' + totalPrincipal.toFixed(2) + '</td><td>' + totalInterest.toFixed(2) + '</td><td></td></tfoot></table>';
+
+            $('#' + loanName + '_result').html(htmlBuffer);
+            $('#' + loanName + '_result_footer').html((month / 12).toFixed(2) + ' years <div class="pull-right">Interest:' + totalInterest.toFixed(2) + '</div>');
+            totalMonthEmi();
+            totalEarning();
+            
+        }
+    </script>
+</body>
+
+</html>
