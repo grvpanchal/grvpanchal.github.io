@@ -21,8 +21,9 @@
 </head>
 
 <body>
-    <h1 class="text-center">Simulate Loan Payment</h1>
-
+    <div class="page-header">
+        <h1 class="text-center">Simulate Loan Payment</h1>
+    </div>
     <div class="container">
 
         <div class="row">
@@ -97,7 +98,9 @@
             </div>
         </div>
 
-
+        <div class="page-header">
+            <h2>EMI Plan</h2>
+        </div>
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-4">
                 <div class="panel panel-primary">
@@ -137,6 +140,45 @@
             </div>
         </div>
 
+        <div class="page-header">
+            <h2>Total Current Interest</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h5>Month</h5>
+                        <h1 id="month_interest_total"></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h5>Day</h5>
+                        <h1 id="day_interest_total"></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h5>Hour</h5>
+                        <h1 id="hour_interest_total"></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h5>Minute</h5>
+                        <h1 id="min_interest_total"></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
     <!-- jQuery -->
@@ -147,70 +189,129 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.3/js/ion.rangeSlider.min.js"></script>
 
     <script>
+
+
+        var startDate = new Date("September 01, 2018 00:00:00");
+        // Do your operations
+        var endDate = new Date();
+        var seconds = (endDate.getTime() - startDate.getTime()) / 1000;
+        console.log(seconds / 60 / 60);
+
+        var config = {
+            timeStamp: "September 01, 2018 00:00:00",
+            expenditure: {
+                loans: {
+                    home: {
+                        principal: 1425000,
+                        emi: 16913,
+                        rate: 8.3
+                    },
+                    topup: {
+                        principal: 1568000,
+                        emi: 36000,
+                        rate: 9.3
+                    },
+                    education: {
+                        principal: 900000,
+                        emi: 12500,
+                        rate: 13.5
+                    }
+                }
+            }
+        }
+        var loans = config.expenditure.loans;
+        var currentInterest = 0;
+        $("#home").val(loans.home.principal);
         $("#home").on('change', function (data) {
             emiCalc('home', 120000, 12, 0.3);
         });
 
+        $("#home_emi").val(loans.home.emi);
         $("#home_emi").ionRangeSlider({
             min: 0,
             max: 30000,
-            from: 16913,
+            from: loans.home.emi,
+            onStart: function (data) {
+                emiCalc('home', 120000, 12, 0.3);
+            },
             onChange: function (data) {
                 emiCalc('home', 120000, 12, 0.3);
             }
         });
 
+        $("#home_rate").val(loans.home.rate);
         $("#home_rate").ionRangeSlider({
             min: 4.00,
             max: 15.00,
-            from: 8.30,
+            from: loans.home.rate,
             step: 0.1,
+            onStart: function (data) {
+                emiCalc('home', 120000, 12, 0.3);
+            },
             onChange: function (data) {
-                emiCalc('topup');
+                emiCalc('home', 120000, 12, 0.3);
             }
         });
 
+        $("#topup").val(loans.topup.principal);
         $("#topup").on('change', function (data) {
-            emiCalc('education', 60000, 12, 0.3);
+            emiCalc('topup', 60000, 12, 0.3);
         });
 
+        $("#topup_emi").val(loans.topup.emi);
         $("#topup_emi").ionRangeSlider({
             min: 0,
             max: 60000,
-            from: 15000,
+            from: loans.topup.emi,
+            onStart: function (data) {
+                emiCalc('topup');
+            },
             onChange: function (data) {
                 emiCalc('topup');
             }
         });
 
+        $("#topup_rate").val(loans.topup.rate);
         $("#topup_rate").ionRangeSlider({
             min: 4.00,
             max: 15.00,
-            from: 9.30,
+            from: loans.topup.rate,
             step: 0.1,
+            onStart: function (data) {
+                emiCalc('topup');
+            },
             onChange: function (data) {
                 emiCalc('topup');
             }
         });
 
+        $("#education").val(loans.education.principal);
         $("#education").on('change', function (data) {
             emiCalc('education', 60000, 12, 0.3);
         });
 
+        $("#education_emi").val(loans.education.emi);
         $("#education_emi").ionRangeSlider({
             min: 0,
             max: 30000,
-            from: 12500,
+            from: loans.education.emi,
+            onStart: function (data) {
+                emiCalc('education', 60000, 12, 0.3);
+            },
             onChange: function (data) {
                 emiCalc('education', 60000, 12, 0.3);
             }
         });
 
+        $("#education_rate").val(loans.education.rate);
         $("#education_rate").ionRangeSlider({
             min: 4.00,
             max: 15.00,
-            from: 13.50,
+            from: loans.education.rate,
             step: 0.1,
+            onStart: function (data) {
+                emiCalc('education', 60000, 12, 0.3);
+            },
             onChange: function (data) {
                 emiCalc('education', 60000, 12, 0.3);
             }
@@ -277,6 +378,7 @@
             var totalPrincipal = 0
             var htmlBuffer = tableStart;
             var month = 0;
+            var first = false;
             while (loanPrincipal > 0 && month < 500) {
                 console.log(loanPrincipal, loanEmi, loanRate);
                 var monthInterest = loanPrincipal * (monthRate / 100);
@@ -317,7 +419,13 @@
             $('#' + loanName + '_result_footer').html((month / 12).toFixed(2) + ' years <div class="pull-right">Interest:' + totalInterest.toFixed(2) + '</div>');
             totalMonthEmi();
             totalEarning();
-            
+            currentInterest = parseFloat($('#home_result > table tr:first-child td:nth-child(3)').html()) +
+                parseFloat($('#topup_result > table tr:first-child td:nth-child(3)').html()) +
+                parseFloat($('#education_result > table tr:first-child td:nth-child(3)').html());
+            $('#month_interest_total').html(currentInterest);
+            $('#day_interest_total').html((currentInterest / 30).toFixed(2));
+            $('#hour_interest_total').html((currentInterest / 30 / 24).toFixed(2));
+            $('#min_interest_total').html((currentInterest / 30 / 24 / 60).toFixed(2));
         }
     </script>
 </body>
