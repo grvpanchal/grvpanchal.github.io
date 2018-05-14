@@ -220,55 +220,241 @@
                         rate: 13.5
                     }
                 },
-                regular: {
-                    lic: {
-                        mom: 17000,
-                        radhika: 9000,
-                        gaurav: 23000
+                regular: [
+                    {
+                        name: "LIC",
+                        slug: "lic",
+                        account: '1',
+                        expenses:[
+                            {
+                                name: 'mom',
+                                amount: 17000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 9000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'gaurav',
+                                amount: 23000,
+                                assignee: 'pappa'
+                            }
+                        ]
                     },
-                    mediClaim: {
-                        gaurav: 9749,
-                        radhika: 6396,
-                        pappa: 17659
+                    {
+                        name: "Medical CLaim",
+                        slug: "mediClaim",
+                        account: 'account1',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 9749,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 6396,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 17659,
+                                assignee: 'pappa'
+                            }
+                        ]
                     },
-                    fuel: {
-                        gaurav: 12000,
-                        radhika: 24000,
-                        pappa: 12000
+                    {
+                        name: "Fuel",
+                        slug: "fuel",
+                        account: 'operative',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 12000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 24000,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 12000,
+                                assignee: 'pappa',
+                                flush: true
+                            }
+                        ]
                     },
-                    groceries: {
-                        main: 60000,
-                        milk: 18000,
-                        dog: 18000,
-                        veg: 24000
+                    {
+                        name: "Groceries",
+                        slug: "groceries",
+                        account: 'account2',
+                        expenses:[
+                            {
+                                name: 'Main',
+                                amount: 60000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'milk',
+                                amount: 18000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'dog',
+                                amount: 18000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'veg',
+                                amount: 24000,
+                                assignee: 'pappa'
+                            },
+                        ]
                     },
-                    household: {
-                        society: 7200,
-                        gas: 12000,
-                        maid: 72000,
-                        iron: 7200,
-                        electric: 48000,
-                        amc: 1200,
-                        repair: 5000
+                    {
+                        name: "Household",
+                        slug: "household",
+                        account: 'account3',
+                        expenses:[
+                            {
+                                name: 'society',
+                                amount: 7200,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'gas',
+                                amount: 12000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'maid',
+                                amount: 72000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'iron',
+                                amount: 7200,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'electric',
+                                amount: 48000,
+                                assignee: 'pappa',
+                                flush: true
+                            },
+                            {
+                                name: 'amc',
+                                amount: 1200,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'repair',
+                                amount: 5000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'masala',
+                                amount: 10000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'grains',
+                                amount: 10000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'pickle',
+                                amount: 3000,
+                                assignee: 'pappa'
+                            },
+                        ]
                     },
-                    food: {
-                        gaurav: 24000,
-                        radhika: 12000,
-                        home: 24000
+                    {
+                        name: "Food",
+                        slug: "food",
+                        account: 'operative',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 24000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 12000,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 8400,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'home',
+                                amount: 24000,
+                                assignee: 'pappa',
+                                flush: true
+                            }
+                        ]
                     },
-                    health: {
-                        gaurav: 10000,
-                        radhika: 15000,
-                        mom: 5000
+                    {
+                        name: "Health and Care",
+                        slug: "health",
+                        account: 'account3',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 10000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 15000,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 5000,
+                                assignee: 'pappa',
+                                flush: true
+                            },
+                            {
+                                name: 'medicine',
+                                amount: 12000,
+                                assignee: 'pappa',
+                                flush: true
+                            }
+                        ]
                     },
-                    medicine: 12000,
-                    shopping: 60000,
-                    birthday: 10000,
-                    masala: 10000,
-                    grains: 10000,
-                    pickle: 3000
-                }
-
+                    {
+                        name: "entertainment",
+                        slug: "entertainment",
+                        account: 'account4',
+                        expenses:[
+                            {
+                                name: 'shopping',
+                                amount: 60000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'birthday',
+                                amount: 10000,
+                                assignee: 'pappa'
+                            }
+                        ]
+                    },   
+                ]
             }
         }
         var loans = config.expenditure.loans;
@@ -494,90 +680,309 @@
         Vue.component('exp-panel', {
             props: ['todo'],
             template: `
-            <div class="col-xs-12 col-sm-6 col-md-3">
-                <div class="panel panel-default">
-                <div class="panel-body"> 
-                        <div v-for="(val, prop, idx) in todo">
-                            {{ prop }}: {{ val }} ({{ index }})
-                            <div v-if="typeof val === 'object'">
-                                <div v-for="(value, property, i) in val">
-                                    {{ property }}: {{ value }} ({{ i }})
-                                </div>
-                            </div>
-                            <div v-else>
-                                This is a String
-                            </div>
+            <div class="row">
+                
+                <div v-for="expense in todo">
+                    <div class="col-xs-12 col-sm-6 col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading bg-transparent text-uppercase">
+                                <label>{{expense.name}}</label>
+                                <span class="label label-success pull-right">{{expense.account}}</span>
+                            </div>    
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="expenseItem, itemObjKey in expense.expenses">
+                                    {{ expenseItem.name }}  <label class="pull-right"><span class="label label-primary mr-2">{{expenseItem.assignee}}</span>{{ (expenseItem.amount/12).toFixed(2) }}</label>
+                                    <div v-text="makeTotal(expenseItem.amount, itemObjKey)" hidden></div>
+                                </li>
+                            </ul>
+                            <div class="panel-footer">Total: <span class="pull-right">{{collectTotal(itemTotal)}}</span></div>
                         </div>
                     </div>
                 </div>
+                <div class="col-xs-12">{{ (expenseTotal).toFixed(2) }}</div>
             </div>
-            `
-            // data: function () {
-
-            //     if(typeof this.todo.text === 'object'){
-            //         return {
-            //             isObj: true
-            //         }
-            //     } else {
-            //         return {
-            //             isObj: false
-            //         }
-            //     }
-            // },
+            `,
+            methods: {
+                makeTotal: function (newVal, indx) {
+                    if (indx === 0) {
+                        this.itemTotal = 0;
+                    }
+                    this.itemTotal += newVal / 12;
+                    return (this.itemTotal).toFixed(2);
+                },
+                collectTotal: function (val) {
+                    if(this.expenseTotal < 49000) {
+                        this.expenseTotal += parseFloat(val);
+                    }
+                    return val.toFixed(2);
+                }
+            },
+            data: function () {
+                return {
+                    itemTotal: 0,
+                    expenseTotal: 0,
+                }
+            },
 
         })
 
         var app = new Vue({
             el: '#app',
             data: {
-                regular: {
-                    lic: {
-                        mom: 17000,
-                        radhika: 9000,
-                        gaurav: 23000
+                loans: {
+                    home: {
+                        principal: 1425000,
+                        emi: 16913,
+                        rate: 8.3,
+                        lumSum: 10000
                     },
-                    mediClaim: {
-                        gaurav: 9749,
-                        radhika: 6396,
-                        pappa: 17659
+                    topup: {
+                        principal: 1568000,
+                        emi: 36000,
+                        rate: 9.3
                     },
-                    fuel: {
-                        gaurav: 12000,
-                        radhika: 24000,
-                        pappa: 12000
+                    education: {
+                        principal: 900000,
+                        emi: 12500,
+                        rate: 13.5,
+                        lumSum: 5000al
+                    }
+                },
+                regular: [
+                    {
+                        name: "LIC",
+                        slug: "lic",
+                        account: 'account1',
+                        expenses:[
+                            {
+                                name: 'mom',
+                                amount: 17000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 9000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'gaurav',
+                                amount: 23000,
+                                assignee: 'pappa'
+                            }
+                        ]
                     },
-                    groceries: {
-                        main: 60000,
-                        milk: 18000,
-                        dog: 18000,
-                        veg: 24000
+                    {
+                        name: "Medical CLaim",
+                        slug: "mediClaim",
+                        account: 'account1',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 9749,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 6396,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 17659,
+                                assignee: 'pappa'
+                            }
+                        ]
                     },
-                    household: {
-                        society: 7200,
-                        gas: 12000,
-                        maid: 72000,
-                        iron: 7200,
-                        electric: 48000,
-                        amc: 1200,
-                        repair: 5000
+                    {
+                        name: "Fuel",
+                        slug: "fuel",
+                        account: 'operative',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 12000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 24000,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 12000,
+                                assignee: 'pappa',
+                                flush: true
+                            }
+                        ]
                     },
-                    food: {
-                        gaurav: 24000,
-                        radhika: 12000,
-                        home: 24000
+                    {
+                        name: "Groceries",
+                        slug: "groceries",
+                        account: 'account2',
+                        expenses:[
+                            {
+                                name: 'Main',
+                                amount: 60000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'milk',
+                                amount: 18000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'dog',
+                                amount: 18000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'veg',
+                                amount: 24000,
+                                assignee: 'pappa'
+                            },
+                        ]
                     },
-                    health: {
-                        gaurav: 10000,
-                        radhika: 15000,
-                        mom: 5000
+                    {
+                        name: "Household",
+                        slug: "household",
+                        account: 'account3',
+                        expenses:[
+                            {
+                                name: 'society',
+                                amount: 7200,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'gas',
+                                amount: 12000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'maid',
+                                amount: 72000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'iron',
+                                amount: 7200,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'electric',
+                                amount: 48000,
+                                assignee: 'pappa',
+                                flush: true
+                            },
+                            {
+                                name: 'amc',
+                                amount: 1200,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'repair',
+                                amount: 5000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'masala',
+                                amount: 10000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'grains',
+                                amount: 10000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'pickle',
+                                amount: 3000,
+                                assignee: 'pappa'
+                            },
+                        ]
                     },
-                    medicine: 12000,
-                    shopping: 60000,
-                    birthday: 10000,
-                    masala: 10000,
-                    grains: 10000,
-                    pickle: 3000
-                }
+                    {
+                        name: "Food",
+                        slug: "food",
+                        account: 'operative',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 24000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 12000,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 8400,
+                                assignee: 'pappa',
+                                flush: true
+                            },
+                            {
+                                name: 'home',
+                                amount: 24000,
+                                assignee: 'pappa',
+                                flush: true
+                            }
+                        ]
+                    },
+                    {
+                        name: "Health and Care",
+                        slug: "health",
+                        account: 'account4',
+                        expenses:[
+                            {
+                                name: 'gaurav',
+                                amount: 10000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 15000,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'mom',
+                                amount: 5000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
+                            {
+                                name: 'medicine',
+                                amount: 12000,
+                                assignee: 'pappa',
+                                flush: true
+                            }
+                        ]
+                    },
+                    {
+                        name: "entertainment",
+                        slug: "entertainment",
+                        account: 'account5',
+                        expenses:[
+                            {
+                                name: 'shopping',
+                                amount: 60000,
+                                assignee: 'gaurav'
+                            },
+                            {
+                                name: 'birthday',
+                                amount: 10000,
+                                assignee: 'gaurav'
+                            }
+                        ]
+                    },   
+                ]
             }
         })
     </script>
