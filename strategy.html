@@ -246,7 +246,7 @@
                     {
                         name: "Medical CLaim",
                         slug: "mediClaim",
-                        account: 'account1',
+                        account: 'account - DBS',
                         expenses:[
                             {
                                 name: 'gaurav',
@@ -293,7 +293,7 @@
                     {
                         name: "Groceries",
                         slug: "groceries",
-                        account: 'account2',
+                        account: 'account - DAD CENT',
                         expenses:[
                             {
                                 name: 'Main',
@@ -320,7 +320,7 @@
                     {
                         name: "Household",
                         slug: "household",
-                        account: 'account3',
+                        account: 'account - MOM CENT',
                         expenses:[
                             {
                                 name: 'society',
@@ -409,7 +409,7 @@
                     {
                         name: "Health and Care",
                         slug: "health",
-                        account: 'account3',
+                        account: 'account - MOM CENT',
                         expenses:[
                             {
                                 name: 'gaurav',
@@ -699,7 +699,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12">{{ (expenseTotal).toFixed(2) }}</div>
+                <div class="col-xs-12">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-body">
+                                    <h5>Yearly</h5>
+                                    <h1>{{ (expenseTotal * 12).toFixed(2) }}</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-body">
+                                    <h5>Monthly</h5>
+                                    <h1>{{ (expenseTotal).toFixed(2) }}</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <h5>Main Household</h5>
+                                    {{ (expenseTotal).toFixed(2) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             `,
             methods: {
@@ -752,7 +779,7 @@
                     {
                         name: "LIC",
                         slug: "lic",
-                        account: 'account1',
+                        account: 'account - DBS',
                         expenses:[
                             {
                                 name: 'mom',
@@ -774,7 +801,7 @@
                     {
                         name: "Medical CLaim",
                         slug: "mediClaim",
-                        account: 'account1',
+                        account: 'account - DBS',
                         expenses:[
                             {
                                 name: 'gaurav',
@@ -821,7 +848,7 @@
                     {
                         name: "Groceries",
                         slug: "groceries",
-                        account: 'account2',
+                        account: 'account - DAD CENT',
                         expenses:[
                             {
                                 name: 'Main',
@@ -848,7 +875,7 @@
                     {
                         name: "Household",
                         slug: "household",
-                        account: 'account3',
+                        account: 'account - MOM CENT',
                         expenses:[
                             {
                                 name: 'society',
@@ -879,9 +906,8 @@
                             },
                             {
                                 name: 'gtpl',
-                                amount: 9200,
-                                assignee: 'pappa',
-                                flush: true
+                                amount: 4200,
+                                assignee: 'pappa'
                             },
                             {
                                 name: 'amc',
@@ -895,6 +921,19 @@
                                 flush: true
                             },
                             {
+                                name: 'maintenance',
+                                amount: 30000,
+                                assignee: 'pappa',
+                                flush: true
+                            },
+                        ]
+                    },
+                    {
+                        name: "Long term",
+                        slug: "longTerm",
+                        account: 'account - DBS',
+                        expenses:[
+                            {
                                 name: 'masala',
                                 amount: 10000,
                                 assignee: 'pappa'
@@ -907,6 +946,11 @@
                             {
                                 name: 'pickle',
                                 amount: 3000,
+                                assignee: 'pappa'
+                            },
+                            {
+                                name: 'internet',
+                                amount: 5000,
                                 assignee: 'pappa'
                             },
                         ]
