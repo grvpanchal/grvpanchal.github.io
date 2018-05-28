@@ -734,7 +734,7 @@
                     return (this.itemTotal).toFixed(2);
                 },
                 collectTotal: function (val) {
-                    if(this.expenseTotal < 49000) {
+                    if(this.expenseTotal < 52500) {
                         this.expenseTotal += parseFloat(val);
                     }
                     return val.toFixed(2);
@@ -902,7 +902,7 @@
                             },
                             {
                                 name: 'gtpl',
-                                amount: 4200,
+                                amount: 4800,
                                 assignee: 'pappa'
                             },
                             {
@@ -983,7 +983,7 @@
                         ]
                     },
                     {
-                        name: "Health and Care",
+                        name: "Health",
                         slug: "health",
                         account: 'account4',
                         expenses:[
@@ -1029,6 +1029,37 @@
                                 amount: 10000,
                                 assignee: 'gaurav'
                             }
+                        ]
+                    },   
+                    {
+                        name: "Mobile",
+                        slug: "mobile",
+                        account: 'operative',
+                        expenses:[
+                            {
+                                name: 'mom',
+                                amount: 4200,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'pappa',
+                                amount: 1200,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'radhika',
+                                amount: 4200,
+                                assignee: 'radhika',
+                                flush: true
+                            },
+                            {
+                                name: 'gaurav',
+                                amount: 6000,
+                                assignee: 'gaurav',
+                                flush: true
+                            },
                         ]
                     },   
                 ],
