@@ -528,7 +528,7 @@
 
         $("#education").val(loans.education.principal);
         $("#education").on('change', function (data) {
-            emiCalc('education', 60000, 12, 0.3);
+            emiCalc('education');
         });
 
         $("#education_emi").val(loans.education.emi);
@@ -537,10 +537,10 @@
             max: 30000,
             from: loans.education.emi,
             onStart: function (data) {
-                emiCalc('education', 60000, 12, 0.3);
+                emiCalc('education');
             },
             onChange: function (data) {
-                emiCalc('education', 60000, 12, 0.3);
+                emiCalc('education');
             }
         });
 
