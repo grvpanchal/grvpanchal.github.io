@@ -203,6 +203,10 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.3/js/ion.rangeSlider.min.js"></script>
 
     <script>
+        function html(str) {
+            return str.raw[0]
+            // template literals support
+        }
         var config = {
             timeStamp: "September 01, 2018 00:00:00",
             expenditure: {
@@ -682,7 +686,7 @@
 
         Vue.component('exp-panel', {
             props: ['todo'],
-            template: `
+            template: html`
             <div class="row">
                 
                 <div v-for="expense in todo">
