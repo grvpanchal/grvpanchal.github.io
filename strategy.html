@@ -698,7 +698,7 @@
                             </div>    
                             <ul class="list-group">
                                 <li class="list-group-item" v-for="expenseItem, itemObjKey in expense.expenses">
-                                    {{ expenseItem.name }}  <label class="pull-right"><span class="label label-primary mr-2">{{expenseItem.assignee}}</span>{{ (expenseItem.amount/12).toFixed(2) }}</label>
+                                    {{ expenseItem.name }}  <label class="pull-right"><span class="label label-primary mr-2">{{expenseItem.assignee}}</span> {{ (expenseItem.amount/12).toFixed(2) }}</label>
                                     <div v-text="makeTotal(expenseItem.amount, itemObjKey)" hidden></div>
                                 </li>
                             </ul>
@@ -873,6 +873,11 @@
                             {
                                 name: 'fruits',
                                 amount: 9600,
+                                assignee: 'gaurav'
+                            },
+                            {
+                                name: 'juice',
+                                amount: 4800,
                                 assignee: 'gaurav'
                             },
                         ]
