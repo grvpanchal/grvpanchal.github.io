@@ -38,7 +38,7 @@
                         <label>Home</label>
                         <div class="row">
                             <div class="col-xs-2">
-                                <input type="text" id="home" name="home" value="1425000" class="form-control" />
+                                <input type="text" id="home" name="home" value="1407348" class="form-control" />
                             </div>
                             <div class="col-xs-6">
                                 <input type="text" id="home_emi" name="home_emi" value="17000" />
@@ -50,7 +50,7 @@
                         <label>Home Topup</label>
                         <div class="row">
                             <div class="col-xs-2">
-                                <input type="text" id="topup" name="topup" value="1568000" class="form-control" />
+                                <input type="text" id="topup" name="topup" value="1563950" class="form-control" />
                             </div>
                             <div class="col-xs-6">
                                 <input type="text" id="topup_emi" name="topup_emi" value="" />
@@ -212,19 +212,19 @@
             expenditure: {
                 loans: {
                     home: {
-                        principal: 1425000,
+                        principal: 1407348,
                         emi: 16913,
                         rate: 8.3
                     },
                     topup: {
-                        principal: 1568000,
+                        principal: 1563950,
                         emi: 27500,
                         rate: 9.3
                     },
                     education: {
-                        principal: 1050000,
-                        emi: 22641,
-                        rate: 14.2
+                        principal: 999333,
+                        emi: 22245,
+                        rate: 12.0
                     }
                 },
                 regular: [
@@ -555,10 +555,10 @@
             from: loans.education.rate,
             step: 0.1,
             onStart: function (data) {
-                emiCalc('education', 60000, 12, 0.3);
+                emiCalc('education');
             },
             onChange: function (data) {
-                emiCalc('education', 60000, 12, 0.3);
+                emiCalc('education');
             }
         });
 
@@ -758,20 +758,20 @@
             data: {
                 loans: {
                     home: {
-                        principal: 1425000,
+                        principal: 1407348,
                         emi: 16913,
                         rate: 8.3,
                         lumSum: 10000
                     },
                     topup: {
-                        principal: 1568000,
+                        principal: 1563950,
                         emi: 34000,
                         rate: 9.3
                     },
                     education: {
                         principal: 900000,
                         emi: 12500,
-                        rate: 14.2,
+                        rate: 12.0,
                         lumSum: 5000
                     }
                 },
