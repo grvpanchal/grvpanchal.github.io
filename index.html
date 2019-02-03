@@ -6,29 +6,44 @@ description: The Quaternary Coder
 <html lang="en" class="fill">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{page.title}}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="robots" content="index, follow">
+    <link rel=canonical href=http://grvpanchal.github.io/ />
 
     <!-- Style CSS -->
     <link href="./assets/css/style.min.css" rel="stylesheet">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-39757842-3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-39757842-3');
+    </script>
+
 
     {%seo title=false %}
 </head>
 
-<body class="fill bg-img">
+<body class="fill bg-img" style="background-image: url('./assets/img/background.jpg')">
 
-    <div class="container-table full-height">
+    <div class="container-table full-height overlay">
         <div class="row vertical-middle">
-            <div class="col-xs-10">
+            <main class="col-xs-10">
                 <h1 class="text-white">Gaurav Panchal</h1>
                 <p class="lead text-muted">I am a gene pattern decoder, aiming to write program that designs a gene.</p>
                 <ul class="h2 list-inline social-icons">
@@ -58,10 +73,10 @@ description: The Quaternary Coder
                         </a>
                     </li>
                 </ul>
-            </div>
+            </main>
         </div>
     </div>
-    <!-- jQuery -->
+    <!-- Main Script -->
     <script src="./assets/js/main.min.js"></script>
 </body>
 
