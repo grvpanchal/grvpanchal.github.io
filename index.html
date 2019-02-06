@@ -24,7 +24,12 @@ description: The Quaternary Coder
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+            console.log('SW registered');
+        }
+    </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-39757842-3"></script>
     <script>
