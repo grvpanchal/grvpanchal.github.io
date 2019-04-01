@@ -85,9 +85,9 @@
                     </div>
                     <div class="panel-body">
                         <label>Gaurav</label>
-                        <input type="text" id="gaurav_earning" name="gaurav_earning" value="62000" />
+                        <input type="text" id="gaurav_earning" name="gaurav_earning" value="81000" />
                         <label>Radhika</label>
-                        <input type="text" id="radhika_earning" name="radhika_earning" value="42000" />
+                        <input type="text" id="radhika_earning" name="radhika_earning" value="30000" />
                         <label>Pappa</label>
                         <input type="text" id="pappa_earning" name=pappa_earning value="35000" />
                         <label>Increment Rate</label>
@@ -189,10 +189,13 @@
 
         <exp-panel v-bind:todo="savings">
         </exp-panel>
+
+        <inout-panel v-bind:todo="inOut">
+        </inout-panel>
     </div>
     <footer class="footer navbar-inverse">
         <div class="container">
-            <p class="text-right">&copy; Copyright Gaurav Panchal 2018</p>
+            <p class="text-right">&copy; Copyright Gaurav Panchal 2019</p>
         </div>
     </footer>
     <!-- jQuery -->
@@ -208,21 +211,21 @@
             // template literals support
         }
         var config = {
-            timeStamp: "September 01, 2018 00:00:00",
+            timeStamp: "00:08 01-04-2019",
             expenditure: {
                 loans: {
                     home: {
-                        principal: 1407348,
+                        principal: 1360266,
                         emi: 16913,
-                        rate: 8.3
+                        rate: 8.6
                     },
                     topup: {
-                        principal: 1563950,
+                        principal: 1548501,
                         emi: 32694,
                         rate: 9.3
                     },
                     education: {
-                        principal: 999333,
+                        principal: 936442,
                         emi: 22245,
                         rate: 12.0
                     }
@@ -253,7 +256,7 @@
                     {
                         name: "Medical CLaim",
                         slug: "mediClaim",
-                        account: 'account - DBS',
+                        account: 'account - KTK',
                         expenses:[
                             {
                                 name: 'gaurav',
@@ -300,7 +303,7 @@
                     {
                         name: "Groceries",
                         slug: "groceries",
-                        account: 'account - DAD CENT',
+                        account: 'account - DAD BOB',
                         expenses:[
                             {
                                 name: 'Main',
@@ -565,13 +568,13 @@
         $("#gaurav_earning").ionRangeSlider({
             min: 0,
             max: 100000,
-            from: 62000
+            from: 81000
         });
 
         $("#radhika_earning").ionRangeSlider({
             min: 0,
             max: 100000,
-            from: 42000
+            from: 30000
         });
 
         $("#pappa_earning").ionRangeSlider({
@@ -678,7 +681,7 @@
             currentInterest = parseFloat($('#home_result > table tr:first-child td:nth-child(3)').html()) +
                 parseFloat($('#topup_result > table tr:first-child td:nth-child(3)').html()) +
                 parseFloat($('#education_result > table tr:first-child td:nth-child(3)').html());
-            $('#month_interest_total').html(currentInterest);
+            $('#month_interest_total').html(currentInterest.toFixed(2));
             $('#day_interest_total').html((currentInterest / 30).toFixed(2));
             $('#hour_interest_total').html((currentInterest / 30 / 24).toFixed(2));
             $('#min_interest_total').html((currentInterest / 30 / 24 / 60).toFixed(2));
@@ -751,6 +754,79 @@
                 }
             },
 
+        });
+
+        Vue.component('inout-panel', {
+            props: ['todo'],
+            template: html`
+            <div class="row">
+                
+                <div v-for="(expense, index) in todo">
+                    <div class="col-xs-12 col-sm-6 col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading bg-transparent text-uppercase">
+                                <label>{{expense.name}}</label>
+                                <span class="label label-success pull-right">{{expense.account}}</span>
+                            </div>    
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="expenseItem, itemObjKey in expense.expenses">
+                                    {{ expenseItem.name }}  <label class="pull-right"><span class="label label-primary mr-2">{{expenseItem.assignee}}</span> {{ (expenseItem.amount/12).toFixed(2) }}</label>
+                                    <div v-text="makeTotal(expenseItem.amount, itemObjKey)" hidden></div>
+                                </li>
+                            </ul>
+                            <div class="panel-footer">Total: <span class="pull-right">{{collectTotal(itemTotal, index)}}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="container container-sm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-body">
+                                    <h5>Incoming</h5>
+                                    <h1>{{ (incomeTotal).toFixed(2) }}</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-body">
+                                    <h5>Outgoing</h5>
+                                    <h1>{{ (expenseTotal).toFixed(2) }}</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `,
+            methods: {
+                makeTotal: function (newVal, indx) {
+                    if (indx === 0) {
+                        this.itemTotal = 0;
+                    }
+                    this.itemTotal += newVal / 12;
+                    return (this.itemTotal).toFixed(2);
+                },
+                collectTotal: function (val, indx) {
+                    if(indx === 0) {
+                        this.incomeTotal += parseFloat(val);
+                    }
+                    if(indx === 1) {
+                        this.expenseTotal += parseFloat(val);
+                    }
+                    return val.toFixed(2);
+                }
+            },
+            data: function () {
+                return {
+                    itemTotal: 0,
+                    expenseTotal: 0,
+                    incomeTotal: 0,
+                }
+            },
+
         })
 
         var app = new Vue({
@@ -758,19 +834,19 @@
             data: {
                 loans: {
                     home: {
-                        principal: 1407348,
+                        principal: 1360266,
                         emi: 16913,
-                        rate: 8.3,
+                        rate: 8.6,
                         lumSum: 10000
                     },
                     topup: {
-                        principal: 1563950,
-                        emi: 34000,
+                        principal: 1548501,
+                        emi: 32694,
                         rate: 9.3
                     },
                     education: {
-                        principal: 900000,
-                        emi: 12500,
+                        principal: 936442,
+                        emi: 22245,
                         rate: 12.0,
                         lumSum: 5000
                     }
@@ -779,7 +855,7 @@
                     {
                         name: "LIC",
                         slug: "lic",
-                        account: 'account - DBS',
+                        account: 'account - KTK',
                         expenses:[
                             {
                                 name: 'mom',
@@ -801,7 +877,7 @@
                     {
                         name: "Medical CLaim",
                         slug: "mediClaim",
-                        account: 'account - DBS',
+                        account: 'account - KTK',
                         expenses:[
                             {
                                 name: 'gaurav',
@@ -848,7 +924,7 @@
                     {
                         name: "Groceries",
                         slug: "groceries",
-                        account: 'account - DAD CENT',
+                        account: 'account - DAD BOB',
                         expenses:[
                             {
                                 name: 'Main',
@@ -935,13 +1011,13 @@
                                 amount: 30000,
                                 assignee: 'pappa',
                                 flush: true
-                            },
+                            }
                         ]
                     },
                     {
                         name: "Long term",
                         slug: "longTerm",
-                        account: 'account - DBS',
+                        account: 'account - KTK',
                         expenses:[
                             {
                                 name: 'masala',
@@ -999,7 +1075,7 @@
                     {
                         name: "Health",
                         slug: "health",
-                        account: 'account - RAD CENT',
+                        account: 'account - DBS',
                         expenses:[
                             {
                                 name: 'gaurav',
@@ -1042,6 +1118,12 @@
                                 name: 'birthday',
                                 amount: 9600,
                                 assignee: 'gaurav'
+                            },
+                            {
+                                name: 'netflix',
+                                amount: 9600,
+                                assignee: 'gaurav',
+                                flush: true
                             }
                         ]
                     },   
@@ -1052,7 +1134,7 @@
                         expenses:[
                             {
                                 name: 'mom',
-                                amount: 4200,
+                                amount: 2400,
                                 assignee: 'radhika',
                                 flush: true
                             },
@@ -1064,13 +1146,13 @@
                             },
                             {
                                 name: 'radhika',
-                                amount: 4200,
+                                amount: 2400,
                                 assignee: 'radhika',
                                 flush: true
                             },
                             {
                                 name: 'gaurav',
-                                amount: 4200,
+                                amount: 2400,
                                 assignee: 'gaurav',
                                 flush: true
                             },
@@ -1104,7 +1186,7 @@
                         expenses:[
                             {
                                 name: 'gaurav',
-                                amount: 120000,
+                                amount: 60000,
                                 assignee: 'gaurav'
                             }
                         ]
@@ -1122,20 +1204,60 @@
                         ]
                     },
                     {
-                        name: "PPF",
-                        slug: "ppf",
-                        account: 'account - PPF',
+                        name: "nsc",
+                        slug: "nsc",
+                        account: 'account - nsc',
                         expenses:[
                             {
-                                name: 'radhika',
-                                amount: 60000,
-                                assignee: 'radhika'
+                                name: 'mummy',
+                                amount: 12000,
+                                assignee: 'mummy'
                             }
                         ]
                     },
                     
+                ],
+                inOut: [
+                    {
+                        name: "Income",
+                        slug: "income",
+                        expenses:[
+                            {
+                                name: 'Salary',
+                                amount: 972000,
+                                assignee: 'gaurav'
+                            },
+                            {
+                                name: 'Salary',
+                                amount: 360000,
+                                assignee: 'radhika'
+                            },
+                            {
+                                name: 'Ownership',
+                                amount: 420000,
+                                assignee: 'pappa'
+                            },
+                        ]
+                    },
+                    {
+                        name: "Expenditure",
+                        slug: "expenditure",
+                        expenses:[
+                            {
+                                name: 'loan',
+                                amount: 794940
+                            },
+                            {
+                                name: 'regular',
+                                amount: 657244
+                            },
+                            {
+                                name: 'regular',
+                                amount: 132000
+                            }
+                        ]
+                    }
                 ]
-
             }
         })
     </script>
