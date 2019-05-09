@@ -1,0 +1,21 @@
+{
+    "short_name": "grvpanchal",
+    "name": "Gaurav Panchal",
+    "icons": [
+      {
+        "src": "/192.png",
+        "type": "img/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/512.png",
+        "type": "img/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/?utm_source=a2hs",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#FFFFFF"
+  }
