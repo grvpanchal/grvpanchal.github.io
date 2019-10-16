@@ -1,0 +1,217 @@
+:root {
+    --page-border: 1px solid rgb(228, 228, 228);
+    --margin-base: 8%;
+    --base-color: rgb(108, 108, 108);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: rgb(204, 204, 204);
+    font-family: 'Open Sans', sans-serif;
+    color: var(--base-color);
+    font-size: 12px;
+}
+
+h1 {
+    font-weight: bold;
+    color: rgb(66, 63, 64);
+    font-size: 28px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Montserrat', sans-serif;
+}
+
+page {
+    background: white;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 0.5cm;
+    box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+}
+
+page>main {
+    display: inline-block;
+    height: 82%;
+    padding-right: var(--margin-base);
+}
+
+page>header {
+    padding-top: 48px;
+    display: flex;
+    padding-bottom: 3%;
+}
+
+.flex-grid {
+    display: flex;
+}
+
+.col {
+    flex: 1;
+}
+
+.col img {
+    width: 32px;
+    display: block;
+    margin: 0 auto;
+}
+
+.fa,
+.info address {
+    font-size: 12px;
+    font-style: normal;
+}
+
+page>header .info address {
+    color: rgba(151, 151, 151);
+}
+
+page>header h1 {
+    font-weight: 800;
+    margin: 0;
+}
+
+page>header>img {
+    height: 72px;
+    border-radius: 50%;
+    margin-right: 16px
+}
+
+page>aside h2,
+page>main>section h2 {
+    margin-top: 0;
+    color: rgb(108, 80, 111);
+    font-size: 16px;
+}
+
+page>main>section h3 {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+page>main>section h3~p {
+    margin-top: 8px;
+}
+
+page>main>section,
+page>aside>.content {
+    margin-bottom: 40px;
+}
+
+page>main>section .content::before {
+    content: ' ';
+    position: absolute;
+    background-color: rgb(237, 237, 237);
+    width: 3px;
+    height: calc(100% - 10px);
+    top: 5px;
+    bottom: 0;
+    left: -30px;
+}
+
+page>main>section .content {
+    position: relative;
+    margin-left: 30px;
+}
+
+section>.content ul {
+    list-style-type: circle;
+    padding-left: 15px;
+}
+
+section>.content ul>li {
+    padding: 2px 0;
+}
+
+section>.content>.content-entry {
+    margin-bottom: 20px;
+}
+
+section>.content>.content-entry .location {
+    margin-right: 16px;
+}
+
+section>.content>.content-entry .fa {
+    margin-right: 4px;
+}
+
+page>aside {
+    width: 5.88cm;
+    position: absolute;
+    transform: translate(15.12cm, 0);
+    top: 10px;
+    padding: 48px 30px;
+}
+
+page>aside p * {
+    vertical-align: middle;
+}
+
+page>aside p {
+    line-height: 1.8;
+}
+
+page>aside p .fa {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+page>aside .col {
+    text-align: center;
+    font-size: 9px;
+    padding-bottom: 16px;
+}
+
+page>footer {
+    border-top: var(--page-border);
+    padding: 16px 6%;
+    color: rgb(197,197,197);
+}
+
+page>footer .social-icons * {
+    vertical-align: middle;
+}
+
+page>footer .social-icons {
+    font-size: 14px;
+}
+
+page>footer .social-icons .fa {
+    
+    margin-right: 8px;
+    font-size: 24px;
+}
+
+page>aside+main,
+page>header {
+    padding-left: var(--margin-base);
+    border-right: var(--page-border);
+    width: 15.12cm;
+}
+
+page[size="A4"] {
+    width: 21cm;
+    height: 29.7cm;
+}
+
+@media print {
+
+    body,
+    page {
+        margin: 0;
+        box-shadow: 0;
+    }
+
+    page>aside {
+        top: 0;
+    }
+}
