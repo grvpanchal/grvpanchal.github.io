@@ -206,6 +206,10 @@ page[size="A4"] {
     height: 29.7cm;
 }
 
+.pb-0 {
+    padding-bottom: 0 !important;
+}
+
 @media print {
 
     body,
