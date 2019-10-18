@@ -103,6 +103,13 @@ description: CV of Gaurav Panchal
                     </div>
                 </div>
             </div>
+            <div class="content">
+                    <h2>Certified</h2>
+                    <div class="flex-grid">
+                        <div class="col"><img class="img-64" src="./assets/img/awssa.png" alt="npm">Solutions Architect</div>
+                        <div class="col"><img class="img-64" src="./assets/img/mcsa.png" alt="webpack">MCSA</div>
+                    </div>
+                </div>
         </aside>
         <main>
             <section>
@@ -178,7 +185,6 @@ description: CV of Gaurav Panchal
                         </p>
                     </div>
                 </div>
-
             </section>
         </main>
         <footer>
@@ -191,6 +197,16 @@ description: CV of Gaurav Panchal
             </div>
         </footer>
     </page>
+
+    <script>
+        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
+        if(isChrome) {
+            window.print();
+        } else {
+            alert("Please use chrome to print this CV")
+        }
+    </script>
 </body>
 
 </html>

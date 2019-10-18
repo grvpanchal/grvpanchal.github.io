@@ -63,6 +63,9 @@ page>header {
     display: block;
     margin: 0 auto;
 }
+.col img.img-64 {
+    width: 64px;
+}
 
 .fa,
 .info address {
