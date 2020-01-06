@@ -194,16 +194,19 @@ page>footer .social-icons .fa {
     font-size: 24px;
 }
 
-page>aside+main,
+page>main,
 page>header {
     padding-left: var(--margin-base);
     border-right: var(--page-border);
+}
+page>aside+main,
+page>header {
     width: 15.12cm;
 }
 
 page[size="A4"] {
     width: 21cm;
-    height: 29.7cm;
+    height: 29.69cm;
 }
 
 .pb-0 {
