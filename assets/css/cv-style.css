@@ -209,6 +209,22 @@ page[size="A4"] {
     height: 29.69cm;
 }
 
+progress {
+    height: 2px;
+    background-color: #cbcbcb;
+    border-radius: 2px;
+    display: block;
+    margin: 8px 0 16px 0;
+    width: 80%;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #cbcbcb;
+  }
+  progress::-webkit-progress-value {
+    background-color: #b65f71;
+  }
+
 .pb-0 {
     padding-bottom: 0 !important;
 }
