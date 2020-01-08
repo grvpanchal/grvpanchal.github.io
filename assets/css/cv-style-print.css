@@ -9,7 +9,7 @@
     box-shadow: 0;
   }
 
-  page>aside {
+  page>.wrapper>aside {
     top: 0;
   }
 }

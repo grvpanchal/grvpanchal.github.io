@@ -1,6 +1,6 @@
 :root {
     --page-border: 1px solid rgb(228, 228, 228);
-    --margin-base: 8%;
+    --margin-base: 1.6cm;
     --base-color: rgb(108, 108, 108);
 }
 
@@ -38,16 +38,14 @@ page {
     box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
 }
 
-page>main {
-    display: inline-block;
-    height: 82%;
+page>.wrapper>.content-side>main {
+    display: block;
+    height: 24.1cm;
     padding-right: var(--margin-base);
 }
 
-page>header {
-    padding-top: 48px;
+page>.wrapper>.content-side>header {
     display: flex;
-    padding-bottom: 3%;
 }
 
 .flex-grid {
@@ -63,6 +61,7 @@ page>header {
     display: block;
     margin: 0 auto;
 }
+
 .col img.img-64 {
     width: 64px;
 }
@@ -73,44 +72,44 @@ page>header {
     font-style: normal;
 }
 
-page>header .info address {
+page>.wrapper>.content-side>header .info address {
     color: rgba(151, 151, 151);
 }
 
-page>header h1 {
+page>.wrapper>.content-side>header h1 {
     font-weight: 800;
     margin: 0;
 }
 
-page>header>img {
+page>.wrapper>.content-side>header>img {
     height: 72px;
     border-radius: 50%;
     margin-right: 16px
 }
 
-page>aside h2,
-page>main>section h2 {
+page>.wrapper>aside h2,
+page>.wrapper>.content-side>main>section h2 {
     margin-top: 0;
     color: rgb(108, 80, 111);
     font-size: 16px;
 }
 
-page>main>section h3 {
+page>.wrapper>.content-side>main>section h3 {
     color: #333;
     font-size: 14px;
     margin-bottom: 2px;
 }
 
-page>main>section h3~p {
+page>.wrapper>.content-side>main>section h3~p {
     margin-top: 8px;
 }
 
-page>main>section,
-page>aside>.content {
+page>.wrapper>.content-side>main>section,
+page>.wrapper>aside>.content {
     margin-bottom: 40px;
 }
 
-page>main>section .content::before {
+page>.wrapper>.content-side>main>section .content::before {
     content: ' ';
     position: absolute;
     background-color: rgb(237, 237, 237);
@@ -121,7 +120,7 @@ page>main>section .content::before {
     left: -30px;
 }
 
-page>main>section .content {
+page>.wrapper>.content-side>main>section .content {
     position: relative;
     margin-left: 30px;
 }
@@ -147,62 +146,61 @@ section>.content>.content-entry .fa {
     margin-right: 4px;
 }
 
-page>aside {
+page>.wrapper>aside {
     width: 5.88cm;
-    position: absolute;
-    transform: translate(15.12cm, 0);
     top: 10px;
-    padding: 48px 30px;
+    padding: 48px 30px 0;
 }
 
-page>aside p * {
+page>.wrapper>aside p * {
     vertical-align: middle;
 }
 
-page>aside p {
+page>.wrapper>aside p {
     line-height: 1.8;
 }
 
-page>aside p .fa {
+page>.wrapper>aside p .fa {
     font-size: 16px;
     margin-right: 10px;
 }
 
-page>aside .col {
+page>.wrapper>aside .col {
     text-align: center;
     font-size: 9px;
     padding-bottom: 16px;
 }
 
-page>footer {
+page>.wrapper>footer {
     border-top: var(--page-border);
-    padding: 16px 6%;
-    color: rgb(197,197,197);
+    padding: 14px 6%;
+    color: rgb(197, 197, 197);
 }
 
-page>footer .social-icons * {
+page>.wrapper>footer .social-icons * {
     vertical-align: middle;
 }
 
-page>footer .social-icons {
+page>.wrapper>footer .social-icons {
     font-size: 14px;
 }
 
-page>footer .social-icons .fa {
-    
+page>.wrapper>footer .social-icons .fa {
+
     margin-right: 8px;
     font-size: 24px;
 }
 
-page>main,
-page>header {
+page>.wrapper>.content-side>main,
+page>.wrapper>.content-side>header {
     padding-left: var(--margin-base);
     border-right: var(--page-border);
 }
-page>aside+main,
+
+/* page>aside+main,
 page>header {
     width: 15.12cm;
-}
+} */
 
 page[size="A4"] {
     width: 21cm;
@@ -220,10 +218,11 @@ progress {
 
 progress::-webkit-progress-bar {
     background-color: #cbcbcb;
-  }
-  progress::-webkit-progress-value {
+}
+
+progress::-webkit-progress-value {
     background-color: #b65f71;
-  }
+}
 
 .pb-0 {
     padding-bottom: 0 !important;
@@ -240,4 +239,48 @@ progress::-webkit-progress-bar {
     page>aside {
         top: 0;
     }
+}
+
+.wrapper {
+    display: flex;
+    flex-flow: row wrap;
+    text-align: left;
+
+}
+
+.page-pt {
+    padding-top: 1.2cm !important;
+}
+
+.header-pb {
+    padding-bottom: 1cm;
+}
+
+.wrapper>* {
+    flex: 1 100%;
+}
+
+.content-side {
+    text-align: left;
+}
+
+.aside {
+    flex: 1 0 0;
+}
+
+.content-side {
+    flex: 3 0px;
+}
+
+.content-side {
+    order: 2;
+    height: 28.2cm;
+}
+
+.aside {
+    order: 3;
+}
+
+footer {
+    order: 4;
 }
