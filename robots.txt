@@ -1,0 +1,3 @@
+Sitemap: https://grvpanchal.ml/sitemap.xml
+User-agent:*
+Disallow:

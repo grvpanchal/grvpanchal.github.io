@@ -1,15 +1,16 @@
 {
   "short_name": "grvpanchal",
   "name": "Gaurav Panchal",
+  "description": "The Coder",
   "icons": [
     {
       "src": "/assets/img/192.png",
-      "type": "img/png",
+      "type": "image/png",
       "sizes": "192x192"
     },
     {
       "src": "/assets/img/512.png",
-      "type": "img/png",
+      "type": "image/png",
       "sizes": "512x512"
     }
   ],
