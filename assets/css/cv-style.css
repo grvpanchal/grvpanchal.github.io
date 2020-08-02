@@ -138,7 +138,8 @@ section>.content>.content-entry {
     margin-bottom: 20px;
 }
 
-section>.content>.content-entry .location {
+section>.content>.content-entry .location,
+section>.content>.content-entry .work {
     margin-right: 16px;
 }
 
@@ -283,4 +284,24 @@ progress::-webkit-progress-value {
 
 footer {
     order: 4;
+}
+
+.tags {
+    padding-top: 0.4rem;
+}
+
+.tag {
+    display: inline-block;
+    border: 1px solid #747681;
+    text-transform: uppercase;
+    color: #747681;
+    padding: .5rem;
+    line-height: 1;
+    letter-spacing: .5px;
+    margin-left: 0.25rem;
+}
+
+.tag.is-small {
+    padding: .2rem;
+    font-size: .75em;
 }
