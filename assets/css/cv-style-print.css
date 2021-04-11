@@ -6,7 +6,7 @@
   body,
   page {
     margin: 0;
-    box-shadow: 0;
+    box-shadow: none;
   }
 
   page>.wrapper>aside {

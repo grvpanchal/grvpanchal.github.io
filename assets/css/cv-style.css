@@ -139,6 +139,7 @@ section>.content>.content-entry {
 }
 
 section>.content>.content-entry .location,
+section>.content>.content-entry .dates,
 section>.content>.content-entry .work {
     margin-right: 16px;
 }
@@ -205,7 +206,7 @@ page>header {
 
 page[size="A4"] {
     width: 21cm;
-    height: 29.69cm;
+    height: 29.7cm;
 }
 
 progress {
