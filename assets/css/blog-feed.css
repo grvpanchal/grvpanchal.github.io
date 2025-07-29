@@ -1,0 +1,122 @@
+/**
+ * Blog Feed Styles - Chota CSS Compatible
+ * Enhanced styles for the dynamic blog feed using Chota CSS framework
+ */
+
+/* Ensure equal height cards in the grid - 3 column layout */
+#featured-blogs-container .col-12,
+#featured-blogs-container .col-4-md,
+#featured-blogs-container .col-4-lg {
+  display: flex;
+  margin-bottom: 2rem;
+}
+
+#featured-blogs-container .card {
+  width: 100%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  overflow: hidden; /* For image styling */
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#featured-blogs-container .card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Blog image styling */
+#featured-blogs-container .blog-image {
+  margin: -1rem -2rem 1rem -2rem; /* Extend to card edges */
+}
+
+#featured-blogs-container .blog-image img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0; /* No border radius for full-width images */
+  transition: transform 0.2s ease;
+}
+
+#featured-blogs-container .card:hover .blog-image img {
+  transform: scale(1.05);
+}
+
+/* Ensure blog title links don't have default link styling */
+#featured-blogs-container .card header h4 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#featured-blogs-container .card header h4 a:hover {
+  color: var(--color-primary);
+}
+
+/* Tag spacing within cards */
+#featured-blogs-container .tag {
+  margin-right: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Loading and error states */
+#featured-blogs-container .text-grey {
+  color: var(--color-grey);
+}
+
+#featured-blogs-container .text-error {
+  color: var(--color-error);
+}
+
+/* Responsive adjustments for 3-column grid */
+@media (max-width: 600px) {
+  #featured-blogs-container .col-12 {
+    margin-bottom: 1.5rem;
+  }
+
+  #featured-blogs-container .blog-image img {
+    height: 160px; /* Slightly smaller on mobile */
+  }
+}
+
+@media (min-width: 900px) {
+  #featured-blogs-container .col-4-lg {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Button text shadow styling for all buttons */
+.button,
+button,
+input[type="submit"],
+input[type="button"] {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced text shadow for primary buttons */
+.button.primary,
+button.primary {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Enhanced text shadow for outline buttons */
+.button.outline,
+button.outline {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Enhanced text shadow for dark buttons */
+.button.dark,
+button.dark {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.blog-image img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px 4px 0 0;
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "title": "Optimizing the Performance of Network Response of NextJS Proxy API",
+    "link": "https://blog.grvpanchal.me/2025/07/modern-web-applications-frequently.html",
+    "published": "2025-07-28",
+    "excerpt": "Modern web applications frequently rely on proxy APIs to handle cross-origin requests securely. Learn optimization techniques...",
+    "featuredImage": {
+      "src": "./assets/img/nextjs.jpg",
+      "alt": "NextJS optimization techniques"
+    },
+    "categories": ["nextjs", "performance", "API Optimization"]
+  },
+  {
+    "title": "NextJS Nested Layout for Ecommerce",
+    "link": "https://blog.grvpanchal.me/2025/07/nextjs-nested-layout-for-ecommerce.html",
+    "published": "2025-07-24",
+    "excerpt": "The Next.js App Router introduces a powerful and intuitive strategy for handling nested layouts...",
+    "featuredImage": {
+      "src": "./assets/img/nextjs.jpg",
+      "alt": "NextJS nested layouts"
+    },
+    "categories": ["nextjs", "ecommerce", "layout"]
+  },
+  {
+    "title": "Next.js Performance Optimization Guide",
+    "link": "https://blog.grvpanchal.me/2025/07/nextjs-performance-optimization-guide.html",
+    "published": "2025-07-23",
+    "excerpt": "Complete guide to dramatically boost your Lighthouse scores using Next.js features and modern web practices...",
+    "featuredImage": {
+      "src": "./assets/img/javascript.png",
+      "alt": "Performance optimization guide"
+    },
+    "categories": ["nextjs", "performance", "lighthouse"]
+  },
+  {
+    "title": "How to Apply PWA for Micro Frontend (MFE) Architecture",
+    "link": "https://blog.grvpanchal.me/2025/07/how-to-apply-pwa-for-micro-frontend-mfe.html",
+    "published": "2025-07-22",
+    "excerpt": "Learn how to implement Progressive Web App features in a Micro Frontend architecture...",
+    "featuredImage": {
+      "src": "./assets/img/pwa.png",
+      "alt": "PWA and Micro Frontend"
+    },
+    "categories": ["pwa", "microfrontend", "service worker"]
+  },
+  {
+    "title": "Effects of Next.js Image Blur on LCP",
+    "link": "https://blog.grvpanchal.me/2025/07/effects-of-nextjs-image-blur-on-lcp.html",
+    "published": "2025-07-22",
+    "excerpt": "Largest Contentful Paint (LCP) is a core web vital that measures loading performance...",
+    "featuredImage": {
+      "src": "./assets/img/nextjs.jpg",
+      "alt": "NextJS image optimization"
+    },
+    "categories": ["nextjs", "performance", "LCP"]
+  },
+  {
+    "title": "Tech Debt in the AI Age: Navigating Crisis and Opportunity",
+    "link": "https://blog.grvpanchal.me/2025/07/tech-debt-in-ai-age-navigating-crisis.html",
+    "published": "2025-07-22",
+    "excerpt": "Understanding how AI-generated code impacts technical debt and development practices...",
+    "featuredImage": {
+      "src": "./assets/img/0__nJC2pUSwD__JKvi.jfif",
+      "alt": "AI and tech debt"
+    },
+    "categories": ["AI", "tech debt", "development"]
+  }
+]
