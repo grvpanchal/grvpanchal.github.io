@@ -2,121 +2,167 @@
 title: Gaurav Panchal - The Coder
 description: The Quaternary Coder
 ---
+
 <!DOCTYPE html>
 <html lang="en" class="fill">
-
-<head>
-  <title>{{page.title}}</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#FFFFFF">
-  <link rel="apple-touch-icon" href="/assets/img/512.png">
-  <meta name="msapplication-square512x512logo" content="/assets/img/512.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.ico">
-  <meta name="robots" content="index, follow">
-  <!-- Style CSS -->
-  <link href="./assets/css/style.min.css" rel="stylesheet">
-  <link href="./assets/css/blog-feed.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/chota">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <head>
+    <title>{{page.title}}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <link rel="apple-touch-icon" href="/assets/img/512.png" />
+    <meta
+      name="msapplication-square512x512logo"
+      content="/assets/img/512.png"
+    />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.ico" />
+    <meta name="robots" content="index, follow" />
+    <!-- Style CSS -->
+    <link href="./assets/css/style.min.css" rel="stylesheet" />
+    <link href="./assets/css/blog-feed.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/chota" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-39757842-3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-39757842-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-    gtag('config', 'UA-39757842-3');
-  </script>
-  {%seo title=false %}
-</head>
+      gtag("config", "UA-39757842-3");
+    </script>
+    {%seo title=false %}
+  </head>
 
-<body>
-  <noscript>To run this application, JavaScript is required to be enabled.</noscript>
-  <div class="container">
-    <div class="hero is-full-screen">
-      <div class="logo is-center is-vertical-align">
+  <body>
+    <noscript
+      >To run this application, JavaScript is required to be enabled.</noscript
+    >
+    <div class="container">
+      <div class="hero is-full-screen">
+        <div class="logo is-center is-vertical-align">
+          <div class="row">
+            <div class="col-10" style="padding: 0 2vw">
+              <h1>Gaurav Panchal</h1>
+              <p id="aboutme">
+                I am coder and architect building scalable web applications and
+                research tools.
+              </p>
+              <ul class="h2 list-inline social-icons">
+                <li>
+                  <a
+                    href="http://www.linkedin.com/in/grvpanchal/"
+                    class="text-white no-underline"
+                    alt="linkedin"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <div class="bg-linkedin_square"></div>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="http://fb.me/grvpanchal"
+                    class="text-white no-underline"
+                    alt="facebook"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <div class="bg-facebook"></div>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="http://twitter.com/grvpanchal"
+                    class="text-white no-underline"
+                    alt="twitter"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <div class="bg-twitter"></div>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="http://instagram.com/grvpanchal"
+                    class="text-white no-underline"
+                    alt="instagram"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <div class="bg-instagram"></div>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="http://github.com/grvpanchal"
+                    class="text-white no-underline"
+                    alt="github"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <div class="bg-github"></div>
+                  </a>
+                </li>
+              </ul>
+              <div>
+                <a
+                  class="button outline dark"
+                  href="#blog"
+                  onclick="makeSelectionActive(this)"
+                >
+                  Learn More
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu">
         <div class="row">
-          <div class="col-10" style="padding: 0 2vw;">
-            <h1>Gaurav Panchal</h1>
-            <p id="aboutme">I am coder and architect building scalable web applications and research tools.</p>
-            <ul class="h2 list-inline social-icons">
-              <li>
-                <a href="http://www.linkedin.com/in/grvpanchal/" class="text-white no-underline" alt="linkedin"
-                  rel="noreferrer" target="_blank">
-                  <div class="bg-linkedin_square"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://fb.me/grvpanchal" class="text-white no-underline" alt="facebook" rel="noreferrer"
-                  target="_blank">
-                  <div class="bg-facebook"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://twitter.com/grvpanchal" class="text-white no-underline" alt="twitter" rel="noreferrer"
-                  target="_blank">
-                  <div class="bg-twitter"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://instagram.com/grvpanchal" class="text-white no-underline" alt="instagram"
-                  rel="noreferrer" target="_blank">
-                  <div class="bg-instagram"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://github.com/grvpanchal" class="text-white no-underline" alt="github" rel="noreferrer"
-                  target="_blank">
-                  <div class="bg-github"></div>
-                </a>
-              </li>
-            </ul>
-            <div>
-              <a class="button outline dark" href="#blog" onclick="makeSelectionActive(this)">
-                Learn More
-              </a>
-            </div>
+          <div class="col brand is-vertical-align">
+            <h2 class="is-marginless">Gaurav Panchal</h2>
+          </div>
+          <div class="col is-right">
+            <nav class="tabs">
+              <a href="#blog" onclick="makeSelectionActive(this)" class="active"
+                >Blog</a
+              >
+              <a href="#projects" onclick="makeSelectionActive(this)"
+                >Projects</a
+              >
+              <a href="#contact" onclick="makeSelectionActive(this)">Contact</a>
+              <a href="./resume" onclick="makeSelectionActive(this)">Resume</a>
+            </nav>
           </div>
         </div>
       </div>
-    </div>
-    <div class="menu">
-      <div class="row">
-        <div class="col brand is-vertical-align">
-          <h2 class="is-marginless ">Gaurav Panchal</h2>
+      <div id="blog" class="hero is-full-screen">
+        <div class="menu-spacer">
+          <div></div>
         </div>
-        <div class="col is-right">
-          <nav class="tabs">
-            <a href="#blog" onclick="makeSelectionActive(this)" class="active">Blog</a>
-            <a href="#projects" onclick="makeSelectionActive(this)">Projects</a>
-            <a href="#contact" onclick="makeSelectionActive(this)">Contact</a>
-            <a href="./resume" onclick="makeSelectionActive(this)">Resume</a>
-          </nav>
-        </div>
-      </div>
-    </div>
-    <div id="blog" class="hero is-full-screen">
-      <div class="menu-spacer">
-        <div></div>
-      </div>
-      <div class="content">
-        <div style="padding-bottom: 50px;">
-          <h1>Featured Blogs</h1>
-          <div class="row" id="featured-blogs-container">
-            <!-- Dynamic blog content will be loaded here -->
-            <div class="col-12 text-center">
-              <p class="text-grey">Loading latest blogs...</p>
+        <div class="content">
+          <div style="padding-bottom: 50px">
+            <h1>Featured Blogs</h1>
+            <div class="row" id="featured-blogs-container">
+              <!-- Dynamic blog content will be loaded here -->
+              <div class="col-12 text-center">
+                <p class="text-grey">Loading latest blogs...</p>
+              </div>
             </div>
-          </div>
-          <!-- <div class="col">
+            <!-- <div class="col">
                             <div class="img-card">
 
                                 <div class="card">
@@ -133,473 +179,575 @@ description: The Quaternary Coder
                                 </div>
                             </div>
                         </div> -->
+          </div>
+        </div>
+        <p></p>
+        <div class="text-center">
+          <a
+            class="button outline dark"
+            href="https://blog.grvpanchal.me"
+            target="_blank"
+            rel="noopener"
+          >
+            More Posts
+          </a>
         </div>
       </div>
-      <p></p>
-      <div class="text-center">
-        <a class="button outline dark" href="https://blog.grvpanchal.me" target="_blank" rel="noopener">
-          More Posts
-        </a>
+      <div id="projects" class="hero is-full-screen">
+        <div class="menu-spacer">
+          <div></div>
+        </div>
+        <div class="content">
+          <section>
+            <h1>Projects</h1>
+            <div class="tab-wrapper-content">
+              <section class="tabs-container">
+                <label
+                  for="tab1"
+                  class="active"
+                  onclick="makeSelectionActive(this)"
+                >
+                  Professional</label
+                >
+                <label for="tab2" onclick="makeSelectionActive(this)">
+                  Personal</label
+                >
+                <label for="tab3" onclick="makeSelectionActive(this)">
+                  Genetics</label
+                >
+                <label for="tab4" onclick="makeSelectionActive(this)">
+                  Open Source</label
+                >
+                <label for="tab5" onclick="makeSelectionActive(this)">
+                  Skills</label
+                >
+              </section>
+              <input name="tab" id="tab1" type="radio" checked="" />
+              <section class="tab-content">
+                <p>
+                  Extensively worked on JavaScript and overall frontend
+                  technologies. Detailed knowledge on implement web technologies
+                  over a cloud infrastructure.
+                </p>
+                <p>&nbsp;</p>
+                <h6 class="is-marginless">
+                  <b>CURRENT</b>
+                </h6>
+                <div class="work-item">
+                  <h3>1800Flowers PWA</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">React</span>
+                    <span class="tag is-small">MobX</span>
+                    <span class="tag is-small">PWA</span>
+                    <span class="tag is-small">Web Components</span>
+                    <span class="tag is-small">Material UI</span>
+                    <span class="tag is-small">Polymer 2</span>
+                    <span class="tag is-small">nodejs</span>
+                  </div>
+                  <p>Working on Checkout and payments of E-commerce website</p>
+                </div>
+                <p>&nbsp;</p>
+                <h6 class="is-marginless">
+                  <b>PREVIOUS</b>
+                </h6>
+                <div class="work-item">
+                  <h3>Billion Dollar Paydown</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">vue</span>
+                    <span class="tag is-small">wordpress</span>
+                    <span class="tag is-small">PHP</span>
+                    <span class="tag is-small">SCSS</span>
+                    <span class="tag is-small">Bootstrap</span>
+                    <span class="tag is-small">Docker</span>
+                  </div>
+                  <p>
+                    Build a dashboard on vueJS and WordPress Templates and
+                    Docker. Lead the team for development.
+                  </p>
+                </div>
+                <div class="work-item">
+                  <h3>FolioDynamix Client Portal</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">React</span>
+                    <span class="tag is-small">Redux</span>
+                    <span class="tag is-small">SCSS</span>
+                    <span class="tag is-small">Bootstrap</span>
+                    <span class="tag is-small">Webpack</span>
+                  </div>
+                  <p>
+                    Building a React App for clients using Redux and Spring Boot
+                    APIs
+                  </p>
+                </div>
+                <div class="work-item">
+                  <h3>SaveDay</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">AngularJS</span>
+                    <span class="tag is-small">Foundation</span>
+                    <span class="tag is-small">SCSS</span>
+                    <span class="tag is-small">Grunt</span>
+                  </div>
+                  <p>
+                    Roth and 401K app built on Angular JS and proxied via nodejs
+                    to API
+                  </p>
+                </div>
+                <div class="work-item">
+                  <h3>In Silico PCR</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">PHP</span>
+                    <span class="tag is-small">Python</span>
+                    <span class="tag is-small">NCBI</span>
+                    <span class="tag is-small">MYSQL</span>
+                  </div>
+                  <p>
+                    Bioinformatic tool on PHP, Python and NCBI database to get
+                    virtual results of PCR Cycles.
+                  </p>
+                </div>
+                <div class="work-item">
+                  <h3>Clubking Custom Widgets</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">HTML</span>
+                    <span class="tag is-small">CSS</span>
+                    <span class="tag is-small">jQuery</span>
+                    <span class="tag is-small">JavaScript</span>
+                  </div>
+                  <p>
+                    Build custom widget interface to build wristands and wheel
+                    of fortune.
+                  </p>
+                </div>
+              </section>
+              <input name="tab" id="tab2" type="radio" />
+              <section class="tab-content">
+                <p>
+                  I constantly work on latest technology to sharpen my skill and
+                  be updated on the latest tech and strategy to deploy an app.
+                </p>
+                <p>&nbsp;</p>
+                <h6 class="is-marginless">
+                  <b>CURRENT</b>
+                </h6>
+                <div class="work-item">
+                  <h3>Family Routine</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">vueJS</span>
+                    <span class="tag is-small">Vuetify</span>
+                    <span class="tag is-small">PWA</span>
+                    <span class="tag is-small">GraphQL</span>
+                    <span class="tag is-small">nodeJS</span>
+                  </div>
+                  <p>A routine and goal setting app designed as an PWA.</p>
+                </div>
+                <div class="work-item">
+                  <h3>Family Wealth</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">vueJS</span>
+                    <span class="tag is-small">Vuetify</span>
+                    <span class="tag is-small">PWA</span>
+                    <span class="tag is-small">GraphQL</span>
+                    <span class="tag is-small">nodeJS</span>
+                  </div>
+                  <p>
+                    A suggestive app to deliver a financial freedom strategy to
+                    the users.
+                  </p>
+                </div>
+                <p>&nbsp;</p>
+                <h6 class="is-marginless">
+                  <b>PREVIOUS</b>
+                </h6>
+                <div class="work-item">
+                  <h3>Performance Maintainer</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">C#</span>
+                    <span class="tag is-small">windows</span>
+                    <span class="tag is-small">Performance</span>
+                  </div>
+                  <p>
+                    Its a tool to enhance the performace of your windows system.
+                  </p>
+                </div>
+              </section>
+              <input name="tab" id="tab3" type="radio" />
+              <section class="tab-content">
+                <p>
+                  As per my discovery on DNA patterns on eukaryotic organisms
+                  (DOI:
+                  <a
+                    href="https://www.researchgate.net/deref/http%3A%2F%2Fdx.doi.org%2F10.13140%2FRG.2.1.3300.9363?_sg%5B0%5D=acL-R8hmuRoM8rXIQBWZX5CDzd4tb_peZFpr1tpgiIiXZkBR9pnNksUEiqYlk-8atf6MmrdM6DvDIxL85wKQgAAqoA.WTMpyLLL1A_f3Xfnow7vhe-DcEqDZ2EpmGW6OqF3I82E2aJrgDtIE-2c5lwN8_pkgthFBAL4NLDoQ7sDp-cLPQ"
+                    >10.13140/RG.2.1.3300.9363</a
+                  >
+                  ), I am working applications to decode DNA by decoding
+                  evolutionary gene pattern.
+                </p>
+                <p>&nbsp;</p>
+                <h6 class="is-marginless">
+                  <b>CURRENT</b>
+                </h6>
+                <div class="work-item">
+                  <h3>Genome GC</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">codeignitor</span>
+                    <span class="tag is-small">PHP</span>
+                    <span class="tag is-small">python</span>
+                    <span class="tag is-small">django</span>
+                    <span class="tag is-small">bootstrap</span>
+                    <span class="tag is-small">ncbi</span>
+                  </div>
+                  <p>
+                    Genome GC is the site to analyse the GC percentage of an
+                    eukaryote Genome of animal kingdom.
+                  </p>
+                </div>
+                <div class="work-item">
+                  <h3>Gene Nucleotide Order Pattern</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">codeignitor</span>
+                    <span class="tag is-small">vue</span>
+                    <span class="tag is-small">PHP</span>
+                    <span class="tag is-small">bootstrap</span>
+                    <span class="tag is-small">ncbi</span>
+                  </div>
+                  <p>
+                    Its a research project to evaluate and perform Machine
+                    Learning on Genes.
+                  </p>
+                </div>
+              </section>
+              <input name="tab" id="tab4" type="radio" />
+              <section class="tab-content">
+                <h6 class="is-marginless">
+                  <b>CURRENT</b>
+                </h6>
+                <div class="work-item">
+                  <h3>Bootstrap Essentials</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">SCSS</span>
+                  </div>
+                  <p>Bootstrap 4 features for your Bootstrap 3 site.</p>
+                </div>
+                <div class="work-item">
+                  <h3>Raftaar JS</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">JavaScript</span>
+                    <span class="tag is-small">Web Components</span>
+                    <span class="tag is-small">nodeJS</span>
+                    <span class="tag is-small">mongodb</span>
+                    <span class="tag is-small">GraphQL</span>
+                  </div>
+                  <p>
+                    A JavaScript to build frontend web components and
+                    simultaneously building backend server on GraphQL and
+                    mongodb using a single app logic.
+                  </p>
+                </div>
+                <div class="work-item">
+                  <h3>Wordpress Boilerplate</h3>
+                  <div style="margin-bottom: 1rem">
+                    <span class="tag is-small">Wordpress</span>
+                    <span class="tag is-small">Docker</span>
+                  </div>
+                  <p>
+                    A setup with docker to alllow a managable design to develop
+                    wordpress site on a git repository.
+                  </p>
+                </div>
+                <p>&nbsp;</p>
+              </section>
+              <input name="tab" id="tab5" type="radio" />
+              <section class="tab-content">
+                <div class="skills-section">
+                  <div>
+                    <h2>Syntax</h2>
+                    <div class="row">
+                      <div class="col-2-md">
+                        <img
+                          src="./assets/img/javascript.png"
+                          alt="javascript"
+                        />JavaScript
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/html5.png" alt="html" />HTML
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/css3.png" alt="css" />
+                        CSS / SCSS
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/php.png" alt="php" />PHP
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/python.png" alt="python" />
+                        Python
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/cs.png" alt="cs" />C#
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h2>Frameworks</h2>
+                    <div class="row">
+                      <div class="col-2-md">
+                        <img src="./assets/img/pwa.png" alt="pwa" />PWA
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/polymer.png" alt="polymer" />
+                        Polymer 2.0
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/react.png" alt="react" />
+                        ReactJS
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/vue.png" alt="vue" />VueJS
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/wordpress.png" alt="wordpress" />
+                        Wordpress
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/angularjs.png" alt="angularjs" />
+                        AngularJS
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/bootstrap.png" alt="bootstrap" />
+                        Bootstrap
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/django.png" alt="django" />
+                        Django
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/open-wc.png" alt="open-wc" />
+                        Web Components
+                      </div>
+                      <div class="col-2-md">
+                        <img
+                          src="./assets/img/codeigniter.png"
+                          alt="codeigniter"
+                        />
+                        Codeigniter
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/jquery.png" alt="jquery" />
+                        jQuery
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/express.png" alt="express" />
+                        ExpressJS
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h2>Tools</h2>
+                    <div class="row">
+                      <div class="col-2-md">
+                        <img src="./assets/img/npm.png" alt="npm" />NPM
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/webpack.png" alt="webpack" />
+                        Webpack
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/grunt.png" alt="css" />Grunt
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/babel.png" alt="babel" />Babel
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/aws.png" alt="aws" />AWS
+                      </div>
+                      <div class="col-2-md">
+                        <img src="./assets/img/composer.png" alt="composer" />
+                        Composer
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h2>Certified</h2>
+                    <div class="row">
+                      <div class="col-2-md">
+                        <img
+                          class="img-64"
+                          src="./assets/img/awssa.png"
+                          alt="npm"
+                        />
+                        Solutions Architect
+                      </div>
+                      <div class="col-2-md">
+                        <img
+                          class="img-64"
+                          src="./assets/img/mcsa.png"
+                          alt="webpack"
+                        />
+                        MCSA
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <input name="tab" id="tab6" type="radio" />
+            </div>
+          </section>
+        </div>
+      </div>
+      <div id="contact" class="hero is-full-screen" style="padding-bottom: 150px">
+        <div class="menu-spacer">
+          <div></div>
+        </div>
+        <div class="content">
+          <form
+            method="post"
+            style="max-width: 600px"
+            action="https://ggll0gab25.execute-api.ap-south-1.amazonaws.com/dev/static-site-mailer"
+          >
+            <div class="row">
+              <div class="col-12 text-center">
+                <h1>Media</h1>
+                <ul class="h2 list-inline social-icons">
+                  <li>
+                    <a
+                      href="http://www.linkedin.com/in/grvpanchal/"
+                      class="text-white no-underline"
+                      alt="linkedin"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <div class="bg-linkedin_square"></div>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="http://fb.me/grvpanchal"
+                      class="text-white no-underline"
+                      alt="facebook"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <div class="bg-facebook"></div>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="http://twitter.com/grvpanchal"
+                      class="text-white no-underline"
+                      alt="twitter"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <div class="bg-twitter"></div>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="http://instagram.com/grvpanchal"
+                      class="text-white no-underline"
+                      alt="instagram"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <div class="bg-instagram"></div>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="http://github.com/grvpanchal"
+                      class="text-white no-underline"
+                      alt="github"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <div class="bg-github"></div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-12">
+                <h1 class="text-center">Get In Touch</h1>
+              </div>
+              <div class="col-12 col-6-md">
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value=""
+                  placeholder="Name"
+                  required=""
+                />
+              </div>
+              <div class="col-12 col-6-md">
+                <input
+                  type="email"
+                  name="reply_to"
+                  id="email"
+                  value=""
+                  placeholder="Email"
+                  required=""
+                />
+              </div>
+              <div class="col-12">
+                <textarea
+                  name="message"
+                  id="message"
+                  placeholder="Enter your message"
+                  rows="6"
+                  required=""
+                ></textarea>
+              </div>
+              <div class="col-12 text-center">
+                <input type="submit" value="Send Message" />
+                <p id="js-form-response"></p>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  <div id="projects" class="hero is-full-screen">
-    <div class="menu-spacer">
-      <div></div>
-    </div>
-    <div class="content">
-      <section>
-        <h1>Projects</h1>
-        <div class="tab-wrapper-content">
-          <section class="tabs-container">
-            <label for="tab1" class="active" onclick="makeSelectionActive(this)"> Professional</label>
-            <label for="tab2" onclick="makeSelectionActive(this)"> Personal</label>
-            <label for="tab3" onclick="makeSelectionActive(this)"> Genetics</label>
-            <label for="tab4" onclick="makeSelectionActive(this)"> Open Source</label>
-            <label for="tab5" onclick="makeSelectionActive(this)"> Skills</label>
-          </section>
-          <input name="tab" id="tab1" type="radio" checked="">
-          <section class="tab-content">
-            <p>
-              Extensively worked on JavaScript and overall frontend technologies. Detailed knowledge
-              on implement web technologies over a cloud infrastructure.
-            </p>
-            <p>&nbsp;</p>
-            <h6 class="is-marginless">
-              <b>CURRENT</b>
-            </h6>
-            <div class="work-item">
-              <h3> 1800Flowers PWA</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">React</span>
-                <span class="tag is-small">MobX</span>
-                <span class="tag is-small">PWA</span>
-                <span class="tag is-small">Web Components</span>
-                <span class="tag is-small">Material UI</span>
-                <span class="tag is-small">Polymer 2</span>
-                <span class="tag is-small">nodejs</span>
-              </div>
-              <p>Working on Checkout and payments of E-commerce website</p>
-            </div>
-            <p>&nbsp;</p>
-            <h6 class="is-marginless">
-              <b>PREVIOUS</b>
-            </h6>
-            <div class="work-item">
-              <h3> Billion Dollar Paydown</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">vue</span>
-                <span class="tag is-small">wordpress</span>
-                <span class="tag is-small">PHP</span>
-                <span class="tag is-small">SCSS</span>
-                <span class="tag is-small">Bootstrap</span>
-                <span class="tag is-small">Docker</span>
-              </div>
-              <p>
-                Build a dashboard on vueJS and WordPress Templates and Docker. Lead the team for
-                development.
-              </p>
-            </div>
-            <div class="work-item">
-              <h3> FolioDynamix Client Portal</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">React</span>
-                <span class="tag is-small">Redux</span>
-                <span class="tag is-small">SCSS</span>
-                <span class="tag is-small">Bootstrap</span>
-                <span class="tag is-small">Webpack</span>
-              </div>
-              <p>Building a React App for clients using Redux and Spring Boot APIs</p>
-            </div>
-            <div class="work-item">
-              <h3> SaveDay</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">AngularJS</span>
-                <span class="tag is-small">Foundation</span>
-                <span class="tag is-small">SCSS</span>
-                <span class="tag is-small">Grunt</span>
-              </div>
-              <p>Roth and 401K app built on Angular JS and proxied via nodejs to API</p>
-            </div>
-            <div class="work-item">
-              <h3> In Silico PCR</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">PHP</span>
-                <span class="tag is-small">Python</span>
-                <span class="tag is-small">NCBI</span>
-                <span class="tag is-small">MYSQL</span>
-              </div>
-              <p>
-                Bioinformatic tool on PHP, Python and NCBI database to get virtual results of PCR
-                Cycles.
-              </p>
-            </div>
-            <div class="work-item">
-              <h3> Clubking Custom Widgets</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">HTML</span>
-                <span class="tag is-small">CSS</span>
-                <span class="tag is-small">jQuery</span>
-                <span class="tag is-small">JavaScript</span>
-              </div>
-              <p>Build custom widget interface to build wristands and wheel of fortune.</p>
-            </div>
-          </section>
-          <input name="tab" id="tab2" type="radio">
-          <section class="tab-content">
-            <p>
-              I constantly work on latest technology to sharpen my skill and be updated on the latest
-              tech and strategy to deploy an app.
-            </p>
-            <p>&nbsp;</p>
-            <h6 class="is-marginless">
-              <b>CURRENT</b>
-            </h6>
-            <div class="work-item">
-              <h3> Family Routine</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">vueJS</span>
-                <span class="tag is-small">Vuetify</span>
-                <span class="tag is-small">PWA</span>
-                <span class="tag is-small">GraphQL</span>
-                <span class="tag is-small">nodeJS</span>
-              </div>
-              <p>A routine and goal setting app designed as an PWA.</p>
-            </div>
-            <div class="work-item">
-              <h3> Family Wealth</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">vueJS</span>
-                <span class="tag is-small">Vuetify</span>
-                <span class="tag is-small">PWA</span>
-                <span class="tag is-small">GraphQL</span>
-                <span class="tag is-small">nodeJS</span>
-              </div>
-              <p>A suggestive app to deliver a financial freedom strategy to the users.</p>
-            </div>
-            <p>&nbsp;</p>
-            <h6 class="is-marginless">
-              <b>PREVIOUS</b>
-            </h6>
-            <div class="work-item">
-              <h3> Performance Maintainer</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">C#</span>
-                <span class="tag is-small">windows</span>
-                <span class="tag is-small">Performance</span>
-              </div>
-              <p>Its a tool to enhance the performace of your windows system.</p>
-            </div>
-          </section>
-          <input name="tab" id="tab3" type="radio">
-          <section class="tab-content">
-            <p>
-              As per my discovery on DNA patterns on eukaryotic organisms (DOI:
-              <a
-                href="https://www.researchgate.net/deref/http%3A%2F%2Fdx.doi.org%2F10.13140%2FRG.2.1.3300.9363?_sg%5B0%5D=acL-R8hmuRoM8rXIQBWZX5CDzd4tb_peZFpr1tpgiIiXZkBR9pnNksUEiqYlk-8atf6MmrdM6DvDIxL85wKQgAAqoA.WTMpyLLL1A_f3Xfnow7vhe-DcEqDZ2EpmGW6OqF3I82E2aJrgDtIE-2c5lwN8_pkgthFBAL4NLDoQ7sDp-cLPQ">10.13140/RG.2.1.3300.9363</a>
-              ),
-              I am working applications to decode DNA by decoding evolutionary gene pattern.
-            </p>
-            <p>&nbsp;</p>
-            <h6 class="is-marginless">
-              <b>CURRENT</b>
-            </h6>
-            <div class="work-item">
-              <h3> Genome GC</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">codeignitor</span>
-                <span class="tag is-small">PHP</span>
-                <span class="tag is-small">python</span>
-                <span class="tag is-small">django</span>
-                <span class="tag is-small">bootstrap</span>
-                <span class="tag is-small">ncbi</span>
-              </div>
-              <p>
-                Genome GC is the site to analyse the GC percentage of an eukaryote Genome of animal
-                kingdom.
-              </p>
-            </div>
-            <div class="work-item">
-              <h3> Gene Nucleotide Order Pattern</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">codeignitor</span>
-                <span class="tag is-small">vue</span>
-                <span class="tag is-small">PHP</span>
-                <span class="tag is-small">bootstrap</span>
-                <span class="tag is-small">ncbi</span>
-              </div>
-              <p>Its a research project to evaluate and perform Machine Learning on Genes.</p>
-            </div>
-          </section>
-          <input name="tab" id="tab4" type="radio">
-          <section class="tab-content">
-            <h6 class="is-marginless">
-              <b>CURRENT</b>
-            </h6>
-            <div class="work-item">
-              <h3> Bootstrap Essentials</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">SCSS</span>
-              </div>
-              <p>Bootstrap 4 features for your Bootstrap 3 site.</p>
-            </div>
-            <div class="work-item">
-              <h3> Raftaar JS</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">JavaScript</span>
-                <span class="tag is-small">Web Components</span>
-                <span class="tag is-small">nodeJS</span>
-                <span class="tag is-small">mongodb</span>
-                <span class="tag is-small">GraphQL</span>
-              </div>
-              <p>
-                A JavaScript to build frontend web components and simultaneously building backend
-                server on GraphQL and mongodb using a single app logic.
-              </p>
-            </div>
-            <div class="work-item">
-              <h3> Wordpress Boilerplate</h3>
-              <div style="margin-bottom: 1rem;">
-                <span class="tag is-small">Wordpress</span>
-                <span class="tag is-small">Docker</span>
-              </div>
-              <p>
-                A setup with docker to alllow a managable design to develop wordpress site on a git
-                repository.
-              </p>
-            </div>
-            <p>&nbsp;</p>
-          </section>
-          <input name="tab" id="tab5" type="radio">
-          <section class="tab-content">
-            <div class="skills-section">
-              <div>
-                <h2>Syntax</h2>
-                <div class="row">
-                  <div class="col-2-md">
-                    <img src="./assets/img/javascript.png" alt="javascript">JavaScript
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/html5.png" alt="html">HTML
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/css3.png" alt="css">
-                    CSS / SCSS
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/php.png" alt="php">PHP
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/python.png" alt="python">
-                    Python
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/cs.png" alt="cs">C#
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2>Frameworks</h2>
-                <div class="row">
-                  <div class="col-2-md">
-                    <img src="./assets/img/pwa.png" alt="pwa">PWA
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/polymer.png" alt="polymer">
-                    Polymer
-                    2.0
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/react.png" alt="react">
-                    ReactJS
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/vue.png" alt="vue">VueJS
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/wordpress.png" alt="wordpress">
-                    Wordpress
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/angularjs.png" alt="angularjs">
-                    AngularJS
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/bootstrap.png" alt="bootstrap">
-                    Bootstrap
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/django.png" alt="django">
-                    Django
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/open-wc.png" alt="open-wc">
-                    Web
-                    Components
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/codeigniter.png" alt="codeigniter">
-                    Codeigniter
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/jquery.png" alt="jquery">
-                    jQuery
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/express.png" alt="express">
-                    ExpressJS
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2>Tools</h2>
-                <div class="row">
-                  <div class="col-2-md">
-                    <img src="./assets/img/npm.png" alt="npm">NPM
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/webpack.png" alt="webpack">
-                    Webpack
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/grunt.png" alt="css">Grunt
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/babel.png" alt="babel">Babel
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/aws.png" alt="aws">AWS
-                  </div>
-                  <div class="col-2-md">
-                    <img src="./assets/img/composer.png" alt="composer">
-                    Composer
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2>Certified</h2>
-                <div class="row">
-                  <div class="col-2-md">
-                    <img class="img-64" src="./assets/img/awssa.png" alt="npm">
-                    Solutions
-                    Architect
-                  </div>
-                  <div class="col-2-md">
-                    <img class="img-64" src="./assets/img/mcsa.png" alt="webpack">
-                    MCSA
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-          <input name="tab" id="tab6" type="radio">
-        </div>
-      </section>
-    </div>
-  </div>
-  <div id="contact" class="hero is-full-screen" style="padding-bottom: 150px;">
-    <div class="menu-spacer">
-      <div></div>
-    </div>
-    <div class="content">
-      <form method="post" style="max-width: 600px;"
-        action="https://ggll0gab25.execute-api.ap-south-1.amazonaws.com/dev/static-site-mailer">
-        <div class="row">
-          <div class="col-12 text-center">
-            <h1>Media</h1>
-            <ul class="h2 list-inline social-icons">
-              <li>
-                <a href="http://www.linkedin.com/in/grvpanchal/" class="text-white no-underline" alt="linkedin"
-                  rel="noreferrer" target="_blank">
-                  <div class="bg-linkedin_square"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://fb.me/grvpanchal" class="text-white no-underline" alt="facebook" rel="noreferrer"
-                  target="_blank">
-                  <div class="bg-facebook"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://twitter.com/grvpanchal" class="text-white no-underline" alt="twitter" rel="noreferrer"
-                  target="_blank">
-                  <div class="bg-twitter"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://instagram.com/grvpanchal" class="text-white no-underline" alt="instagram"
-                  rel="noreferrer" target="_blank">
-                  <div class="bg-instagram"></div>
-                </a>
-              </li>
-              <li>
-                <a href="http://github.com/grvpanchal" class="text-white no-underline" alt="github" rel="noreferrer"
-                  target="_blank">
-                  <div class="bg-github"></div>
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div class="col-12">
-            <h1 class="text-center">Get In Touch</h1>
-          </div>
-          <div class="col-12 col-6-md">
-            <input type="text" name="name" id="name" value="" placeholder="Name" required="">
-          </div>
-          <div class="col-12 col-6-md">
-            <input type="email" name="reply_to" id="email" value="" placeholder="Email" required="">
-          </div>
-          <div class="col-12">
-            <textarea name="message" id="message" placeholder="Enter your message" rows="6" required=""></textarea>
-          </div>
-          <div class="col-12 text-center">
-            <input type="submit" value="Send Message">
-            <p id="js-form-response"></p>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-  </div>
-  <!-- Main Script -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="./assets/js/main.min.js"></script>
-  <script src="./assets/js/form-submit.js"></script>
-  <script>
-    $(document).ready(function () {
-      // Add smooth scrolling to all links
-      $("a").on('click', function (event) {
+    <!-- Main Script -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="./assets/js/main.min.js"></script>
+    <script src="./assets/js/form-submit.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Add smooth scrolling to all links
+        $("a").on("click", function (event) {
+          // Make sure this.hash has a value before overriding default behavior
+          if (this.hash !== "") {
+            // Prevent default anchor click behavior
+            event.preventDefault();
 
-        // Make sure this.hash has a value before overriding default behavior
-        if (this.hash !== "") {
-          // Prevent default anchor click behavior
-          event.preventDefault();
+            // Store hash
+            var hash = this.hash;
 
-          // Store hash
-          var hash = this.hash;
-
-          // Using jQuery's animate() method to add smooth page scroll
-          // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
-          $('html, body').animate({
-            scrollTop: $(hash).offset().top
-          }, 800, function () {
-
-            // Add hash (#) to URL when done scrolling (default click behavior)
-            window.location.hash = hash;
-          });
-        } // End if
+            // Using jQuery's animate() method to add smooth page scroll
+            // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+            $("html, body").animate(
+              {
+                scrollTop: $(hash).offset().top,
+              },
+              800,
+              function () {
+                // Add hash (#) to URL when done scrolling (default click behavior)
+                window.location.hash = hash;
+              }
+            );
+          } // End if
+        });
       });
-    });
 
-    function makeSelectionActive(e) {
-      Array.from(e.parentElement.children).forEach((item) => item.classList.remove('active'));
-      e.classList.add('active');
-    }
-  </script>
-  <!-- Blog Feed Script -->
-  <script src="./assets/js/blog-feed.js"></script>
-  <!-- Service Worker -->
-  <script src="service-worker.js"></script>
-</body>
-
+      function makeSelectionActive(e) {
+        Array.from(e.parentElement.children).forEach((item) =>
+          item.classList.remove("active")
+        );
+        e.classList.add("active");
+      }
+    </script>
+    <!-- Blog Feed Script -->
+    <script src="./assets/js/blog-feed.js"></script>
+    <!-- Service Worker -->
+    <script src="service-worker.js"></script>
+  </body>
 </html>
