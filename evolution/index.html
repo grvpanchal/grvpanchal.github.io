@@ -6,445 +6,585 @@
     <title>Evolution Framework: Seven Pillars of Holistic Personal Development</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <h1>Evolution Framework</h1>
-                    <p>Seven Pillars of Holistic Personal Development</p>
-                </div>
-                <nav class="main-nav">
-                    <button class="nav-btn active" data-view="dashboard">Dashboard</button>
-                    <button class="nav-btn" data-view="assessment">Assessment</button>
-                    <button class="nav-btn" data-view="progress">Progress</button>
-                    <button class="nav-btn" data-view="integration">Integration</button>
-                    <button class="nav-btn" data-view="planning">Planning</button>
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Dashboard View -->
-        <section id="dashboard-view" class="view active">
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
             <div class="container">
-                <div class="dashboard-header">
-                    <h2>Personal Development Framework</h2>
-                    <div class="overall-progress">
-                        <span class="progress-label">Overall Progress</span>
-                        <div class="progress-circle">
-                            <span class="progress-percentage">0%</span>
-                        </div>
+                <div class="header-content">
+                    <div class="logo">
+                        <h1>Evolution Framework</h1>
+                        <p>Seven Pillars of Holistic Personal Development</p>
                     </div>
+                    <nav class="main-nav">
+                        <button 
+                            v-for="view in navigationViews" 
+                            :key="view.key"
+                            class="nav-btn" 
+                            :class="{ active: activeView === view.key }"
+                            @click="setActiveView(view.key)">
+                            {{ view.name }}
+                        </button>
+                    </nav>
                 </div>
-                
-                <div class="framework-diagram">
-                    <div class="center-pillar" data-pillar="swadharma">
-                        <div class="pillar-content">
-                            <h3>Swadharma</h3>
-                            <div class="pillar-score">0%</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <section v-if="activeView === 'dashboard'" id="dashboard-view" class="view active">
+                <div class="container">
+                    <div class="dashboard-header">
+                        <h2>Personal Development Framework</h2>
+                        <div class="overall-progress">
+                            <span class="progress-label">Overall Progress</span>
+                            <div class="progress-circle" :style="progressCircleStyle">
+                                <span class="progress-percentage">{{ overallProgress }}%</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="surrounding-pillars">
-                        <div class="pillar pillar-1" data-pillar="operating">
+                    <div class="framework-diagram">
+                        <div class="center-pillar" @click="showPillarModal('swadharma')">
                             <div class="pillar-content">
-                                <h4>Operating & Organization Skills</h4>
-                                <div class="pillar-score">0%</div>
-                            </div>
-                        </div>
-                        <div class="pillar pillar-2" data-pillar="technical">
-                            <div class="pillar-content">
-                                <h4>Technical Physical & Mind Ability</h4>
-                                <div class="pillar-score">0%</div>
-                            </div>
-                        </div>
-                        <div class="pillar pillar-3" data-pillar="social">
-                            <div class="pillar-content">
-                                <h4>Social Leverage Network</h4>
-                                <div class="pillar-score">0%</div>
-                            </div>
-                        </div>
-                        <div class="pillar pillar-4" data-pillar="financial">
-                            <div class="pillar-content">
-                                <h4>Financial Model</h4>
-                                <div class="pillar-score">0%</div>
-                            </div>
-                        </div>
-                        <div class="pillar pillar-5" data-pillar="hospitality">
-                            <div class="pillar-content">
-                                <h4>Social Hospitality</h4>
-                                <div class="pillar-score">0%</div>
-                            </div>
-                        </div>
-                        <div class="pillar pillar-6" data-pillar="branding">
-                            <div class="pillar-content">
-                                <h4>Personal Brand Marketing</h4>
-                                <div class="pillar-score">0%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="phase-timeline">
-                    <h3>Development Phases</h3>
-                    <div class="timeline">
-                        <div class="phase-item active">
-                            <div class="phase-content">
-                                <h4>Foundation</h4>
-                                <p>Months 1-6</p>
-                                <span>Self-discovery and baseline establishment</span>
-                            </div>
-                        </div>
-                        <div class="phase-item">
-                            <div class="phase-content">
-                                <h4>Development</h4>
-                                <p>Months 7-18</p>
-                                <span>Skill building and system creation</span>
-                            </div>
-                        </div>
-                        <div class="phase-item">
-                            <div class="phase-content">
-                                <h4>Integration</h4>
-                                <p>Months 19-36</p>
-                                <span>Cross-dimensional optimization</span>
-                            </div>
-                        </div>
-                        <div class="phase-item">
-                            <div class="phase-content">
-                                <h4>Mastery</h4>
-                                <p>Years 4-7</p>
-                                <span>Leadership development</span>
-                            </div>
-                        </div>
-                        <div class="phase-item">
-                            <div class="phase-content">
-                                <h4>Legacy</h4>
-                                <p>Years 8+</p>
-                                <span>Wisdom sharing and impact</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Assessment View -->
-        <section id="assessment-view" class="view">
-            <div class="container">
-                <div class="assessment-header">
-                    <h2>Assessment Center</h2>
-                    <p>Evaluate your current level across all seven pillars</p>
-                </div>
-
-                <div class="pillar-selector">
-                    <button class="pillar-select-btn active" data-assess="swadharma">Swadharma</button>
-                    <button class="pillar-select-btn" data-assess="operating">Operating Skills</button>
-                    <button class="pillar-select-btn" data-assess="technical">Technical Ability</button>
-                    <button class="pillar-select-btn" data-assess="social">Social Network</button>
-                    <button class="pillar-select-btn" data-assess="financial">Financial Model</button>
-                    <button class="pillar-select-btn" data-assess="hospitality">Social Hospitality</button>
-                    <button class="pillar-select-btn" data-assess="branding">Personal Brand</button>
-                </div>
-
-                <div class="assessment-content">
-                    <div class="pillar-info">
-                        <h3 id="assess-pillar-name">Swadharma</h3>
-                        <p id="assess-pillar-description">Personal dharma and natural purpose - the core foundation</p>
-                        <div class="stage-progress">
-                            <div class="stages">
-                                <span class="stage active">Discovery</span>
-                                <span class="stage">Alignment</span>
-                                <span class="stage">Integration</span>
-                                <span class="stage">Mastery</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="assessment-form">
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                            <span class="progress-text">Question 1 of 7</span>
-                        </div>
-
-                        <div class="question-container">
-                            <h4 class="question-text">Do I have a clear understanding of my core values and life purpose?</h4>
-                            <div class="rating-scale">
-                                <label class="rating-option">
-                                    <input type="radio" name="current-question" value="1">
-                                    <span class="rating-label">Strongly Disagree</span>
-                                </label>
-                                <label class="rating-option">
-                                    <input type="radio" name="current-question" value="2">
-                                    <span class="rating-label">Disagree</span>
-                                </label>
-                                <label class="rating-option">
-                                    <input type="radio" name="current-question" value="3">
-                                    <span class="rating-label">Neutral</span>
-                                </label>
-                                <label class="rating-option">
-                                    <input type="radio" name="current-question" value="4">
-                                    <span class="rating-label">Agree</span>
-                                </label>
-                                <label class="rating-option">
-                                    <input type="radio" name="current-question" value="5">
-                                    <span class="rating-label">Strongly Agree</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="assessment-controls">
-                            <button class="btn btn--secondary" id="prev-question" disabled>Previous</button>
-                            <button class="btn btn--primary" id="next-question">Next</button>
-                        </div>
-                    </div>
-
-                    <div class="assessment-results hidden">
-                        <h4>Assessment Complete!</h4>
-                        <div class="result-score">
-                            <span class="score-label">Your Score:</span>
-                            <span class="score-value">0/100</span>
-                        </div>
-                        <div class="result-stage">
-                            <span class="stage-label">Current Stage:</span>
-                            <span class="stage-value">Discovery</span>
-                        </div>
-                        <div class="recommendations">
-                            <h5>Recommendations:</h5>
-                            <ul class="recommendation-list"></ul>
-                        </div>
-                        <button class="btn btn--primary" id="start-new-assessment">Assess Another Pillar</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Progress View -->
-        <section id="progress-view" class="view">
-            <div class="container">
-                <h2>Progress Tracking</h2>
-                
-                <div class="progress-overview">
-                    <div class="progress-cards">
-                        <div class="progress-card">
-                            <h4>Overall Completion</h4>
-                            <div class="chart-container" style="position: relative; height: 200px;">
-                                <canvas id="radarChart"></canvas>
+                                <h3>{{ frameworkData.framework.centerPillar.name }}</h3>
+                                <div class="pillar-score" :class="getScoreColorClass(assessmentScores.swadharma)">
+                                    {{ assessmentScores.swadharma }}%
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="progress-card">
-                            <h4>Development Timeline</h4>
-                            <div class="timeline-progress">
-                                <div class="timeline-item completed">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h5>Foundation Phase</h5>
-                                        <p>Self-discovery completed</p>
-                                    </div>
-                                </div>
-                                <div class="timeline-item current">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h5>Development Phase</h5>
-                                        <p>Building core competencies</p>
-                                    </div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h5>Integration Phase</h5>
-                                        <p>Upcoming milestone</p>
+                        <div class="surrounding-pillars">
+                            <div 
+                                v-for="(pillar, index) in frameworkData.framework.surroundingPillars" 
+                                :key="index"
+                                :class="['pillar', `pillar-${index + 1}`]" 
+                                @click="showPillarModal(getPillarKey(index))">
+                                <div class="pillar-content">
+                                    <h4>{{ pillar.name }}</h4>
+                                    <div class="pillar-score" :class="getScoreColorClass(assessmentScores[getPillarKey(index)])">
+                                        {{ assessmentScores[getPillarKey(index)] }}%
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="pillar-progress">
-                    <h3>Individual Pillar Progress</h3>
-                    <div class="pillar-grid">
-                        <div class="pillar-progress-card">
-                            <h4>Swadharma</h4>
-                            <div class="progress-bar-horizontal">
-                                <div class="progress-fill" style="width: 0%"></div>
-                            </div>
-                            <span class="progress-score">0% Complete</span>
-                        </div>
-                        <!-- Additional pillar progress cards will be generated by JS -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Integration View -->
-        <section id="integration-view" class="view">
-            <div class="container">
-                <h2>Integration Matrix</h2>
-                <p>Discover synergies between pillars to accelerate your development</p>
-                
-                <div class="integration-matrix">
-                    <div class="matrix-header">
-                        <div class="matrix-cell"></div>
-                        <div class="matrix-cell pillar-header">Swadharma</div>
-                        <div class="matrix-cell pillar-header">Operating</div>
-                        <div class="matrix-cell pillar-header">Technical</div>
-                        <div class="matrix-cell pillar-header">Social</div>
-                        <div class="matrix-cell pillar-header">Financial</div>
-                        <div class="matrix-cell pillar-header">Hospitality</div>
-                        <div class="matrix-cell pillar-header">Branding</div>
-                    </div>
-                    <!-- Matrix grid will be generated by JavaScript -->
-                </div>
-
-                <div class="synergy-details">
-                    <div class="synergy-card">
-                        <h4>Pillar Synergies</h4>
-                        <p>Hover over matrix cells to discover powerful connections between pillars.</p>
-                        <div class="synergy-content">
-                            <h5 class="synergy-title">Select a connection to learn more</h5>
-                            <p class="synergy-description">Integration opportunities will appear here.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Planning View -->
-        <section id="planning-view" class="view">
-            <div class="container">
-                <h2>Action Planning</h2>
-                
-                <div class="planning-overview">
-                    <div class="planning-cards">
-                        <div class="planning-card">
-                            <h4>Development Priorities</h4>
-                            <div class="priority-list">
-                                <div class="priority-item">
-                                    <span class="priority-pillar">Swadharma</span>
-                                    <span class="priority-action">Complete self-discovery assessment</span>
-                                    <span class="priority-timeline">This week</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="planning-card">
-                            <h4>30-60-90 Day Goals</h4>
-                            <div class="goal-timeline">
-                                <div class="goal-period">
-                                    <h5>30 Days</h5>
-                                    <ul class="goal-list">
-                                        <li>Complete baseline assessments for all pillars</li>
-                                        <li>Establish daily reflection practice</li>
-                                    </ul>
-                                </div>
-                                <div class="goal-period">
-                                    <h5>60 Days</h5>
-                                    <ul class="goal-list">
-                                        <li>Develop personal operating systems</li>
-                                        <li>Begin skill development programs</li>
-                                    </ul>
-                                </div>
-                                <div class="goal-period">
-                                    <h5>90 Days</h5>
-                                    <ul class="goal-list">
-                                        <li>Establish integrated daily practices</li>
-                                        <li>Create accountability partnerships</li>
-                                    </ul>
+                    <div class="phase-timeline">
+                        <h3>Development Phases</h3>
+                        <div class="timeline">
+                            <div 
+                                v-for="(phase, index) in developmentPhases" 
+                                :key="index"
+                                class="phase-item" 
+                                :class="{ active: index === 0 }">
+                                <div class="phase-content">
+                                    <h4>{{ phase.name }}</h4>
+                                    <p>{{ phase.duration }}</p>
+                                    <span>{{ phase.description }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </section>
 
-                <div class="resource-library">
-                    <h3>Resource Library</h3>
-                    <div class="resource-categories">
-                        <div class="resource-category">
-                            <h4>Books & Reading</h4>
-                            <ul>
-                                <li><a href="#" target="_blank">The 7 Habits of Highly Effective People</a></li>
-                                <li><a href="#" target="_blank">Atomic Habits by James Clear</a></li>
-                                <li><a href="#" target="_blank">The Purpose Driven Life</a></li>
-                            </ul>
+            <!-- Assessment View -->
+            <section v-if="activeView === 'assessment'" id="assessment-view" class="view active">
+                <div class="container">
+                    <div class="assessment-header">
+                        <h2>Assessment Center</h2>
+                        <p>Evaluate your current level across all seven pillars</p>
+                    </div>
+
+                    <div class="pillar-selector">
+                        <button 
+                            v-for="(pillar, key) in pillarMappings" 
+                            :key="key"
+                            class="pillar-select-btn" 
+                            :class="{ active: currentAssessment.pillar === key }"
+                            @click="selectPillarForAssessment(key)">
+                            {{ getPillarDisplayName(pillar.name) }}
+                        </button>
+                    </div>
+
+                    <div class="assessment-content">
+                        <div class="pillar-info">
+                            <h3>{{ currentPillarData.name }}</h3>
+                            <p>{{ currentPillarData.description }}</p>
+                            <div class="stage-progress">
+                                <div class="stages">
+                                    <span 
+                                        v-for="(stage, index) in currentPillarData.stages" 
+                                        :key="index"
+                                        class="stage" 
+                                        :class="{ active: index === getCurrentStageIndex() }">
+                                        {{ stage }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="resource-category">
-                            <h4>Tools & Templates</h4>
-                            <ul>
-                                <li><a href="#" target="_blank">Personal Mission Statement Template</a></li>
-                                <li><a href="#" target="_blank">Goal Setting Worksheet</a></li>
-                                <li><a href="#" target="_blank">Weekly Review Template</a></li>
-                            </ul>
+
+                        <div v-show="!assessmentResults.show" class="assessment-form">
+                            <div class="progress-bar">
+                                <div class="progress-fill" :style="{ width: assessmentProgress + '%' }"></div>
+                                <span class="progress-text">Question {{ currentAssessment.questionIndex + 1 }} of {{ currentPillarData.assessmentQuestions.length }}</span>
+                            </div>
+
+                            <div class="question-container">
+                                <h4 class="question-text">{{ currentQuestion }}</h4>
+                                <div class="rating-scale">
+                                    <label 
+                                        v-for="(rating, index) in ratingOptions" 
+                                        :key="index"
+                                        class="rating-option">
+                                        <input 
+                                            type="radio" 
+                                            name="current-question" 
+                                            :value="rating.value"
+                                            v-model="currentAnswer">
+                                        <span class="rating-label">{{ rating.label }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="assessment-controls">
+                                <button 
+                                    class="btn btn--secondary" 
+                                    @click="handlePreviousQuestion"
+                                    :disabled="currentAssessment.questionIndex === 0">
+                                    Previous
+                                </button>
+                                <button 
+                                    class="btn btn--primary" 
+                                    @click="handleNextQuestion"
+                                    :disabled="!currentAnswer">
+                                    {{ isLastQuestion ? 'Complete Assessment' : 'Next' }}
+                                </button>
+                            </div>
                         </div>
-                        <div class="resource-category">
-                            <h4>Communities & Networks</h4>
-                            <ul>
-                                <li><a href="#" target="_blank">Personal Development Groups</a></li>
-                                <li><a href="#" target="_blank">Professional Networking Events</a></li>
-                                <li><a href="#" target="_blank">Mentorship Programs</a></li>
-                            </ul>
+
+                        <div v-show="assessmentResults.show" class="assessment-results">
+                            <h4>Assessment Complete!</h4>
+                            <div class="result-score">
+                                <span class="score-label">Your Score:</span>
+                                <span class="score-value" :class="getScoreColorClass(assessmentResults.percentage)">
+                                    {{ assessmentResults.percentage }}/100
+                                </span>
+                            </div>
+                            <div class="result-stage">
+                                <span class="stage-label">Current Stage:</span>
+                                <span class="stage-value">{{ assessmentResults.stage }}</span>
+                            </div>
+                            <div class="recommendations">
+                                <h5>Recommendations:</h5>
+                                <ul class="recommendation-list">
+                                    <li v-for="(rec, index) in assessmentResults.recommendations" :key="index">
+                                        {{ rec }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <button class="btn btn--primary" @click="startNewAssessment">
+                                Assess Another Pillar
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
 
-    <!-- Pillar Detail Modal -->
-    <div class="modal hidden" id="pillar-modal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Pillar Details</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="pillar-description">
-                    <p class="pillar-desc-text"></p>
+            <!-- Progress View -->
+            <section v-if="activeView === 'progress'" id="progress-view" class="view active">
+                <div class="container">
+                    <h2>Progress Tracking</h2>
+                    
+                    <div class="progress-overview">
+                        <div class="progress-cards">
+                            <div class="progress-card">
+                                <h4>Overall Completion</h4>
+                                <div class="chart-container" style="position: relative; height: 200px;">
+                                    <canvas ref="radarChart" id="radarChart"></canvas>
+                                </div>
+                                <div class="chart-summary" v-if="completedAssessments > 0">
+                                    <p><strong>{{ completedAssessments }}</strong> of <strong>{{ totalPillars }}</strong> assessments completed</p>
+                                    <p>Overall Score: <strong>{{ overallProgress }}%</strong></p>
+                                </div>
+                                <div v-else class="chart-summary">
+                                    <p>Complete your first assessment to see progress</p>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-card">
+                                <h4>Development Timeline</h4>
+                                <div class="timeline-progress">
+                                    <div 
+                                        v-for="(item, index) in timelineItems" 
+                                        :key="index"
+                                        class="timeline-item" 
+                                        :class="getTimelineStatus(index)">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h5>{{ item.title }}</h5>
+                                            <p>{{ item.description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pillar-progress">
+                        <h3>Individual Pillar Progress</h3>
+                        <div class="pillar-grid">
+                            <div 
+                                v-for="(pillar, key) in pillarMappings" 
+                                :key="key"
+                                class="pillar-progress-card"
+                                @click="showPillarModal(key)">
+                                <h4>{{ pillar.name }}</h4>
+                                <div class="progress-bar-horizontal">
+                                    <div 
+                                        class="progress-fill" 
+                                        :class="getScoreColorClass(assessmentScores[key])"
+                                        :style="{ width: assessmentScores[key] + '%' }">
+                                    </div>
+                                </div>
+                                <span class="progress-score">{{ assessmentScores[key] }}% Complete</span>
+                                <div class="pillar-stage" v-if="assessmentScores[key] > 0">
+                                    <small>Stage: {{ getPillarStage(key) }}</small>
+                                </div>
+                                <div v-else class="pillar-stage">
+                                    <small>Not assessed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Statistics -->
+                    <div class="progress-stats" v-if="completedAssessments > 0">
+                        <h3>Progress Statistics</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ highPerformingPillars }}</div>
+                                <div class="stat-label">High Performing Pillars (≥61%)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">{{ mediumPerformingPillars }}</div>
+                                <div class="stat-label">Developing Pillars (31-60%)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">{{ lowPerformingPillars }}</div>
+                                <div class="stat-label">Foundation Pillars (≤30%)</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="pillar-stages">
-                    <h4>Evolutionary Stages</h4>
-                    <div class="stages-list"></div>
+            </section>
+
+            <!-- Integration View -->
+            <section v-if="activeView === 'integration'" id="integration-view" class="view active">
+                <div class="container">
+                    <h2>Integration Matrix</h2>
+                    <p>Discover synergies between pillars to accelerate your development</p>
+                    
+                    <!-- Integration Score Overview -->
+                    <div class="integration-overview" v-if="completedAssessments > 1">
+                        <div class="integration-stats">
+                            <h3>Integration Opportunities</h3>
+                            <div class="integration-cards">
+                                <div 
+                                    v-for="opportunity in topIntegrationOpportunities" 
+                                    :key="opportunity.title"
+                                    class="integration-opportunity"
+                                    @click="selectSynergyFromCard(opportunity)">
+                                    <h4>{{ opportunity.title }}</h4>
+                                    <p>{{ opportunity.description }}</p>
+                                    <div class="opportunity-strength">
+                                        <span class="strength-label">Synergy Strength:</span>
+                                        <span class="strength-value" :class="opportunity.strengthClass">
+                                            {{ opportunity.strength }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="integration-matrix">
+                        <div class="matrix-header">
+                            <div class="matrix-cell"></div>
+                            <div 
+                                v-for="pillar in matrixPillars" 
+                                :key="pillar"
+                                class="matrix-cell pillar-header">
+                                {{ pillar }}
+                            </div>
+                        </div>
+                        <div 
+                            v-for="(rowPillar, rowIndex) in matrixPillars" 
+                            :key="rowPillar"
+                            class="matrix-row">
+                            <div class="matrix-cell pillar-header">{{ rowPillar }}</div>
+                            <div 
+                                v-for="(colPillar, colIndex) in matrixPillars" 
+                                :key="colPillar"
+                                class="matrix-intersection"
+                                :class="getMatrixCellClass(rowIndex, colIndex, rowPillar, colPillar)"
+                                :style="getMatrixCellStyle(rowIndex, colIndex)"
+                                @click="showSynergy(rowPillar, colPillar)"
+                                :title="getMatrixCellTooltip(rowIndex, colIndex, rowPillar, colPillar)">
+                                <div v-if="rowIndex !== colIndex && findSynergy(rowPillar, colPillar)" 
+                                     class="synergy-indicator">
+                                    ✦
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="synergy-details">
+                        <div class="synergy-card">
+                            <h4>Pillar Synergies</h4>
+                            <p v-if="!selectedSynergy.active">Click on matrix cells to discover powerful connections between pillars.</p>
+                            <div v-else class="synergy-content active">
+                                <h5 class="synergy-title">{{ selectedSynergy.title }}</h5>
+                                <p class="synergy-description">{{ selectedSynergy.description }}</p>
+                                <div v-if="selectedSynergy.actionItems" class="synergy-actions">
+                                    <h6>Action Items for Integration:</h6>
+                                    <ul>
+                                        <li v-for="action in selectedSynergy.actionItems" :key="action">
+                                            {{ action }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Available Synergies List -->
+                        <div class="available-synergies">
+                            <h4>All Available Synergies</h4>
+                            <div class="synergy-list">
+                                <div 
+                                    v-for="synergy in frameworkData.integrationSynergies" 
+                                    :key="synergy.pillar1 + synergy.pillar2"
+                                    class="synergy-item"
+                                    @click="selectSynergyFromList(synergy)">
+                                    <div class="synergy-pillars">
+                                        <strong>{{ getShortPillarName(synergy.pillar1) }} × {{ getShortPillarName(synergy.pillar2) }}</strong>
+                                    </div>
+                                    <div class="synergy-text">{{ synergy.synergy }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-actions">
-                    <button class="btn btn--primary start-assessment-btn">Take Assessment</button>
-                    <button class="btn btn--secondary view-progress-btn">View Progress</button>
+            </section>
+
+            <!-- Planning View -->
+            <section v-if="activeView === 'planning'" id="planning-view" class="view active">
+                <div class="container">
+                    <h2>Action Planning</h2>
+                    
+                    <!-- Planning Dashboard -->
+                    <div class="planning-dashboard" v-if="completedAssessments > 0">
+                        <div class="planning-summary">
+                            <h3>Your Development Summary</h3>
+                            <div class="summary-cards">
+                                <div class="summary-card">
+                                    <div class="summary-value">{{ getStrongestPillar().score }}%</div>
+                                    <div class="summary-label">Strongest Pillar</div>
+                                    <div class="summary-detail">{{ getStrongestPillar().name }}</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value">{{ getWeakestPillar().score }}%</div>
+                                    <div class="summary-label">Focus Area</div>
+                                    <div class="summary-detail">{{ getWeakestPillar().name }}</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value">{{ getAverageGrowthPotential() }}%</div>
+                                    <div class="summary-label">Growth Potential</div>
+                                    <div class="summary-detail">Average improvement opportunity</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="planning-overview">
+                        <div class="planning-cards">
+                            <div class="planning-card">
+                                <h4>Development Priorities</h4>
+                                <div class="priority-list">
+                                    <div 
+                                        v-for="(priority, index) in developmentPriorities" 
+                                        :key="priority.pillar"
+                                        class="priority-item"
+                                        :class="`priority-${index + 1}`">
+                                        <div class="priority-rank">{{ index + 1 }}</div>
+                                        <div class="priority-content">
+                                            <span class="priority-pillar">{{ priority.pillar }}</span>
+                                            <span class="priority-action">{{ priority.action }}</span>
+                                            <span class="priority-timeline">{{ priority.timeline }}</span>
+                                        </div>
+                                        <div v-if="priority.score !== undefined" class="priority-score">
+                                            Current: {{ priority.score }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="planning-card">
+                                <h4>Personalized Goals</h4>
+                                <div class="goal-timeline">
+                                    <div 
+                                        v-for="period in personalizedGoals" 
+                                        :key="period.days"
+                                        class="goal-period">
+                                        <h5>{{ period.days }} Days</h5>
+                                        <ul class="goal-list">
+                                            <li 
+                                                v-for="(goal, index) in period.goals" 
+                                                :key="index"
+                                                class="goal-item">
+                                                <input type="checkbox" :id="`goal-${period.days}-${index}`" v-model="goal.completed">
+                                                <label :for="`goal-${period.days}-${index}`">{{ goal.text }}</label>
+                                                <span v-if="goal.pillar" class="goal-pillar">{{ goal.pillar }}</span>
+                                            </li>
+                                        </ul>
+                                        <div class="period-progress">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill" :style="{ width: getPeriodProgress(period) + '%' }"></div>
+                                            </div>
+                                            <span class="progress-text">{{ getPeriodProgress(period) }}% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Items -->
+                    <div class="action-items">
+                        <h3>Immediate Actions</h3>
+                        <div class="action-grid">
+                            <div 
+                                v-for="action in immediateActions" 
+                                :key="action.id"
+                                class="action-item"
+                                :class="{ completed: action.completed }">
+                                <input type="checkbox" :id="`action-${action.id}`" v-model="action.completed">
+                                <label :for="`action-${action.id}`" class="action-content">
+                                    <h5>{{ action.title }}</h5>
+                                    <p>{{ action.description }}</p>
+                                    <span class="action-pillar">{{ action.pillar }}</span>
+                                    <span class="action-duration">{{ action.estimatedTime }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resource-library">
+                        <h3>Curated Resources</h3>
+                        <div class="resource-filter">
+                            <button 
+                                v-for="category in resourceCategories" 
+                                :key="category.title"
+                                class="filter-btn"
+                                :class="{ active: activeResourceFilter === category.title }"
+                                @click="setActiveResourceFilter(category.title)">
+                                {{ category.title }}
+                            </button>
+                        </div>
+                        <div class="resource-categories">
+                            <div 
+                                v-for="category in filteredResourceCategories" 
+                                :key="category.title"
+                                class="resource-category">
+                                <h4>{{ category.title }}</h4>
+                                <ul>
+                                    <li v-for="resource in category.resources" :key="resource.title">
+                                        <a :href="resource.link" target="_blank" class="resource-link">
+                                            <span class="resource-title">{{ resource.title }}</span>
+                                            <span v-if="resource.description" class="resource-description">
+                                                {{ resource.description }}
+                                            </span>
+                                            <span v-if="resource.type" class="resource-type">{{ resource.type }}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Pillar Detail Modal -->
+        <div v-show="modal.show" class="modal" id="pillar-modal">
+            <div class="modal-overlay" @click="closePillarModal"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">{{ modal.pillar?.name }}</h3>
+                    <button class="modal-close" @click="closePillarModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="pillar-description">
+                        <p class="pillar-desc-text">{{ modal.pillar?.description }}</p>
+                    </div>
+                    <div class="pillar-stages">
+                        <h4>Evolutionary Stages</h4>
+                        <div class="stages-list">
+                            <div 
+                                v-for="(stage, index) in modal.pillar?.stages" 
+                                :key="index"
+                                class="stage-item" 
+                                :class="{ current: index === modal.currentStageIndex }">
+                                <div class="stage-name">{{ stage }}</div>
+                                <div class="stage-description">
+                                    {{ index <= modal.currentStageIndex ? 'Current Stage' : 'Future Stage' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn--primary" @click="startAssessmentFromModal">
+                            Take Assessment
+                        </button>
+                        <button class="btn btn--secondary" @click="viewProgressFromModal">
+                            View Progress
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Evolution Framework</h4>
+                        <p>Holistic Personal Development System</p>
+                    </div>
+                    <div class="footer-section">
+                        <h5>Framework</h5>
+                        <ul>
+                            <li><a href="#" target="_blank">Methodology</a></li>
+                            <li><a href="#" target="_blank">Research</a></li>
+                            <li><a href="#" target="_blank">Case Studies</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h5>Support</h5>
+                        <ul>
+                            <li><a href="#" target="_blank">Help Center</a></li>
+                            <li><a href="#" target="_blank">Community</a></li>
+                            <li><a href="#" target="_blank">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>Evolution Framework</h4>
-                    <p>Holistic Personal Development System</p>
-                </div>
-                <div class="footer-section">
-                    <h5>Framework</h5>
-                    <ul>
-                        <li><a href="#" target="_blank">Methodology</a></li>
-                        <li><a href="#" target="_blank">Research</a></li>
-                        <li><a href="#" target="_blank">Case Studies</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h5>Support</h5>
-                    <ul>
-                        <li><a href="#" target="_blank">Help Center</a></li>
-                        <li><a href="#" target="_blank">Community</a></li>
-                        <li><a href="#" target="_blank">Contact</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
 
     <script src="app.js"></script>
 </body>

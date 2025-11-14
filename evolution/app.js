@@ -1,767 +1,956 @@
-// Evolution Framework Application JavaScript
+const { createApp } = Vue;
 
-// Framework data
-const frameworkData = {
-  "framework": {
-    "name": "Evolution Framework: Seven Pillars of Holistic Personal Development",
-    "centerPillar": {
-      "name": "Swadharma",
-      "description": "Personal dharma and natural purpose - the core foundation",
-      "stages": ["Discovery", "Alignment", "Integration", "Mastery"],
-      "assessmentQuestions": [
-        "Do I have a clear understanding of my core values and life purpose?",
-        "Am I living in alignment with my natural strengths and passions?",
-        "Do my daily actions reflect my authentic self and dharma?",
-        "Am I making decisions that honor my true nature?",
-        "Do I feel fulfilled and purposeful in my current path?",
-        "Am I contributing to the world in a way that feels natural to me?",
-        "Do I experience flow and ease when working within my dharma?"
+createApp({
+  data() {
+    return {
+      // Framework data
+      frameworkData: {
+        "framework": {
+          "name": "Evolution Framework: Seven Pillars of Holistic Personal Development",
+          "centerPillar": {
+            "name": "Swadharma",
+            "description": "Personal dharma and natural purpose - the core foundation",
+            "stages": ["Discovery", "Alignment", "Integration", "Mastery"],
+            "assessmentQuestions": [
+              "Do I have a clear understanding of my core values and life purpose?",
+              "Am I living in alignment with my natural strengths and passions?",
+              "Do my daily actions reflect my authentic self and dharma?",
+              "Am I making decisions that honor my true nature?",
+              "Do I feel fulfilled and purposeful in my current path?",
+              "Am I contributing to the world in a way that feels natural to me?",
+              "Do I experience flow and ease when working within my dharma?"
+            ]
+          },
+          "surroundingPillars": [
+            {
+              "name": "Operating & Organization Skills",
+              "description": "Systematic execution and management abilities",
+              "stages": ["Foundation", "Development", "Optimization", "Leadership"],
+              "assessmentQuestions": [
+                "Do I have effective systems for managing my time and priorities?",
+                "Can I plan and execute complex projects successfully?",
+                "Am I skilled at organizing resources and coordinating activities?",
+                "Do I demonstrate leadership in organizing teams and initiatives?",
+                "Can I create and optimize efficient processes and workflows?",
+                "Am I able to manage multiple responsibilities effectively?",
+                "Do others look to me for organizational guidance and structure?"
+              ]
+            },
+            {
+              "name": "Technical Physical & Mind Ability",
+              "description": "Cognitive and physical capabilities development",
+              "stages": ["Assessment", "Enhancement", "Integration", "Excellence"],
+              "assessmentQuestions": [
+                "Am I physically fit and maintaining good health habits?",
+                "Do I continuously develop my technical and cognitive skills?",
+                "Am I mentally sharp and able to learn new concepts quickly?",
+                "Do I integrate mind-body practices for optimal performance?",
+                "Am I recognized for my technical expertise in my field?",
+                "Do I maintain high energy levels and mental clarity?",
+                "Can I perform at peak levels when needed?"
+              ]
+            },
+            {
+              "name": "Social Leverage Network",
+              "description": "Relationship building and networking mastery",
+              "stages": ["Building", "Expanding", "Leveraging", "Influencing"],
+              "assessmentQuestions": [
+                "Do I have a strong, diverse network of meaningful relationships?",
+                "Can I create mutual value in my professional relationships?",
+                "Am I skilled at building rapport and trust with others?",
+                "Do I actively maintain and nurture my network connections?",
+                "Can I leverage my network to create opportunities for myself and others?",
+                "Am I seen as a valuable connector within my industry/community?",
+                "Do I have influence within my professional and social circles?"
+              ]
+            },
+            {
+              "name": "Financial Model",
+              "description": "Wealth building and financial strategy",
+              "stages": ["Planning", "Implementing", "Scaling", "Sustaining"],
+              "assessmentQuestions": [
+                "Do I have a clear financial strategy and budget?",
+                "Am I building multiple income streams effectively?",
+                "Do I understand and actively use investment principles?",
+                "Am I making progress toward my financial goals?",
+                "Do I have adequate emergency funds and financial security?",
+                "Am I building long-term wealth through smart financial decisions?",
+                "Can I maintain and grow my wealth sustainably?"
+              ]
+            },
+            {
+              "name": "Social Hospitality",
+              "description": "Service orientation and interpersonal excellence",
+              "stages": ["Awareness", "Cultivation", "Practice", "Service"],
+              "assessmentQuestions": [
+                "Am I emotionally intelligent and empathetic toward others?",
+                "Do I serve others with genuine care and excellence?",
+                "Am I culturally aware and respectful in diverse situations?",
+                "Do I create positive experiences for people I interact with?",
+                "Am I known for my kindness and service orientation?",
+                "Do I contribute meaningfully to my community?",
+                "Am I developing others through my service and mentorship?"
+              ]
+            },
+            {
+              "name": "Personal Brand Marketing",
+              "description": "Identity creation and market positioning",
+              "stages": ["Identity", "Visibility", "Authority", "Legacy"],
+              "assessmentQuestions": [
+                "Do I have a clear, authentic personal brand identity?",
+                "Am I visible and recognized in my field or industry?",
+                "Do I create valuable content that showcases my expertise?",
+                "Am I building thought leadership in my area of expertise?",
+                "Do others seek my insights and recommendations?",
+                "Am I creating a lasting positive impact and reputation?",
+                "Will my work and influence continue to benefit others long-term?"
+              ]
+            }
+          ]
+        },
+        "integrationSynergies": [
+          {
+            "pillar1": "Swadharma",
+            "pillar2": "Operating & Organization Skills", 
+            "synergy": "Purpose-driven systems create effortless execution aligned with dharma"
+          },
+          {
+            "pillar1": "Swadharma",
+            "pillar2": "Technical Physical & Mind Ability",
+            "synergy": "Natural abilities enhanced through dharmic practice and purposeful development"
+          },
+          {
+            "pillar1": "Swadharma", 
+            "pillar2": "Social Leverage Network",
+            "synergy": "Authentic relationships built on shared values and genuine purpose alignment"
+          },
+          {
+            "pillar1": "Technical Physical & Mind Ability",
+            "pillar2": "Personal Brand Marketing",
+            "synergy": "Demonstrated expertise strengthens personal brand and market positioning"
+          },
+          {
+            "pillar1": "Social Leverage Network",
+            "pillar2": "Financial Model",
+            "synergy": "Networks provide financial opportunities and investment partnerships"
+          },
+          {
+            "pillar1": "Social Hospitality",
+            "pillar2": "Personal Brand Marketing", 
+            "synergy": "Excellent service builds brand reputation and authentic market positioning"
+          }
+        ]
+      },
+
+      // Application state
+      activeView: 'dashboard',
+      assessmentScores: {
+        swadharma: 0,
+        operating: 0,
+        technical: 0,
+        social: 0,
+        financial: 0,
+        hospitality: 0,
+        branding: 0
+      },
+
+      currentAssessment: {
+        pillar: 'swadharma',
+        questionIndex: 0,
+        answers: [],
+        isActive: false
+      },
+
+      currentAnswer: null,
+
+      assessmentResults: {
+        show: false,
+        percentage: 0,
+        stage: '',
+        recommendations: []
+      },
+
+      modal: {
+        show: false,
+        pillar: null,
+        currentPillarKey: null,
+        currentStageIndex: 0
+      },
+
+      selectedSynergy: {
+        title: 'Select a connection to learn more',
+        description: 'Integration opportunities will appear here.'
+      },
+
+      // Chart.js radar chart instance
+      radarChart: null,
+
+      // Navigation views
+      navigationViews: [
+        { key: 'dashboard', name: 'Dashboard' },
+        { key: 'assessment', name: 'Assessment' },
+        { key: 'progress', name: 'Progress' },
+        { key: 'integration', name: 'Integration' },
+        { key: 'planning', name: 'Planning' }
+      ],
+
+      // Development phases
+      developmentPhases: [
+        {
+          name: 'Foundation',
+          duration: 'Months 1-6',
+          description: 'Self-discovery and baseline establishment'
+        },
+        {
+          name: 'Development',
+          duration: 'Months 7-18',
+          description: 'Skill building and system creation'
+        },
+        {
+          name: 'Integration',
+          duration: 'Months 19-36',
+          description: 'Cross-dimensional optimization'
+        },
+        {
+          name: 'Mastery',
+          duration: 'Years 4-7',
+          description: 'Leadership development'
+        },
+        {
+          name: 'Legacy',
+          duration: 'Years 8+',
+          description: 'Wisdom sharing and impact'
+        }
+      ],
+
+      // Rating options for assessments
+      ratingOptions: [
+        { value: 1, label: 'Strongly Disagree' },
+        { value: 2, label: 'Disagree' },
+        { value: 3, label: 'Neutral' },
+        { value: 4, label: 'Agree' },
+        { value: 5, label: 'Strongly Agree' }
+      ],
+
+      // Timeline items for progress view
+      timelineItems: [
+        {
+          title: 'Foundation Phase',
+          description: 'Self-discovery completed',
+          status: 'completed'
+        },
+        {
+          title: 'Development Phase',
+          description: 'Building core competencies',
+          status: 'current'
+        },
+        {
+          title: 'Integration Phase',
+          description: 'Upcoming milestone',
+          status: ''
+        }
+      ],
+
+      // Matrix pillars for integration view
+      matrixPillars: ['Swadharma', 'Operating', 'Technical', 'Social', 'Financial', 'Hospitality', 'Branding'],
+
+      // Goal periods for planning
+      goalPeriods: [
+        {
+          days: '30',
+          goals: [
+            'Complete baseline assessments for all pillars',
+            'Establish daily reflection practice'
+          ]
+        },
+        {
+          days: '60',
+          goals: [
+            'Develop personal operating systems',
+            'Begin skill development programs'
+          ]
+        },
+        {
+          days: '90',
+          goals: [
+            'Establish integrated daily practices',
+            'Create accountability partnerships'
+          ]
+        }
+      ],
+
+      // Resource categories
+      resourceCategories: [
+        {
+          title: 'Books & Reading',
+          resources: [
+            { title: 'The 7 Habits of Highly Effective People', link: '#', type: 'Book', description: 'Personal effectiveness principles' },
+            { title: 'Atomic Habits by James Clear', link: '#', type: 'Book', description: 'Building better habits' },
+            { title: 'The Purpose Driven Life', link: '#', type: 'Book', description: 'Finding life purpose' }
+          ]
+        },
+        {
+          title: 'Tools & Templates',
+          resources: [
+            { title: 'Personal Mission Statement Template', link: '#', type: 'Template', description: 'Define your purpose' },
+            { title: 'Goal Setting Worksheet', link: '#', type: 'Worksheet', description: 'SMART goal planning' },
+            { title: 'Weekly Review Template', link: '#', type: 'Template', description: 'Progress tracking' }
+          ]
+        },
+        {
+          title: 'Communities & Networks',
+          resources: [
+            { title: 'Personal Development Groups', link: '#', type: 'Community', description: 'Local meetups' },
+            { title: 'Professional Networking Events', link: '#', type: 'Events', description: 'Industry connections' },
+            { title: 'Mentorship Programs', link: '#', type: 'Program', description: 'Guided development' }
+          ]
+        }
+      ],
+
+      // Planning specific data
+      activeResourceFilter: 'Books & Reading',
+      immediateActions: [
+        {
+          id: 1,
+          title: 'Complete Self-Assessment',
+          description: 'Take the Swadharma assessment to understand your core purpose',
+          pillar: 'Swadharma',
+          estimatedTime: '15 min',
+          completed: false
+        },
+        {
+          id: 2,
+          title: 'Set Up Daily Reflection',
+          description: 'Establish a 5-minute daily reflection practice',
+          pillar: 'Operating Skills',
+          estimatedTime: '10 min',
+          completed: false
+        },
+        {
+          id: 3,
+          title: 'Network Audit',
+          description: 'List your current professional connections and identify gaps',
+          pillar: 'Social Network',
+          estimatedTime: '30 min',
+          completed: false
+        }
       ]
-    },
-    "surroundingPillars": [
-      {
-        "name": "Operating & Organization Skills",
-        "description": "Systematic execution and management abilities",
-        "stages": ["Foundation", "Development", "Optimization", "Leadership"],
-        "assessmentQuestions": [
-          "Do I have effective systems for managing my time and priorities?",
-          "Can I plan and execute complex projects successfully?",
-          "Am I skilled at organizing resources and coordinating activities?",
-          "Do I demonstrate leadership in organizing teams and initiatives?",
-          "Can I create and optimize efficient processes and workflows?",
-          "Am I able to manage multiple responsibilities effectively?",
-          "Do others look to me for organizational guidance and structure?"
-        ]
-      },
-      {
-        "name": "Technical Physical & Mind Ability",
-        "description": "Cognitive and physical capabilities development",
-        "stages": ["Assessment", "Enhancement", "Integration", "Excellence"],
-        "assessmentQuestions": [
-          "Am I physically fit and maintaining good health habits?",
-          "Do I continuously develop my technical and cognitive skills?",
-          "Am I mentally sharp and able to learn new concepts quickly?",
-          "Do I integrate mind-body practices for optimal performance?",
-          "Am I recognized for my technical expertise in my field?",
-          "Do I maintain high energy levels and mental clarity?",
-          "Can I perform at peak levels when needed?"
-        ]
-      },
-      {
-        "name": "Social Leverage Network",
-        "description": "Relationship building and networking mastery",
-        "stages": ["Building", "Expanding", "Leveraging", "Influencing"],
-        "assessmentQuestions": [
-          "Do I have a strong, diverse network of meaningful relationships?",
-          "Can I create mutual value in my professional relationships?",
-          "Am I skilled at building rapport and trust with others?",
-          "Do I actively maintain and nurture my network connections?",
-          "Can I leverage my network to create opportunities for myself and others?",
-          "Am I seen as a valuable connector within my industry/community?",
-          "Do I have influence within my professional and social circles?"
-        ]
-      },
-      {
-        "name": "Financial Model",
-        "description": "Wealth building and financial strategy",
-        "stages": ["Planning", "Implementing", "Scaling", "Sustaining"],
-        "assessmentQuestions": [
-          "Do I have a clear financial strategy and budget?",
-          "Am I building multiple income streams effectively?",
-          "Do I understand and actively use investment principles?",
-          "Am I making progress toward my financial goals?",
-          "Do I have adequate emergency funds and financial security?",
-          "Am I building long-term wealth through smart financial decisions?",
-          "Can I maintain and grow my wealth sustainably?"
-        ]
-      },
-      {
-        "name": "Social Hospitality",
-        "description": "Service orientation and interpersonal excellence",
-        "stages": ["Awareness", "Cultivation", "Practice", "Service"],
-        "assessmentQuestions": [
-          "Am I emotionally intelligent and empathetic toward others?",
-          "Do I serve others with genuine care and excellence?",
-          "Am I culturally aware and respectful in diverse situations?",
-          "Do I create positive experiences for people I interact with?",
-          "Am I known for my kindness and service orientation?",
-          "Do I contribute meaningfully to my community?",
-          "Am I developing others through my service and mentorship?"
-        ]
-      },
-      {
-        "name": "Personal Brand Marketing",
-        "description": "Identity creation and market positioning",
-        "stages": ["Identity", "Visibility", "Authority", "Legacy"],
-        "assessmentQuestions": [
-          "Do I have a clear, authentic personal brand identity?",
-          "Am I visible and recognized in my field or industry?",
-          "Do I create valuable content that showcases my expertise?",
-          "Am I building thought leadership in my area of expertise?",
-          "Do others seek my insights and recommendations?",
-          "Am I creating a lasting positive impact and reputation?",
-          "Will my work and influence continue to benefit others long-term?"
-        ]
-      }
-    ]
-  },
-  "integrationSynergies": [
-    {
-      "pillar1": "Swadharma",
-      "pillar2": "Operating & Organization Skills", 
-      "synergy": "Purpose-driven systems create effortless execution aligned with dharma"
-    },
-    {
-      "pillar1": "Swadharma",
-      "pillar2": "Technical Physical & Mind Ability",
-      "synergy": "Natural abilities enhanced through dharmic practice and purposeful development"
-    },
-    {
-      "pillar1": "Swadharma", 
-      "pillar2": "Social Leverage Network",
-      "synergy": "Authentic relationships built on shared values and genuine purpose alignment"
-    },
-    {
-      "pillar1": "Technical Physical & Mind Ability",
-      "pillar2": "Personal Brand Marketing",
-      "synergy": "Demonstrated expertise strengthens personal brand and market positioning"
-    },
-    {
-      "pillar1": "Social Leverage Network",
-      "pillar2": "Financial Model",
-      "synergy": "Networks provide financial opportunities and investment partnerships"
-    },
-    {
-      "pillar1": "Social Hospitality",
-      "pillar2": "Personal Brand Marketing", 
-      "synergy": "Excellent service builds brand reputation and authentic market positioning"
     }
-  ]
-};
+  },
 
-// Application state
-let assessmentScores = {
-  swadharma: 0,
-  operating: 0,
-  technical: 0,
-  social: 0,
-  financial: 0,
-  hospitality: 0,
-  branding: 0
-};
+  computed: {
+    // Pillar mappings
+    pillarMappings() {
+      return {
+        swadharma: this.frameworkData.framework.centerPillar,
+        operating: this.frameworkData.framework.surroundingPillars[0],
+        technical: this.frameworkData.framework.surroundingPillars[1],
+        social: this.frameworkData.framework.surroundingPillars[2],
+        financial: this.frameworkData.framework.surroundingPillars[3],
+        hospitality: this.frameworkData.framework.surroundingPillars[4],
+        branding: this.frameworkData.framework.surroundingPillars[5]
+      }
+    },
 
-let currentAssessment = {
-  pillar: 'swadharma',
-  questionIndex: 0,
-  answers: [],
-  isActive: false
-};
+    // Current pillar data
+    currentPillarData() {
+      return this.pillarMappings[this.currentAssessment.pillar];
+    },
 
-// Pillar mappings
-const pillarMappings = {
-  swadharma: frameworkData.framework.centerPillar,
-  operating: frameworkData.framework.surroundingPillars[0],
-  technical: frameworkData.framework.surroundingPillars[1],
-  social: frameworkData.framework.surroundingPillars[2],
-  financial: frameworkData.framework.surroundingPillars[3],
-  hospitality: frameworkData.framework.surroundingPillars[4],
-  branding: frameworkData.framework.surroundingPillars[5]
-};
+    // Current question
+    currentQuestion() {
+      return this.currentPillarData.assessmentQuestions[this.currentAssessment.questionIndex];
+    },
 
-// Chart.js radar chart instance
-let radarChart = null;
+    // Assessment progress percentage
+    assessmentProgress() {
+      return ((this.currentAssessment.questionIndex + 1) / this.currentPillarData.assessmentQuestions.length) * 100;
+    },
 
-// Initialize application
-document.addEventListener('DOMContentLoaded', function() {
-  initializeNavigation();
-  initializeDashboard();
-  initializeAssessment();
-  initializeProgress();
-  initializeIntegration();
-  initializePlanning();
-  initializeModals();
-  
-  // Load saved data
-  loadAssessmentData();
-  updateAllViews();
-});
+    // Check if it's the last question
+    isLastQuestion() {
+      return this.currentAssessment.questionIndex === this.currentPillarData.assessmentQuestions.length - 1;
+    },
 
-// Navigation functionality
-function initializeNavigation() {
-  const navButtons = document.querySelectorAll('.nav-btn');
-  const views = document.querySelectorAll('.view');
-  
-  navButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const targetView = button.dataset.view;
+    // Overall progress
+    overallProgress() {
+      const scores = Object.values(this.assessmentScores);
+      const completedAssessments = scores.filter(score => score > 0).length;
+      return completedAssessments > 0 ? 
+        Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
+    },
+
+    // Progress circle style
+    progressCircleStyle() {
+      const progressDegrees = (this.overallProgress / 100) * 360;
+      return {
+        background: `conic-gradient(var(--color-primary) ${progressDegrees}deg, var(--color-secondary) ${progressDegrees}deg)`
+      };
+    },
+
+    // Development priorities
+    developmentPriorities() {
+      // Find lowest scoring pillars for priority recommendations
+      const sortedPillars = Object.entries(this.assessmentScores)
+        .sort(([,a], [,b]) => a - b)
+        .slice(0, 3);
       
-      // Update active navigation
-      navButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
+      if (sortedPillars.every(([,score]) => score === 0)) {
+        // No assessments completed yet
+        return [{
+          pillar: 'Assessment',
+          action: 'Complete baseline assessments for all pillars',
+          timeline: 'This week'
+        }];
+      } else {
+        return sortedPillars.map(([pillarKey, score]) => {
+          const pillarData = this.pillarMappings[pillarKey];
+          let action = 'Focus on foundational development';
+          let timeline = 'Next 30 days';
+          
+          if (score < 30) {
+            action = 'Begin foundational learning and practice';
+            timeline = 'This month';
+          } else if (score < 60) {
+            action = 'Build consistent daily practices';
+            timeline = 'Next 60 days';
+          } else {
+            action = 'Optimize and integrate with other pillars';
+            timeline = 'Next 90 days';
+          }
+          
+          return {
+            pillar: pillarData.name,
+            action: action,
+            timeline: timeline,
+            score: score
+          };
+        });
+      }
+    },
+
+    // Additional computed properties
+    completedAssessments() {
+      return Object.values(this.assessmentScores).filter(score => score > 0).length;
+    },
+
+    totalPillars() {
+      return Object.keys(this.assessmentScores).length;
+    },
+
+    highPerformingPillars() {
+      return Object.values(this.assessmentScores).filter(score => score >= 61).length;
+    },
+
+    mediumPerformingPillars() {
+      return Object.values(this.assessmentScores).filter(score => score >= 31 && score < 61).length;
+    },
+
+    lowPerformingPillars() {
+      return Object.values(this.assessmentScores).filter(score => score > 0 && score < 31).length;
+    },
+
+    topIntegrationOpportunities() {
+      const opportunities = [];
+      this.frameworkData.integrationSynergies.forEach(synergy => {
+        const pillar1Score = this.getPillarScoreByName(synergy.pillar1);
+        const pillar2Score = this.getPillarScoreByName(synergy.pillar2);
+        
+        if (pillar1Score > 0 && pillar2Score > 0) {
+          const avgScore = (pillar1Score + pillar2Score) / 2;
+          const potential = 100 - avgScore;
+          
+          opportunities.push({
+            title: `${this.getShortPillarName(synergy.pillar1)} × ${this.getShortPillarName(synergy.pillar2)}`,
+            description: synergy.synergy,
+            strength: potential > 50 ? 'High' : potential > 25 ? 'Medium' : 'Low',
+            strengthClass: potential > 50 ? 'high' : potential > 25 ? 'medium' : 'low',
+            potential: potential,
+            synergy: synergy
+          });
+        }
+      });
       
-      // Show target view
-      views.forEach(view => view.classList.remove('active'));
-      document.getElementById(`${targetView}-view`).classList.add('active');
+      return opportunities.sort((a, b) => b.potential - a.potential).slice(0, 3);
+    },
+
+    personalizedGoals() {
+      const goals = [];
+      const completedCount = this.completedAssessments;
+      
+      if (completedCount === 0) {
+        goals.push({
+          days: '30',
+          goals: [
+            { text: 'Complete baseline assessments for all pillars', completed: false },
+            { text: 'Establish daily reflection practice', completed: false, pillar: 'Swadharma' }
+          ]
+        });
+      } else {
+        // Personalized based on scores
+        const weakPillars = Object.entries(this.assessmentScores)
+          .filter(([key, score]) => score > 0 && score < 50)
+          .slice(0, 2);
+        
+        goals.push({
+          days: '30',
+          goals: weakPillars.map(([key, score]) => ({
+            text: `Improve ${this.pillarMappings[key].name} foundation`,
+            completed: false,
+            pillar: this.pillarMappings[key].name
+          }))
+        });
+      }
+      
+      return goals;
+    },
+
+    filteredResourceCategories() {
+      if (this.activeResourceFilter === 'All') {
+        return this.resourceCategories;
+      }
+      return this.resourceCategories.filter(cat => cat.title === this.activeResourceFilter);
+    }
+  },
+
+  methods: {
+    // Navigation
+    setActiveView(view) {
+      console.log('Setting active view to:', view);
+      this.activeView = view;
       
       // Special handling for progress view to update charts
-      if (targetView === 'progress') {
-        setTimeout(updateRadarChart, 100);
+      if (view === 'progress') {
+        this.$nextTick(() => {
+          this.updateRadarChart();
+        });
       }
-    });
-  });
-}
-
-// Dashboard initialization
-function initializeDashboard() {
-  const pillars = document.querySelectorAll('[data-pillar]');
-  
-  pillars.forEach(pillar => {
-    pillar.addEventListener('click', () => {
-      const pillarKey = pillar.dataset.pillar;
-      showPillarModal(pillarKey);
-    });
-  });
-}
-
-// Assessment functionality
-function initializeAssessment() {
-  const pillarSelectButtons = document.querySelectorAll('.pillar-select-btn');
-  const nextButton = document.getElementById('next-question');
-  const prevButton = document.getElementById('prev-question');
-  const startNewButton = document.getElementById('start-new-assessment');
-  
-  pillarSelectButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const pillar = button.dataset.assess;
-      selectPillarForAssessment(pillar);
-      resetAssessment();
-    });
-  });
-  
-  nextButton.addEventListener('click', handleNextQuestion);
-  prevButton.addEventListener('click', handlePreviousQuestion);
-  startNewButton.addEventListener('click', () => {
-    document.querySelector('.assessment-results').classList.add('hidden');
-    document.querySelector('.assessment-form').style.display = 'block';
-    resetAssessment();
-  });
-}
-
-function selectPillarForAssessment(pillarKey) {
-  // Update active button
-  document.querySelectorAll('.pillar-select-btn').forEach(btn => 
-    btn.classList.remove('active'));
-  document.querySelector(`[data-assess="${pillarKey}"]`).classList.add('active');
-  
-  // Update pillar info
-  const pillarData = pillarMappings[pillarKey];
-  document.getElementById('assess-pillar-name').textContent = pillarData.name;
-  document.getElementById('assess-pillar-description').textContent = pillarData.description;
-  
-  // Update stages
-  const stagesContainer = document.querySelector('.stages');
-  stagesContainer.innerHTML = '';
-  pillarData.stages.forEach((stage, index) => {
-    const stageElement = document.createElement('span');
-    stageElement.className = `stage ${index === 0 ? 'active' : ''}`;
-    stageElement.textContent = stage;
-    stagesContainer.appendChild(stageElement);
-  });
-  
-  currentAssessment.pillar = pillarKey;
-}
-
-function resetAssessment() {
-  currentAssessment.questionIndex = 0;
-  currentAssessment.answers = [];
-  currentAssessment.isActive = true;
-  
-  updateAssessmentDisplay();
-}
-
-function updateAssessmentDisplay() {
-  const pillarData = pillarMappings[currentAssessment.pillar];
-  const questions = pillarData.assessmentQuestions;
-  const currentQuestion = questions[currentAssessment.questionIndex];
-  
-  // Update progress
-  const progressFill = document.querySelector('.assessment-form .progress-fill');
-  const progressText = document.querySelector('.progress-text');
-  const progress = ((currentAssessment.questionIndex + 1) / questions.length) * 100;
-  
-  progressFill.style.width = `${progress}%`;
-  progressText.textContent = `Question ${currentAssessment.questionIndex + 1} of ${questions.length}`;
-  
-  // Update question
-  document.querySelector('.question-text').textContent = currentQuestion;
-  
-  // Clear previous answers
-  document.querySelectorAll('input[name="current-question"]').forEach(input => {
-    input.checked = false;
-  });
-  
-  // Update button states
-  document.getElementById('prev-question').disabled = currentAssessment.questionIndex === 0;
-  
-  const isLastQuestion = currentAssessment.questionIndex === questions.length - 1;
-  const nextButton = document.getElementById('next-question');
-  nextButton.textContent = isLastQuestion ? 'Complete Assessment' : 'Next';
-}
-
-function handleNextQuestion() {
-  const selectedAnswer = document.querySelector('input[name="current-question"]:checked');
-  
-  if (!selectedAnswer) {
-    alert('Please select an answer before continuing.');
-    return;
-  }
-  
-  currentAssessment.answers[currentAssessment.questionIndex] = parseInt(selectedAnswer.value);
-  
-  const pillarData = pillarMappings[currentAssessment.pillar];
-  const isLastQuestion = currentAssessment.questionIndex === pillarData.assessmentQuestions.length - 1;
-  
-  if (isLastQuestion) {
-    completeAssessment();
-  } else {
-    currentAssessment.questionIndex++;
-    updateAssessmentDisplay();
-  }
-}
-
-function handlePreviousQuestion() {
-  if (currentAssessment.questionIndex > 0) {
-    currentAssessment.questionIndex--;
-    updateAssessmentDisplay();
-    
-    // Restore previous answer
-    const previousAnswer = currentAssessment.answers[currentAssessment.questionIndex];
-    if (previousAnswer) {
-      document.querySelector(`input[name="current-question"][value="${previousAnswer}"]`).checked = true;
-    }
-  }
-}
-
-function completeAssessment() {
-  const totalScore = currentAssessment.answers.reduce((sum, answer) => sum + answer, 0);
-  const maxScore = currentAssessment.answers.length * 5;
-  const percentage = Math.round((totalScore / maxScore) * 100);
-  
-  // Save score
-  assessmentScores[currentAssessment.pillar] = percentage;
-  saveAssessmentData();
-  
-  // Determine stage
-  const pillarData = pillarMappings[currentAssessment.pillar];
-  let stageIndex = 0;
-  if (percentage >= 75) stageIndex = 3;
-  else if (percentage >= 50) stageIndex = 2;
-  else if (percentage >= 25) stageIndex = 1;
-  
-  const currentStage = pillarData.stages[stageIndex];
-  
-  // Show results
-  document.querySelector('.assessment-form').style.display = 'none';
-  const resultsSection = document.querySelector('.assessment-results');
-  resultsSection.classList.remove('hidden');
-  
-  document.querySelector('.score-value').textContent = `${percentage}/100`;
-  document.querySelector('.stage-value').textContent = currentStage;
-  
-  // Update score color
-  const scoreElement = document.querySelector('.score-value');
-  scoreElement.className = percentage >= 61 ? 'score-value high' : 
-                          percentage >= 31 ? 'score-value medium' : 'score-value low';
-  
-  // Generate recommendations
-  generateRecommendations(currentAssessment.pillar, percentage, stageIndex);
-  
-  // Update all views
-  updateAllViews();
-}
-
-function generateRecommendations(pillarKey, score, stageIndex) {
-  const recommendations = [];
-  const pillarData = pillarMappings[pillarKey];
-  
-  if (score < 30) {
-    recommendations.push(`Focus on foundational understanding of ${pillarData.name}`);
-    recommendations.push('Start with basic daily practices and habits');
-    recommendations.push('Seek learning resources and mentorship');
-  } else if (score < 60) {
-    recommendations.push(`Continue building competency in ${pillarData.name}`);
-    recommendations.push('Practice consistently and track progress');
-    recommendations.push('Connect with others for accountability');
-  } else if (score < 80) {
-    recommendations.push(`Optimize your approach to ${pillarData.name}`);
-    recommendations.push('Focus on integration with other pillars');
-    recommendations.push('Begin teaching or mentoring others');
-  } else {
-    recommendations.push(`Maintain mastery in ${pillarData.name}`);
-    recommendations.push('Share your wisdom with the community');
-    recommendations.push('Explore advanced applications and innovations');
-  }
-  
-  const recommendationList = document.querySelector('.recommendation-list');
-  recommendationList.innerHTML = '';
-  recommendations.forEach(rec => {
-    const li = document.createElement('li');
-    li.textContent = rec;
-    recommendationList.appendChild(li);
-  });
-}
-
-// Progress tracking
-function initializeProgress() {
-  createPillarProgressCards();
-  setTimeout(() => {
-    if (document.getElementById('progress-view').classList.contains('active')) {
-      updateRadarChart();
-    }
-  }, 100);
-}
-
-function createPillarProgressCards() {
-  const pillarGrid = document.querySelector('.pillar-grid');
-  pillarGrid.innerHTML = '';
-  
-  // Add center pillar
-  const centerPillarCard = createProgressCard('swadharma', frameworkData.framework.centerPillar);
-  pillarGrid.appendChild(centerPillarCard);
-  
-  // Add surrounding pillars
-  frameworkData.framework.surroundingPillars.forEach((pillar, index) => {
-    const pillarKey = Object.keys(pillarMappings).find(key => 
-      pillarMappings[key] === pillar
-    );
-    const card = createProgressCard(pillarKey, pillar);
-    pillarGrid.appendChild(card);
-  });
-}
-
-function createProgressCard(pillarKey, pillarData) {
-  const card = document.createElement('div');
-  card.className = 'pillar-progress-card';
-  
-  const score = assessmentScores[pillarKey] || 0;
-  const colorClass = score >= 61 ? 'high' : score >= 31 ? 'medium' : 'low';
-  
-  card.innerHTML = `
-    <h4>${pillarData.name}</h4>
-    <div class="progress-bar-horizontal">
-      <div class="progress-fill ${colorClass}" style="width: ${score}%"></div>
-    </div>
-    <span class="progress-score">${score}% Complete</span>
-  `;
-  
-  return card;
-}
-
-function updateRadarChart() {
-  const ctx = document.getElementById('radarChart');
-  if (!ctx) return;
-  
-  const scores = [
-    assessmentScores.swadharma || 0,
-    assessmentScores.operating || 0,
-    assessmentScores.technical || 0,
-    assessmentScores.social || 0,
-    assessmentScores.financial || 0,
-    assessmentScores.hospitality || 0,
-    assessmentScores.branding || 0
-  ];
-  
-  const labels = [
-    'Swadharma',
-    'Operating Skills',
-    'Technical Ability', 
-    'Social Network',
-    'Financial Model',
-    'Social Hospitality',
-    'Personal Brand'
-  ];
-  
-  if (radarChart) {
-    radarChart.destroy();
-  }
-  
-  radarChart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Current Level',
-        data: scores,
-        fill: true,
-        backgroundColor: 'rgba(31, 184, 205, 0.2)',
-        borderColor: '#1FB8CD',
-        pointBackgroundColor: '#1FB8CD',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: '#1FB8CD'
-      }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      scales: {
-        r: {
-          angleLines: {
-            display: true
-          },
-          suggestedMin: 0,
-          suggestedMax: 100
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        }
+
+    // Get pillar key by index
+    getPillarKey(index) {
+      const keys = ['operating', 'technical', 'social', 'financial', 'hospitality', 'branding'];
+      return keys[index];
+    },
+
+    // Get score color class
+    getScoreColorClass(score) {
+      if (score >= 61) return 'high';
+      if (score >= 31) return 'medium';
+      if (score > 0) return 'low';
+      return '';
+    },
+
+    // Assessment methods
+    selectPillarForAssessment(pillarKey) {
+      this.currentAssessment.pillar = pillarKey;
+      this.resetAssessment();
+    },
+
+    resetAssessment() {
+      this.currentAssessment.questionIndex = 0;
+      this.currentAssessment.answers = [];
+      this.currentAssessment.isActive = true;
+      this.currentAnswer = null;
+      this.assessmentResults.show = false;
+    },
+
+    handleNextQuestion() {
+      if (!this.currentAnswer) {
+        alert('Please select an answer before continuing.');
+        return;
       }
-    }
-  });
-}
-
-// Integration matrix
-function initializeIntegration() {
-  createIntegrationMatrix();
-}
-
-function createIntegrationMatrix() {
-  const matrixContainer = document.querySelector('.integration-matrix');
-  const pillars = ['Swadharma', 'Operating', 'Technical', 'Social', 'Financial', 'Hospitality', 'Branding'];
-  
-  // Create matrix rows
-  pillars.forEach((rowPillar, rowIndex) => {
-    const row = document.createElement('div');
-    row.className = 'matrix-row';
-    
-    // Row header
-    const rowHeader = document.createElement('div');
-    rowHeader.className = 'matrix-cell pillar-header';
-    rowHeader.textContent = rowPillar;
-    row.appendChild(rowHeader);
-    
-    // Matrix cells
-    pillars.forEach((colPillar, colIndex) => {
-      const cell = document.createElement('div');
-      cell.className = 'matrix-intersection';
       
-      if (rowIndex === colIndex) {
-        cell.style.background = 'var(--color-border)';
-        cell.style.cursor = 'default';
+      this.currentAssessment.answers[this.currentAssessment.questionIndex] = parseInt(this.currentAnswer);
+      
+      if (this.isLastQuestion) {
+        this.completeAssessment();
       } else {
-        const synergy = findSynergy(rowPillar, colPillar);
-        if (synergy) {
-          cell.classList.add('has-synergy');
-          cell.addEventListener('click', () => showSynergy(rowPillar, colPillar, synergy));
-        }
+        this.currentAssessment.questionIndex++;
+        this.currentAnswer = this.currentAssessment.answers[this.currentAssessment.questionIndex] || null;
       }
+    },
+
+    handlePreviousQuestion() {
+      if (this.currentAssessment.questionIndex > 0) {
+        this.currentAssessment.questionIndex--;
+        this.currentAnswer = this.currentAssessment.answers[this.currentAssessment.questionIndex] || null;
+      }
+    },
+
+    completeAssessment() {
+      const totalScore = this.currentAssessment.answers.reduce((sum, answer) => sum + answer, 0);
+      const maxScore = this.currentAssessment.answers.length * 5;
+      const percentage = Math.round((totalScore / maxScore) * 100);
       
-      row.appendChild(cell);
-    });
-    
-    matrixContainer.appendChild(row);
-  });
-}
-
-function findSynergy(pillar1, pillar2) {
-  return frameworkData.integrationSynergies.find(synergy => 
-    (synergy.pillar1.includes(pillar1.split(' ')[0]) && synergy.pillar2.includes(pillar2.split(' ')[0])) ||
-    (synergy.pillar2.includes(pillar1.split(' ')[0]) && synergy.pillar1.includes(pillar2.split(' ')[0]))
-  );
-}
-
-function showSynergy(pillar1, pillar2, synergy) {
-  document.querySelector('.synergy-title').textContent = `${pillar1} × ${pillar2}`;
-  document.querySelector('.synergy-description').textContent = synergy.synergy;
-}
-
-// Planning functionality
-function initializePlanning() {
-  generateDevelopmentPriorities();
-}
-
-function generateDevelopmentPriorities() {
-  const priorityList = document.querySelector('.priority-list');
-  priorityList.innerHTML = '';
-  
-  // Find lowest scoring pillars for priority recommendations
-  const sortedPillars = Object.entries(assessmentScores)
-    .sort(([,a], [,b]) => a - b)
-    .slice(0, 3);
-  
-  if (sortedPillars.every(([,score]) => score === 0)) {
-    // No assessments completed yet
-    const defaultPriority = document.createElement('div');
-    defaultPriority.className = 'priority-item';
-    defaultPriority.innerHTML = `
-      <span class="priority-pillar">Assessment</span>
-      <span class="priority-action">Complete baseline assessments for all pillars</span>
-      <span class="priority-timeline">This week</span>
-    `;
-    priorityList.appendChild(defaultPriority);
-  } else {
-    sortedPillars.forEach(([pillarKey, score]) => {
-      const pillarData = pillarMappings[pillarKey];
-      const priority = document.createElement('div');
-      priority.className = 'priority-item';
+      // Save score
+      this.assessmentScores[this.currentAssessment.pillar] = percentage;
       
-      let action = 'Focus on foundational development';
-      let timeline = 'Next 30 days';
+      // Determine stage
+      const pillarData = this.pillarMappings[this.currentAssessment.pillar];
+      let stageIndex = 0;
+      if (percentage >= 75) stageIndex = 3;
+      else if (percentage >= 50) stageIndex = 2;
+      else if (percentage >= 25) stageIndex = 1;
+      
+      const currentStage = pillarData.stages[stageIndex];
+      
+      // Generate recommendations
+      const recommendations = this.generateRecommendations(this.currentAssessment.pillar, percentage);
+      
+      // Show results
+      this.assessmentResults = {
+        show: true,
+        percentage: percentage,
+        stage: currentStage,
+        recommendations: recommendations
+      };
+      
+      // Save data
+      this.saveAssessmentData();
+    },
+
+    generateRecommendations(pillarKey, score) {
+      const recommendations = [];
+      const pillarData = this.pillarMappings[pillarKey];
       
       if (score < 30) {
-        action = 'Begin foundational learning and practice';
-        timeline = 'This month';
+        recommendations.push(`Focus on foundational understanding of ${pillarData.name}`);
+        recommendations.push('Start with basic daily practices and habits');
+        recommendations.push('Seek learning resources and mentorship');
       } else if (score < 60) {
-        action = 'Build consistent daily practices';
-        timeline = 'Next 60 days';
+        recommendations.push(`Continue building competency in ${pillarData.name}`);
+        recommendations.push('Practice consistently and track progress');
+        recommendations.push('Connect with others for accountability');
+      } else if (score < 80) {
+        recommendations.push(`Optimize your approach to ${pillarData.name}`);
+        recommendations.push('Focus on integration with other pillars');
+        recommendations.push('Begin teaching or mentoring others');
       } else {
-        action = 'Optimize and integrate with other pillars';
-        timeline = 'Next 90 days';
+        recommendations.push(`Maintain mastery in ${pillarData.name}`);
+        recommendations.push('Share your wisdom with the community');
+        recommendations.push('Explore advanced applications and innovations');
       }
       
-      priority.innerHTML = `
-        <span class="priority-pillar">${pillarData.name}</span>
-        <span class="priority-action">${action}</span>
-        <span class="priority-timeline">${timeline}</span>
-      `;
+      return recommendations;
+    },
+
+    startNewAssessment() {
+      // Switch to assessment view first
+      this.setActiveView('assessment');
       
-      priorityList.appendChild(priority);
-    });
-  }
-}
-
-// Modal functionality
-function initializeModals() {
-  const modal = document.getElementById('pillar-modal');
-  const closeButton = document.querySelector('.modal-close');
-  const overlay = document.querySelector('.modal-overlay');
-  
-  closeButton.addEventListener('click', closePillarModal);
-  overlay.addEventListener('click', closePillarModal);
-  
-  // Assessment button
-  document.querySelector('.start-assessment-btn').addEventListener('click', () => {
-    closePillarModal();
-    // Switch to assessment view
-    document.querySelector('[data-view="assessment"]').click();
-    // Select the current pillar
-    const pillarKey = modal.currentPillar;
-    selectPillarForAssessment(pillarKey);
-    resetAssessment();
-  });
-  
-  // Progress button
-  document.querySelector('.view-progress-btn').addEventListener('click', () => {
-    closePillarModal();
-    document.querySelector('[data-view="progress"]').click();
-  });
-}
-
-function showPillarModal(pillarKey) {
-  const modal = document.getElementById('pillar-modal');
-  const pillarData = pillarMappings[pillarKey];
-  
-  modal.currentPillar = pillarKey;
-  
-  // Update modal content
-  document.querySelector('.modal-title').textContent = pillarData.name;
-  document.querySelector('.pillar-desc-text').textContent = pillarData.description;
-  
-  // Update stages
-  const stagesList = document.querySelector('.stages-list');
-  stagesList.innerHTML = '';
-  
-  const currentScore = assessmentScores[pillarKey] || 0;
-  let currentStageIndex = 0;
-  if (currentScore >= 75) currentStageIndex = 3;
-  else if (currentScore >= 50) currentStageIndex = 2;
-  else if (currentScore >= 25) currentStageIndex = 1;
-  
-  pillarData.stages.forEach((stage, index) => {
-    const stageItem = document.createElement('div');
-    stageItem.className = `stage-item ${index === currentStageIndex ? 'current' : ''}`;
-    stageItem.innerHTML = `
-      <div class="stage-name">${stage}</div>
-      <div class="stage-description">${index <= currentStageIndex ? 'Current Stage' : 'Future Stage'}</div>
-    `;
-    stagesList.appendChild(stageItem);
-  });
-  
-  modal.classList.remove('hidden');
-}
-
-function closePillarModal() {
-  document.getElementById('pillar-modal').classList.add('hidden');
-}
-
-// Data persistence
-function saveAssessmentData() {
-  // Note: Using in-memory storage as requested, not localStorage
-  // In a real application, this would save to a backend or localStorage
-  console.log('Assessment data saved:', assessmentScores);
-}
-
-function loadAssessmentData() {
-  // Load from stored data (in real app would be from localStorage or backend)
-  // For demo purposes, we start with empty scores
-  console.log('Assessment data loaded:', assessmentScores);
-}
-
-// Update all views with current data
-function updateAllViews() {
-  updateDashboardScores();
-  updateOverallProgress();
-  updateProgressCards();
-  generateDevelopmentPriorities();
-}
-
-function updateDashboardScores() {
-  // Update pillar scores on dashboard
-  Object.entries(assessmentScores).forEach(([pillarKey, score]) => {
-    const pillarElement = document.querySelector(`[data-pillar="${pillarKey}"] .pillar-score`);
-    if (pillarElement) {
-      pillarElement.textContent = `${score}%`;
+      // Find an incomplete pillar (one with score 0 or lowest score)
+      const incompletePillars = Object.entries(this.assessmentScores)
+        .filter(([pillarKey, score]) => score === 0);
       
-      // Update color class
-      pillarElement.className = 'pillar-score';
-      if (score >= 61) pillarElement.classList.add('high');
-      else if (score >= 31) pillarElement.classList.add('medium');
-      else if (score > 0) pillarElement.classList.add('low');
+      let targetPillar = 'swadharma'; // default
+      
+      if (incompletePillars.length > 0) {
+        // Select first incomplete pillar
+        targetPillar = incompletePillars[0][0];
+      } else {
+        // If all pillars are complete, select the one with lowest score
+        const sortedPillars = Object.entries(this.assessmentScores)
+          .sort(([,a], [,b]) => a - b);
+        targetPillar = sortedPillars[0][0];
+      }
+      
+      // Select the target pillar
+      this.selectPillarForAssessment(targetPillar);
+    },
+
+    // Modal methods
+    showPillarModal(pillarKey) {
+      const pillarData = this.pillarMappings[pillarKey];
+      
+      const currentScore = this.assessmentScores[pillarKey] || 0;
+      let currentStageIndex = 0;
+      if (currentScore >= 75) currentStageIndex = 3;
+      else if (currentScore >= 50) currentStageIndex = 2;
+      else if (currentScore >= 25) currentStageIndex = 1;
+      
+      this.modal = {
+        show: true,
+        pillar: pillarData,
+        currentPillarKey: pillarKey,
+        currentStageIndex: currentStageIndex
+      };
+    },
+
+    closePillarModal() {
+      this.modal.show = false;
+    },
+
+    startAssessmentFromModal() {
+      this.closePillarModal();
+      this.setActiveView('assessment');
+      this.selectPillarForAssessment(this.modal.currentPillarKey);
+    },
+
+    viewProgressFromModal() {
+      this.closePillarModal();
+      this.setActiveView('progress');
+    },
+
+    // Integration matrix methods
+    findSynergy(pillar1, pillar2) {
+      return this.frameworkData.integrationSynergies.find(synergy => 
+        (synergy.pillar1.includes(pillar1.split(' ')[0]) && synergy.pillar2.includes(pillar2.split(' ')[0])) ||
+        (synergy.pillar2.includes(pillar1.split(' ')[0]) && synergy.pillar1.includes(pillar2.split(' ')[0]))
+      );
+    },
+
+    showSynergy(pillar1, pillar2) {
+      if (pillar1 === pillar2) return;
+      
+      const synergy = this.findSynergy(pillar1, pillar2);
+      if (synergy) {
+        this.selectedSynergy = {
+          title: `${pillar1} × ${pillar2}`,
+          description: synergy.synergy
+        };
+      }
+    },
+
+    // Chart methods
+    updateRadarChart() {
+      const canvas = this.$refs.radarChart;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      
+      const scores = [
+        this.assessmentScores.swadharma || 0,
+        this.assessmentScores.operating || 0,
+        this.assessmentScores.technical || 0,
+        this.assessmentScores.social || 0,
+        this.assessmentScores.financial || 0,
+        this.assessmentScores.hospitality || 0,
+        this.assessmentScores.branding || 0
+      ];
+      
+      const labels = [
+        'Swadharma',
+        'Operating Skills',
+        'Technical Ability', 
+        'Social Network',
+        'Financial Model',
+        'Social Hospitality',
+        'Personal Brand'
+      ];
+      
+      if (this.radarChart) {
+        this.radarChart.destroy();
+      }
+      
+      this.radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Current Level',
+            data: scores,
+            fill: true,
+            backgroundColor: 'rgba(31, 184, 205, 0.2)',
+            borderColor: '#1FB8CD',
+            pointBackgroundColor: '#1FB8CD',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#1FB8CD'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              angleLines: {
+                display: true
+              },
+              suggestedMin: 0,
+              suggestedMax: 100
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    },
+
+    // Assessment helper methods
+    getPillarDisplayName(name) {
+      if (name.includes('Personal Brand')) return 'Personal Brand';
+      if (name.includes('&')) return name.split(' & ')[0];
+      return name.split(' ')[0];
+    },
+
+    getCurrentStageIndex() {
+      const currentScore = this.assessmentScores[this.currentAssessment.pillar] || 0;
+      if (currentScore >= 75) return 3;
+      if (currentScore >= 50) return 2;
+      if (currentScore >= 25) return 1;
+      return 0;
+    },
+
+    // Progress helper methods
+    getTimelineStatus(index) {
+      if (this.completedAssessments === 0) return index === 0 ? 'current' : '';
+      if (this.overallProgress >= 80) return index <= 4 ? 'completed' : '';
+      if (this.overallProgress >= 60) return index <= 3 ? 'completed' : index === 4 ? 'current' : '';
+      if (this.overallProgress >= 40) return index <= 2 ? 'completed' : index === 3 ? 'current' : '';
+      if (this.overallProgress >= 20) return index <= 1 ? 'completed' : index === 2 ? 'current' : '';
+      return index === 0 ? 'completed' : index === 1 ? 'current' : '';
+    },
+
+    getPillarStage(pillarKey) {
+      const score = this.assessmentScores[pillarKey];
+      const stages = this.pillarMappings[pillarKey].stages;
+      if (score >= 75) return stages[3];
+      if (score >= 50) return stages[2];
+      if (score >= 25) return stages[1];
+      return stages[0];
+    },
+
+    // Integration helper methods
+    getMatrixCellClass(rowIndex, colIndex, rowPillar, colPillar) {
+      const classes = ['matrix-intersection'];
+      if (rowIndex !== colIndex && this.findSynergy(rowPillar, colPillar)) {
+        classes.push('has-synergy');
+      }
+      return classes.join(' ');
+    },
+
+    getMatrixCellStyle(rowIndex, colIndex) {
+      if (rowIndex === colIndex) {
+        return { background: 'var(--color-border)', cursor: 'default' };
+      }
+      return {};
+    },
+
+    getMatrixCellTooltip(rowIndex, colIndex, rowPillar, colPillar) {
+      if (rowIndex === colIndex) return '';
+      const synergy = this.findSynergy(rowPillar, colPillar);
+      return synergy ? 'Click to view synergy' : 'No direct synergy identified';
+    },
+
+    selectSynergyFromCard(opportunity) {
+      this.selectedSynergy = {
+        title: opportunity.title,
+        description: opportunity.description,
+        active: true,
+        actionItems: this.generateSynergyActions(opportunity.synergy)
+      };
+    },
+
+    selectSynergyFromList(synergy) {
+      this.selectedSynergy = {
+        title: `${this.getShortPillarName(synergy.pillar1)} × ${this.getShortPillarName(synergy.pillar2)}`,
+        description: synergy.synergy,
+        active: true,
+        actionItems: this.generateSynergyActions(synergy)
+      };
+    },
+
+    getShortPillarName(pillarName) {
+      const shortNames = {
+        'Swadharma': 'Swadharma',
+        'Operating & Organization Skills': 'Operating',
+        'Technical Physical & Mind Ability': 'Technical',
+        'Social Leverage Network': 'Social',
+        'Financial Model': 'Financial',
+        'Social Hospitality': 'Hospitality',
+        'Personal Brand Marketing': 'Branding'
+      };
+      return shortNames[pillarName] || pillarName.split(' ')[0];
+    },
+
+    getPillarScoreByName(pillarName) {
+      const mapping = {
+        'Swadharma': 'swadharma',
+        'Operating & Organization Skills': 'operating',
+        'Technical Physical & Mind Ability': 'technical',
+        'Social Leverage Network': 'social',
+        'Financial Model': 'financial',
+        'Social Hospitality': 'hospitality',
+        'Personal Brand Marketing': 'branding'
+      };
+      const key = mapping[pillarName];
+      return key ? this.assessmentScores[key] : 0;
+    },
+
+    generateSynergyActions(synergy) {
+      // Generate context-specific action items
+      return [
+        'Identify overlapping skills and opportunities',
+        'Create integrated daily practices',
+        'Set combined development goals',
+        'Track synergistic progress metrics'
+      ];
+    },
+
+    // Planning helper methods
+    getStrongestPillar() {
+      const max = Math.max(...Object.values(this.assessmentScores));
+      const key = Object.keys(this.assessmentScores).find(k => this.assessmentScores[k] === max);
+      return {
+        name: this.pillarMappings[key].name,
+        score: max
+      };
+    },
+
+    getWeakestPillar() {
+      const nonZeroScores = Object.entries(this.assessmentScores).filter(([k, v]) => v > 0);
+      if (nonZeroScores.length === 0) {
+        return { name: 'Complete an assessment', score: 0 };
+      }
+      const min = Math.min(...nonZeroScores.map(([k, v]) => v));
+      const key = nonZeroScores.find(([k, v]) => v === min)[0];
+      return {
+        name: this.pillarMappings[key].name,
+        score: min
+      };
+    },
+
+    getAverageGrowthPotential() {
+      const scores = Object.values(this.assessmentScores).filter(s => s > 0);
+      if (scores.length === 0) return 100;
+      const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+      return Math.round(100 - avg);
+    },
+
+    getPeriodProgress(period) {
+      const completed = period.goals.filter(g => g.completed).length;
+      return Math.round((completed / period.goals.length) * 100);
+    },
+
+    setActiveResourceFilter(filter) {
+      this.activeResourceFilter = filter;
+    },
+
+    // Data persistence
+    saveAssessmentData() {
+      // In a real application, this would save to a backend or localStorage
+      console.log('Assessment data saved:', this.assessmentScores);
+    },
+
+    loadAssessmentData() {
+      // Load from stored data (in real app would be from localStorage or backend)
+      console.log('Assessment data loaded:', this.assessmentScores);
     }
-  });
-}
+  },
 
-function updateOverallProgress() {
-  const scores = Object.values(assessmentScores);
-  const completedAssessments = scores.filter(score => score > 0).length;
-  const averageScore = completedAssessments > 0 ? 
-    scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
-  
-  const progressPercentage = document.querySelector('.progress-percentage');
-  const progressCircle = document.querySelector('.progress-circle');
-  
-  progressPercentage.textContent = `${Math.round(averageScore)}%`;
-  
-  // Update circle progress
-  const progressDegrees = (averageScore / 100) * 360;
-  progressCircle.style.background = `conic-gradient(var(--color-primary) ${progressDegrees}deg, var(--color-secondary) ${progressDegrees}deg)`;
-}
-
-function updateProgressCards() {
-  createPillarProgressCards();
-  
-  // Update radar chart if progress view is active
-  if (document.getElementById('progress-view').classList.contains('active')) {
-    setTimeout(updateRadarChart, 100);
+  mounted() {
+    // Load saved data
+    this.loadAssessmentData();
+    
+    // Initialize chart if progress view is active
+    if (this.activeView === 'progress') {
+      this.$nextTick(() => {
+        this.updateRadarChart();
+      });
+    }
   }
-}
-
-// Utility functions
-function getScoreColorClass(score) {
-  if (score >= 61) return 'high';
-  if (score >= 31) return 'medium';
-  if (score > 0) return 'low';
-  return '';
-}
+}).mount('#app');
