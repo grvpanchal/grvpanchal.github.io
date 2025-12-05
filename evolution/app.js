@@ -12,13 +12,34 @@ createApp({
             "description": "Personal dharma and natural purpose - the core foundation",
             "stages": ["Discovery", "Alignment", "Integration", "Mastery"],
             "assessmentQuestions": [
-              "Do I have a clear understanding of my core values and life purpose?",
-              "Am I living in alignment with my natural strengths and passions?",
-              "Do my daily actions reflect my authentic self and dharma?",
-              "Am I making decisions that honor my true nature?",
-              "Do I feel fulfilled and purposeful in my current path?",
-              "Am I contributing to the world in a way that feels natural to me?",
-              "Do I experience flow and ease when working within my dharma?"
+              {
+                "question": "Do I have a clear understanding of my core values and life purpose?",
+                "metrics": "Written values statement, defined life purpose/mission, regular reflection practice (weekly+)"
+              },
+              {
+                "question": "Am I living in alignment with my natural strengths and passions?",
+                "metrics": "Daily activities match top 3-5 strengths, 60%+ time spent in passion areas, validated by assessments"
+              },
+              {
+                "question": "Do my daily actions reflect my authentic self and dharma?",
+                "metrics": "80%+ decisions align with core values, minimal role-playing/masking, consistent behavior across contexts"
+              },
+              {
+                "question": "Am I making decisions that honor my true nature?",
+                "metrics": "Decision framework based on values, minimal regret/second-guessing, confident in choices made"
+              },
+              {
+                "question": "Do I feel fulfilled and purposeful in my current path?",
+                "metrics": "7+ satisfaction score (1-10 scale), excited about future, sense of meaning in daily work"
+              },
+              {
+                "question": "Am I contributing to the world in a way that feels natural to me?",
+                "metrics": "Clear impact on 10+ people, contribution feels effortless, recognized for unique value"
+              },
+              {
+                "question": "Do I experience flow and ease when working within my dharma?",
+                "metrics": "3+ hours daily in flow state, high energy after work, time passes quickly during core activities"
+              }
             ]
           },
           "surroundingPillars": [
@@ -27,13 +48,34 @@ createApp({
               "description": "Systematic execution and management abilities",
               "stages": ["Foundation", "Development", "Optimization", "Leadership"],
               "assessmentQuestions": [
-                "Do I have effective systems for managing my time and priorities?",
-                "Can I plan and execute complex projects successfully?",
-                "Am I skilled at organizing resources and coordinating activities?",
-                "Do I demonstrate leadership in organizing teams and initiatives?",
-                "Can I create and optimize efficient processes and workflows?",
-                "Am I able to manage multiple responsibilities effectively?",
-                "Do others look to me for organizational guidance and structure?"
+                {
+                  "question": "Do I have effective systems for managing my time and priorities?",
+                  "metrics": "Task management system used daily, calendar blocking, 80%+ on-time completion, weekly planning routine"
+                },
+                {
+                  "question": "Can I plan and execute complex projects successfully?",
+                  "metrics": "3+ multi-phase projects completed, clear milestones/timelines, 90%+ deliverables on schedule"
+                },
+                {
+                  "question": "Am I skilled at organizing resources and coordinating activities?",
+                  "metrics": "Resource allocation framework, coordination of 5+ people/resources, minimal bottlenecks"
+                },
+                {
+                  "question": "Do I demonstrate leadership in organizing teams and initiatives?",
+                  "metrics": "Led 2+ team projects, clear role delegation, team feedback score 4+/5, initiative ownership"
+                },
+                {
+                  "question": "Can I create and optimize efficient processes and workflows?",
+                  "metrics": "Documented 3+ processes, measurable efficiency gains (20%+ time saved), continuous improvement cycles"
+                },
+                {
+                  "question": "Am I able to manage multiple responsibilities effectively?",
+                  "metrics": "Juggling 5+ concurrent responsibilities, no dropped balls, stress level manageable (6-/10)"
+                },
+                {
+                  "question": "Do others look to me for organizational guidance and structure?",
+                  "metrics": "Sought out 2+ times/week for advice, mentoring others, recognized as 'go-to' person"
+                }
               ]
             },
             {
@@ -41,13 +83,34 @@ createApp({
               "description": "Cognitive and physical capabilities development",
               "stages": ["Assessment", "Enhancement", "Integration", "Excellence"],
               "assessmentQuestions": [
-                "Am I physically fit and maintaining good health habits?",
-                "Do I continuously develop my technical and cognitive skills?",
-                "Am I mentally sharp and able to learn new concepts quickly?",
-                "Do I integrate mind-body practices for optimal performance?",
-                "Am I recognized for my technical expertise in my field?",
-                "Do I maintain high energy levels and mental clarity?",
-                "Can I perform at peak levels when needed?"
+                {
+                  "question": "Am I physically fit and maintaining good health habits?",
+                  "metrics": "Exercise 3-5x/week, healthy BMI/body composition, 7-8 hours quality sleep, nutritious diet 80%+ of time"
+                },
+                {
+                  "question": "Do I continuously develop my technical and cognitive skills?",
+                  "metrics": "5+ hours/week learning, 2+ new skills/year, certifications/courses completed, reading 12+ books/year"
+                },
+                {
+                  "question": "Am I mentally sharp and able to learn new concepts quickly?",
+                  "metrics": "Learn new concepts in 1-2 weeks, strong memory retention, solve complex problems efficiently"
+                },
+                {
+                  "question": "Do I integrate mind-body practices for optimal performance?",
+                  "metrics": "Daily meditation/mindfulness (10+ min), stress management techniques, recovery practices, holistic approach"
+                },
+                {
+                  "question": "Am I recognized for my technical expertise in my field?",
+                  "metrics": "Subject matter expert status, invited to speak/teach, published work, peer recognition"
+                },
+                {
+                  "question": "Do I maintain high energy levels and mental clarity?",
+                  "metrics": "Consistent 7+/10 energy rating, minimal brain fog, productive 6+ hours/day, quick recovery"
+                },
+                {
+                  "question": "Can I perform at peak levels when needed?",
+                  "metrics": "Deliver under pressure, flow state access on demand, clutch performance history, 90%+ success in high-stakes"
+                }
               ]
             },
             {
@@ -55,13 +118,34 @@ createApp({
               "description": "Relationship building and networking mastery",
               "stages": ["Building", "Expanding", "Leveraging", "Influencing"],
               "assessmentQuestions": [
-                "Do I have a strong, diverse network of meaningful relationships?",
-                "Can I create mutual value in my professional relationships?",
-                "Am I skilled at building rapport and trust with others?",
-                "Do I actively maintain and nurture my network connections?",
-                "Can I leverage my network to create opportunities for myself and others?",
-                "Am I seen as a valuable connector within my industry/community?",
-                "Do I have influence within my professional and social circles?"
+                {
+                  "question": "Do I have a strong, diverse network of meaningful relationships?",
+                  "metrics": "100+ quality contacts, 20+ strong relationships, diverse across 5+ industries/domains, CRM system maintained"
+                },
+                {
+                  "question": "Can I create mutual value in my professional relationships?",
+                  "metrics": "Regular value exchanges, 5+ win-win collaborations/year, referrals given/received monthly"
+                },
+                {
+                  "question": "Am I skilled at building rapport and trust with others?",
+                  "metrics": "Connect deeply within 1-2 meetings, high response rates (70%+), trusted with confidential matters"
+                },
+                {
+                  "question": "Do I actively maintain and nurture my network connections?",
+                  "metrics": "Touch base with key contacts monthly, attend 2+ networking events/month, proactive outreach weekly"
+                },
+                {
+                  "question": "Can I leverage my network to create opportunities for myself and others?",
+                  "metrics": "Make 10+ valuable introductions/year, unlock 3+ opportunities through network, doors open via connections"
+                },
+                {
+                  "question": "Am I seen as a valuable connector within my industry/community?",
+                  "metrics": "Known for connecting people, 5+ intro requests/month, reputation as hub/connector"
+                },
+                {
+                  "question": "Do I have influence within my professional and social circles?",
+                  "metrics": "Opinions sought regularly, shape decisions/thinking, 1000+ engaged followers, community leadership role"
+                }
               ]
             },
             {
@@ -69,13 +153,34 @@ createApp({
               "description": "Wealth building and financial strategy",
               "stages": ["Planning", "Implementing", "Scaling", "Sustaining"],
               "assessmentQuestions": [
-                "Do I have a clear financial strategy and budget?",
-                "Am I building multiple income streams effectively?",
-                "Do I understand and actively use investment principles?",
-                "Am I making progress toward my financial goals?",
-                "Do I have adequate emergency funds and financial security?",
-                "Am I building long-term wealth through smart financial decisions?",
-                "Can I maintain and grow my wealth sustainably?"
+                {
+                  "question": "Do I have a clear financial strategy and budget?",
+                  "metrics": "Written financial plan, monthly budget tracking 100% expenses, quarterly reviews"
+                },
+                {
+                  "question": "Am I building multiple income streams effectively?",
+                  "metrics": "2-3+ active income sources beyond primary employment, diversified revenue streams"
+                },
+                {
+                  "question": "Do I understand and actively use investment principles?",
+                  "metrics": "Portfolio diversified across 3+ asset classes, target allocation maintained, regular rebalancing"
+                },
+                {
+                  "question": "Am I making progress toward my financial goals?",
+                  "metrics": "Measurable milestones achieved quarterly, 10-20%+ annual net worth growth, on track for long-term targets"
+                },
+                {
+                  "question": "Do I have adequate emergency funds and financial security?",
+                  "metrics": "3-6 months expenses in liquid savings, appropriate insurance coverage, minimal high-interest debt"
+                },
+                {
+                  "question": "Am I building long-term wealth through smart financial decisions?",
+                  "metrics": "15%+ income saved/invested, compound growth strategies, tax-advantaged accounts maximized"
+                },
+                {
+                  "question": "Can I maintain and grow my wealth sustainably?",
+                  "metrics": "Passive income covers 20%+ expenses, wealth preservation strategies active, legacy planning in place"
+                }
               ]
             },
             {
@@ -83,13 +188,34 @@ createApp({
               "description": "Service orientation and interpersonal excellence",
               "stages": ["Awareness", "Cultivation", "Practice", "Service"],
               "assessmentQuestions": [
-                "Am I emotionally intelligent and empathetic toward others?",
-                "Do I serve others with genuine care and excellence?",
-                "Am I culturally aware and respectful in diverse situations?",
-                "Do I create positive experiences for people I interact with?",
-                "Am I known for my kindness and service orientation?",
-                "Do I contribute meaningfully to my community?",
-                "Am I developing others through my service and mentorship?"
+                {
+                  "question": "Am I emotionally intelligent and empathetic toward others?",
+                  "metrics": "Read emotions accurately, respond appropriately 90%+, high EQ assessment scores, active listening practiced"
+                },
+                {
+                  "question": "Do I serve others with genuine care and excellence?",
+                  "metrics": "Consistent positive feedback, go beyond expectations regularly, 9+/10 satisfaction ratings, genuine care shown"
+                },
+                {
+                  "question": "Am I culturally aware and respectful in diverse situations?",
+                  "metrics": "Comfortable across 5+ cultures, adapt communication styles, no cultural gaffes, inclusive behavior"
+                },
+                {
+                  "question": "Do I create positive experiences for people I interact with?",
+                  "metrics": "People leave interactions energized, unsolicited compliments weekly, memorable positive impressions"
+                },
+                {
+                  "question": "Am I known for my kindness and service orientation?",
+                  "metrics": "Reputation for kindness, thanked frequently, known for helping, servant leadership recognized"
+                },
+                {
+                  "question": "Do I contribute meaningfully to my community?",
+                  "metrics": "Volunteer 5+ hours/month, active in 2+ community initiatives, tangible impact on 50+ people"
+                },
+                {
+                  "question": "Am I developing others through my service and mentorship?",
+                  "metrics": "Mentoring 2+ people actively, track record of others' growth, teaching/coaching regularly"
+                }
               ]
             },
             {
@@ -97,13 +223,34 @@ createApp({
               "description": "Identity creation and market positioning",
               "stages": ["Identity", "Visibility", "Authority", "Legacy"],
               "assessmentQuestions": [
-                "Do I have a clear, authentic personal brand identity?",
-                "Am I visible and recognized in my field or industry?",
-                "Do I create valuable content that showcases my expertise?",
-                "Am I building thought leadership in my area of expertise?",
-                "Do others seek my insights and recommendations?",
-                "Am I creating a lasting positive impact and reputation?",
-                "Will my work and influence continue to benefit others long-term?"
+                {
+                  "question": "Do I have a clear, authentic personal brand identity?",
+                  "metrics": "Defined brand statement, consistent messaging across platforms, clear value proposition, authentic voice"
+                },
+                {
+                  "question": "Am I visible and recognized in my field or industry?",
+                  "metrics": "Active on 2+ platforms, recognized at events, searchable online presence, 1000+ followers/connections"
+                },
+                {
+                  "question": "Do I create valuable content that showcases my expertise?",
+                  "metrics": "Publish 2+ times/week, engagement rate 3%+, content shared/cited by others, provides clear value"
+                },
+                {
+                  "question": "Am I building thought leadership in my area of expertise?",
+                  "metrics": "Invited to speak 3+ times/year, published articles/insights, quoted as expert, shape industry conversations"
+                },
+                {
+                  "question": "Do others seek my insights and recommendations?",
+                  "metrics": "Consulted weekly for advice, direct messages/inquiries regular, referred to as expert by others"
+                },
+                {
+                  "question": "Am I creating a lasting positive impact and reputation?",
+                  "metrics": "Strong testimonials, positive search results, 90%+ positive sentiment, reputation precedes presence"
+                },
+                {
+                  "question": "Will my work and influence continue to benefit others long-term?",
+                  "metrics": "Evergreen content/products created, mentees succeeding, systems/frameworks adopted, legacy initiatives launched"
+                }
               ]
             }
           ]
@@ -359,7 +506,14 @@ createApp({
 
     // Current question
     currentQuestion() {
-      return this.currentPillarData.assessmentQuestions[this.currentAssessment.questionIndex];
+      const question = this.currentPillarData.assessmentQuestions[this.currentAssessment.questionIndex];
+      return typeof question === 'string' ? question : question.question;
+    },
+
+    // Current question metrics (if available)
+    currentQuestionMetrics() {
+      const question = this.currentPillarData.assessmentQuestions[this.currentAssessment.questionIndex];
+      return typeof question === 'object' ? question.metrics : null;
     },
 
     // Assessment progress percentage

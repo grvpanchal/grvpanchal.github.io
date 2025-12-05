@@ -1128,6 +1128,21 @@ select.form-control {
     line-height: 1.4;
 }
 
+.question-metrics {
+    margin: 0 0 var(--space-24) 0;
+    padding: var(--space-16);
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.05), rgba(59, 130, 246, 0.05));
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius-base);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    color: var(--color-text-2);
+}
+
+.question-metrics strong {
+    color: var(--color-text-1);
+}
+
 .rating-scale {
     display: flex;
     flex-direction: column;

@@ -136,6 +136,9 @@
 
                             <div class="question-container">
                                 <h4 class="question-text">{{ currentQuestion }}</h4>
+                                <p v-if="currentQuestionMetrics" class="question-metrics">
+                                    <strong>Target Metrics:</strong> {{ currentQuestionMetrics }}
+                                </p>
                                 <div class="rating-scale">
                                     <label 
                                         v-for="(rating, index) in ratingOptions" 
