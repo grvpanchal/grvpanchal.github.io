@@ -959,10 +959,11 @@ select.form-control {
 }
 
 .timeline {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-16);
     position: relative;
-    margin: 0 var(--space-32);
+    margin: 0;
 }
 
 .timeline::before {
@@ -974,6 +975,7 @@ select.form-control {
     height: 2px;
     background: var(--color-border);
     z-index: 1;
+    transform: translateY(-50%);
 }
 
 .phase-item {
@@ -983,8 +985,11 @@ select.form-control {
     padding: var(--space-16);
     border-radius: var(--radius-lg);
     border: 2px solid var(--color-border);
-    max-width: 180px;
+    width: 100%;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .phase-item.active {
@@ -2100,6 +2105,50 @@ select.form-control {
     color: white;
 }
 
+/* Data Management */
+.data-management {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    margin-bottom: var(--space-32);
+}
+
+.data-management h3 {
+    color: var(--color-primary);
+    margin: 0 0 var(--space-8) 0;
+}
+
+.data-controls {
+    display: flex;
+    gap: var(--space-12);
+    flex-wrap: wrap;
+}
+
+.data-controls .btn {
+    min-width: 150px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+}
+
+.data-controls label.btn {
+    cursor: pointer;
+}
+
+.data-controls label.btn:hover {
+    background: var(--color-secondary-hover);
+}
+
+@media (max-width: 768px) {
+    .data-controls {
+        flex-direction: column;
+    }
+    
+    .data-controls .btn {
+        width: 100%;
+    }
+}
+
 /* Enhanced Resource Links */
 .resource-link {
     display: block;
@@ -2366,8 +2415,17 @@ select.form-control {
     .pillar h4 {
         font-size: var(--font-size-xs);
     }
+
+    /* Fix pillar positioning for 400px container */
+    .pillar-1 { top: 10px; }
+    .pillar-2 { top: 60px; right: 10px; }
+    .pillar-3 { bottom: 60px; right: 10px; }
+    .pillar-4 { bottom: 10px; }
+    .pillar-5 { bottom: 60px; left: 10px; }
+    .pillar-6 { top: 60px; left: 10px; }
     
     .timeline {
+        display: flex;
         flex-direction: column;
         gap: var(--space-16);
     }
@@ -2399,5 +2457,96 @@ select.form-control {
     .modal-content {
         width: 95%;
         margin: var(--space-16);
+    }
+
+    /* Ensure matrix scrolls */
+    .matrix-header, .matrix-row {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding-right: var(--space-12);
+        padding-left: var(--space-12);
+    }
+
+    .header-content {
+        gap: var(--space-12);
+    }
+
+    .logo h1 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .main-nav {
+        gap: var(--space-4);
+    }
+    
+    .nav-btn {
+        padding: var(--space-4) var(--space-8);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Scale down diagram further */
+    .framework-diagram {
+        width: 300px;
+        height: 300px;
+        margin-bottom: var(--space-24);
+    }
+    
+    .center-pillar {
+        width: 90px;
+        height: 90px;
+    }
+    
+    .center-pillar h3 {
+        font-size: var(--font-size-md);
+    }
+    
+    .pillar {
+        width: 75px;
+        height: 75px;
+        padding: var(--space-4);
+    }
+    
+    .pillar h4 {
+        font-size: 10px;
+        margin-bottom: 0;
+    }
+    
+    .pillar-score {
+        font-size: var(--font-size-md);
+    }
+    
+    /* Mobile positions for 300px container */
+    .pillar-1 { top: 5px; }
+    .pillar-2 { top: 45px; right: 5px; }
+    .pillar-3 { bottom: 45px; right: 5px; }
+    .pillar-4 { bottom: 5px; }
+    .pillar-5 { bottom: 45px; left: 5px; }
+    .pillar-6 { top: 45px; left: 5px; }
+    
+    .dashboard-header {
+        flex-direction: column;
+        gap: var(--space-16);
+        text-align: center;
+    }
+    
+    .assessment-controls {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .pillar-selector {
+        justify-content: center;
+    }
+    
+    .pillar-select-btn {
+        flex: 1 1 calc(50% - var(--space-8));
+        text-align: center;
     }
 }

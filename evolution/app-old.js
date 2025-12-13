@@ -1,11 +1,11 @@
-// Evolution Framework Application JavaScript
+// Benzene Evolution Framework Application JavaScript
 
 // Framework data
 const frameworkData = {
   "framework": {
-    "name": "Evolution Framework: Seven Pillars of Holistic Personal Development",
+    "name": "Benzene Evolution Framework: Seven Pillars of Holistic Personal Development",
     "centerPillar": {
-      "name": "Swadharma",
+      "name": "CEO",
       "description": "Personal dharma and natural purpose - the core foundation",
       "stages": ["Discovery", "Alignment", "Integration", "Mastery"],
       "assessmentQuestions": [
@@ -20,7 +20,7 @@ const frameworkData = {
     },
     "surroundingPillars": [
       {
-        "name": "Operating & Organization Skills",
+        "name": "COO",
         "description": "Systematic execution and management abilities",
         "stages": ["Foundation", "Development", "Optimization", "Leadership"],
         "assessmentQuestions": [
@@ -34,7 +34,7 @@ const frameworkData = {
         ]
       },
       {
-        "name": "Technical Physical & Mind Ability",
+        "name": "CTO",
         "description": "Cognitive and physical capabilities development",
         "stages": ["Assessment", "Enhancement", "Integration", "Excellence"],
         "assessmentQuestions": [
@@ -48,7 +48,7 @@ const frameworkData = {
         ]
       },
       {
-        "name": "Social Leverage Network",
+        "name": "CIO",
         "description": "Relationship building and networking mastery",
         "stages": ["Building", "Expanding", "Leveraging", "Influencing"],
         "assessmentQuestions": [
@@ -62,7 +62,7 @@ const frameworkData = {
         ]
       },
       {
-        "name": "Financial Model",
+        "name": "CFO",
         "description": "Wealth building and financial strategy",
         "stages": ["Planning", "Implementing", "Scaling", "Sustaining"],
         "assessmentQuestions": [
@@ -76,7 +76,7 @@ const frameworkData = {
         ]
       },
       {
-        "name": "Social Hospitality",
+        "name": "CXO",
         "description": "Service orientation and interpersonal excellence",
         "stages": ["Awareness", "Cultivation", "Practice", "Service"],
         "assessmentQuestions": [
@@ -90,7 +90,7 @@ const frameworkData = {
         ]
       },
       {
-        "name": "Personal Brand Marketing",
+        "name": "CMO",
         "description": "Identity creation and market positioning",
         "stages": ["Identity", "Visibility", "Authority", "Legacy"],
         "assessmentQuestions": [
@@ -107,33 +107,33 @@ const frameworkData = {
   },
   "integrationSynergies": [
     {
-      "pillar1": "Swadharma",
-      "pillar2": "Operating & Organization Skills", 
+      "pillar1": "CEO",
+      "pillar2": "COO", 
       "synergy": "Purpose-driven systems create effortless execution aligned with dharma"
     },
     {
-      "pillar1": "Swadharma",
-      "pillar2": "Technical Physical & Mind Ability",
+      "pillar1": "CEO",
+      "pillar2": "CTO",
       "synergy": "Natural abilities enhanced through dharmic practice and purposeful development"
     },
     {
-      "pillar1": "Swadharma", 
-      "pillar2": "Social Leverage Network",
+      "pillar1": "CEO", 
+      "pillar2": "CIO",
       "synergy": "Authentic relationships built on shared values and genuine purpose alignment"
     },
     {
-      "pillar1": "Technical Physical & Mind Ability",
-      "pillar2": "Personal Brand Marketing",
+      "pillar1": "CTO",
+      "pillar2": "CMO",
       "synergy": "Demonstrated expertise strengthens personal brand and market positioning"
     },
     {
-      "pillar1": "Social Leverage Network",
-      "pillar2": "Financial Model",
+      "pillar1": "CIO",
+      "pillar2": "CFO",
       "synergy": "Networks provide financial opportunities and investment partnerships"
     },
     {
-      "pillar1": "Social Hospitality",
-      "pillar2": "Personal Brand Marketing", 
+      "pillar1": "CXO",
+      "pillar2": "CMO", 
       "synergy": "Excellent service builds brand reputation and authentic market positioning"
     }
   ]
@@ -141,17 +141,17 @@ const frameworkData = {
 
 // Application state
 let assessmentScores = {
-  swadharma: 0,
-  operating: 0,
-  technical: 0,
-  social: 0,
-  financial: 0,
-  hospitality: 0,
-  branding: 0
+  ceo: 0,
+  coo: 0,
+  cto: 0,
+  cio: 0,
+  cfo: 0,
+  cxo: 0,
+  cmo: 0
 };
 
 let currentAssessment = {
-  pillar: 'swadharma',
+  pillar: 'ceo',
   questionIndex: 0,
   answers: [],
   isActive: false
@@ -159,13 +159,13 @@ let currentAssessment = {
 
 // Pillar mappings
 const pillarMappings = {
-  swadharma: frameworkData.framework.centerPillar,
-  operating: frameworkData.framework.surroundingPillars[0],
-  technical: frameworkData.framework.surroundingPillars[1],
-  social: frameworkData.framework.surroundingPillars[2],
-  financial: frameworkData.framework.surroundingPillars[3],
-  hospitality: frameworkData.framework.surroundingPillars[4],
-  branding: frameworkData.framework.surroundingPillars[5]
+  ceo: frameworkData.framework.centerPillar,
+  coo: frameworkData.framework.surroundingPillars[0],
+  cto: frameworkData.framework.surroundingPillars[1],
+  cio: frameworkData.framework.surroundingPillars[2],
+  cfo: frameworkData.framework.surroundingPillars[3],
+  cxo: frameworkData.framework.surroundingPillars[4],
+  cmo: frameworkData.framework.surroundingPillars[5]
 };
 
 // Chart.js radar chart instance
@@ -426,7 +426,7 @@ function createPillarProgressCards() {
   pillarGrid.innerHTML = '';
   
   // Add center pillar
-  const centerPillarCard = createProgressCard('swadharma', frameworkData.framework.centerPillar);
+  const centerPillarCard = createProgressCard('ceo', frameworkData.framework.centerPillar);
   pillarGrid.appendChild(centerPillarCard);
   
   // Add surrounding pillars
@@ -462,7 +462,7 @@ function updateRadarChart() {
   if (!ctx) return;
   
   const scores = [
-    assessmentScores.swadharma || 0,
+    assessmentScores.ceo || 0,
     assessmentScores.operating || 0,
     assessmentScores.technical || 0,
     assessmentScores.social || 0,
@@ -472,13 +472,13 @@ function updateRadarChart() {
   ];
   
   const labels = [
-    'Swadharma',
-    'Operating Skills',
-    'Technical Ability', 
-    'Social Network',
-    'Financial Model',
-    'Social Hospitality',
-    'Personal Brand'
+    'CEO',
+    'COO',
+    'CTO', 
+    'CIO',
+    'CFO',
+    'CXO',
+    'CMO'
   ];
   
   if (radarChart) {
@@ -529,7 +529,7 @@ function initializeIntegration() {
 
 function createIntegrationMatrix() {
   const matrixContainer = document.querySelector('.integration-matrix');
-  const pillars = ['Swadharma', 'Operating', 'Technical', 'Social', 'Financial', 'Hospitality', 'Branding'];
+  const pillars = ['CEO', 'Operating', 'Technical', 'Social', 'Financial', 'Hospitality', 'Branding'];
   
   // Create matrix rows
   pillars.forEach((rowPillar, rowIndex) => {

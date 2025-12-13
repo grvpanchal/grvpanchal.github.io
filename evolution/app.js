@@ -6,9 +6,9 @@ createApp({
       // Framework data
       frameworkData: {
         "framework": {
-          "name": "Evolution Framework: Seven Pillars of Holistic Personal Development",
+          "name": "Benzene Evolution Framework: Seven Pillars of Holistic Personal Development",
           "centerPillar": {
-            "name": "Swadharma",
+            "name": "CEO",
             "description": "Personal dharma and natural purpose - the core foundation",
             "stages": ["Discovery", "Alignment", "Integration", "Mastery"],
             "assessmentQuestions": [
@@ -44,7 +44,7 @@ createApp({
           },
           "surroundingPillars": [
             {
-              "name": "Operating & Organization Skills",
+              "name": "COO",
               "description": "Systematic execution and management abilities",
               "stages": ["Foundation", "Development", "Optimization", "Leadership"],
               "assessmentQuestions": [
@@ -79,7 +79,7 @@ createApp({
               ]
             },
             {
-              "name": "Technical Physical & Mind Ability",
+              "name": "CTO",
               "description": "Cognitive and physical capabilities development",
               "stages": ["Assessment", "Enhancement", "Integration", "Excellence"],
               "assessmentQuestions": [
@@ -114,7 +114,7 @@ createApp({
               ]
             },
             {
-              "name": "Social Leverage Network",
+              "name": "CIO",
               "description": "Relationship building and networking mastery",
               "stages": ["Building", "Expanding", "Leveraging", "Influencing"],
               "assessmentQuestions": [
@@ -149,7 +149,7 @@ createApp({
               ]
             },
             {
-              "name": "Financial Model",
+              "name": "CFO",
               "description": "Wealth building and financial strategy",
               "stages": ["Planning", "Implementing", "Scaling", "Sustaining"],
               "assessmentQuestions": [
@@ -184,7 +184,7 @@ createApp({
               ]
             },
             {
-              "name": "Social Hospitality",
+              "name": "CXO",
               "description": "Service orientation and interpersonal excellence",
               "stages": ["Awareness", "Cultivation", "Practice", "Service"],
               "assessmentQuestions": [
@@ -219,7 +219,7 @@ createApp({
               ]
             },
             {
-              "name": "Personal Brand Marketing",
+              "name": "CMO",
               "description": "Identity creation and market positioning",
               "stages": ["Identity", "Visibility", "Authority", "Legacy"],
               "assessmentQuestions": [
@@ -257,33 +257,33 @@ createApp({
         },
         "integrationSynergies": [
           {
-            "pillar1": "Swadharma",
-            "pillar2": "Operating & Organization Skills", 
+            "pillar1": "CEO",
+            "pillar2": "COO", 
             "synergy": "Purpose-driven systems create effortless execution aligned with dharma"
           },
           {
-            "pillar1": "Swadharma",
-            "pillar2": "Technical Physical & Mind Ability",
+            "pillar1": "CEO",
+            "pillar2": "CTO",
             "synergy": "Natural abilities enhanced through dharmic practice and purposeful development"
           },
           {
-            "pillar1": "Swadharma", 
-            "pillar2": "Social Leverage Network",
+            "pillar1": "CEO", 
+            "pillar2": "CIO",
             "synergy": "Authentic relationships built on shared values and genuine purpose alignment"
           },
           {
-            "pillar1": "Technical Physical & Mind Ability",
-            "pillar2": "Personal Brand Marketing",
+            "pillar1": "CTO",
+            "pillar2": "CMO",
             "synergy": "Demonstrated expertise strengthens personal brand and market positioning"
           },
           {
-            "pillar1": "Social Leverage Network",
-            "pillar2": "Financial Model",
+            "pillar1": "CIO",
+            "pillar2": "CFO",
             "synergy": "Networks provide financial opportunities and investment partnerships"
           },
           {
-            "pillar1": "Social Hospitality",
-            "pillar2": "Personal Brand Marketing", 
+            "pillar1": "CXO",
+            "pillar2": "CMO", 
             "synergy": "Excellent service builds brand reputation and authentic market positioning"
           }
         ]
@@ -292,17 +292,17 @@ createApp({
       // Application state
       activeView: 'dashboard',
       assessmentScores: {
-        swadharma: 0,
-        operating: 0,
-        technical: 0,
-        social: 0,
-        financial: 0,
-        hospitality: 0,
-        branding: 0
+        ceo: 0,
+        coo: 0,
+        cto: 0,
+        cio: 0,
+        cfo: 0,
+        cxo: 0,
+        cmo: 0
       },
 
       currentAssessment: {
-        pillar: 'swadharma',
+        pillar: 'ceo',
         questionIndex: 0,
         answers: [],
         isActive: false
@@ -399,7 +399,7 @@ createApp({
       ],
 
       // Matrix pillars for integration view
-      matrixPillars: ['Swadharma', 'Operating', 'Technical', 'Social', 'Financial', 'Hospitality', 'Branding'],
+      matrixPillars: ['CEO', 'COO', 'CTO', 'CIO', 'CFO', 'CXO', 'CMO'],
 
       // Goal periods for planning
       goalPeriods: [
@@ -460,8 +460,8 @@ createApp({
         {
           id: 1,
           title: 'Complete Self-Assessment',
-          description: 'Take the Swadharma assessment to understand your core purpose',
-          pillar: 'Swadharma',
+          description: 'Take the CEO assessment to understand your core purpose',
+          pillar: 'CEO',
           estimatedTime: '15 min',
           completed: false
         },
@@ -469,7 +469,7 @@ createApp({
           id: 2,
           title: 'Set Up Daily Reflection',
           description: 'Establish a 5-minute daily reflection practice',
-          pillar: 'Operating Skills',
+          pillar: 'COO',
           estimatedTime: '10 min',
           completed: false
         },
@@ -477,7 +477,7 @@ createApp({
           id: 3,
           title: 'Network Audit',
           description: 'List your current professional connections and identify gaps',
-          pillar: 'Social Network',
+          pillar: 'CIO',
           estimatedTime: '30 min',
           completed: false
         }
@@ -489,13 +489,13 @@ createApp({
     // Pillar mappings
     pillarMappings() {
       return {
-        swadharma: this.frameworkData.framework.centerPillar,
-        operating: this.frameworkData.framework.surroundingPillars[0],
-        technical: this.frameworkData.framework.surroundingPillars[1],
-        social: this.frameworkData.framework.surroundingPillars[2],
-        financial: this.frameworkData.framework.surroundingPillars[3],
-        hospitality: this.frameworkData.framework.surroundingPillars[4],
-        branding: this.frameworkData.framework.surroundingPillars[5]
+        ceo: this.frameworkData.framework.centerPillar,
+        coo: this.frameworkData.framework.surroundingPillars[0],
+        cto: this.frameworkData.framework.surroundingPillars[1],
+        cio: this.frameworkData.framework.surroundingPillars[2],
+        cfo: this.frameworkData.framework.surroundingPillars[3],
+        cxo: this.frameworkData.framework.surroundingPillars[4],
+        cmo: this.frameworkData.framework.surroundingPillars[5]
       }
     },
 
@@ -637,7 +637,7 @@ createApp({
           days: '30',
           goals: [
             { text: 'Complete baseline assessments for all pillars', completed: false },
-            { text: 'Establish daily reflection practice', completed: false, pillar: 'Swadharma' }
+            { text: 'Establish daily reflection practice', completed: false, pillar: 'CEO' }
           ]
         });
       } else {
@@ -683,7 +683,7 @@ createApp({
 
     // Get pillar key by index
     getPillarKey(index) {
-      const keys = ['operating', 'technical', 'social', 'financial', 'hospitality', 'branding'];
+      const keys = ['coo', 'cto', 'cio', 'cfo', 'cxo', 'cmo'];
       return keys[index];
     },
 
@@ -797,7 +797,7 @@ createApp({
       const incompletePillars = Object.entries(this.assessmentScores)
         .filter(([pillarKey, score]) => score === 0);
       
-      let targetPillar = 'swadharma'; // default
+      let targetPillar = 'ceo'; // default
       
       if (incompletePillars.length > 0) {
         // Select first incomplete pillar
@@ -874,7 +874,7 @@ createApp({
       const ctx = canvas.getContext('2d');
       
       const scores = [
-        this.assessmentScores.swadharma || 0,
+        this.assessmentScores.ceo || 0,
         this.assessmentScores.operating || 0,
         this.assessmentScores.technical || 0,
         this.assessmentScores.social || 0,
@@ -884,13 +884,13 @@ createApp({
       ];
       
       const labels = [
-        'Swadharma',
-        'Operating Skills',
-        'Technical Ability', 
-        'Social Network',
-        'Financial Model',
-        'Social Hospitality',
-        'Personal Brand'
+        'CEO',
+        'COO',
+        'CTO', 
+        'CIO',
+        'CFO',
+        'CXO',
+        'CMO'
       ];
       
       if (this.radarChart) {
@@ -936,7 +936,7 @@ createApp({
 
     // Assessment helper methods
     getPillarDisplayName(name) {
-      if (name.includes('Personal Brand')) return 'Personal Brand';
+      if (name.includes('CMO')) return 'CMO';
       if (name.includes('&')) return name.split(' & ')[0];
       return name.split(' ')[0];
     },
@@ -1010,26 +1010,26 @@ createApp({
 
     getShortPillarName(pillarName) {
       const shortNames = {
-        'Swadharma': 'Swadharma',
-        'Operating & Organization Skills': 'Operating',
-        'Technical Physical & Mind Ability': 'Technical',
-        'Social Leverage Network': 'Social',
-        'Financial Model': 'Financial',
-        'Social Hospitality': 'Hospitality',
-        'Personal Brand Marketing': 'Branding'
+        'CEO': 'CEO',
+        'COO': 'Operating',
+        'CTO': 'Technical',
+        'CIO': 'Social',
+        'CFO': 'Financial',
+        'CXO': 'Hospitality',
+        'CMO': 'Branding'
       };
       return shortNames[pillarName] || pillarName.split(' ')[0];
     },
 
     getPillarScoreByName(pillarName) {
       const mapping = {
-        'Swadharma': 'swadharma',
-        'Operating & Organization Skills': 'operating',
-        'Technical Physical & Mind Ability': 'technical',
-        'Social Leverage Network': 'social',
-        'Financial Model': 'financial',
-        'Social Hospitality': 'hospitality',
-        'Personal Brand Marketing': 'branding'
+        'CEO': 'ceo',
+        'COO': 'operating',
+        'CTO': 'technical',
+        'CIO': 'social',
+        'CFO': 'financial',
+        'CXO': 'hospitality',
+        'CMO': 'branding'
       };
       const key = mapping[pillarName];
       return key ? this.assessmentScores[key] : 0;
@@ -1086,13 +1086,166 @@ createApp({
 
     // Data persistence
     saveAssessmentData() {
-      // In a real application, this would save to a backend or localStorage
-      console.log('Assessment data saved:', this.assessmentScores);
+      const dataToSave = {
+        assessmentScores: this.assessmentScores,
+        currentAssessment: this.currentAssessment,
+        assessmentResults: this.assessmentResults,
+        immediateActions: this.immediateActions,
+        goalPeriods: this.goalPeriods,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      try {
+        localStorage.setItem('benzeneEvolutionFramework', JSON.stringify(dataToSave));
+        console.log('✅ Assessment data saved to localStorage');
+      } catch (error) {
+        console.error('❌ Error saving to localStorage:', error);
+      }
     },
 
     loadAssessmentData() {
-      // Load from stored data (in real app would be from localStorage or backend)
-      console.log('Assessment data loaded:', this.assessmentScores);
+      try {
+        const savedData = localStorage.getItem('benzeneEvolutionFramework');
+        
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          
+          // Restore assessment scores
+          if (parsed.assessmentScores) {
+            Object.assign(this.assessmentScores, parsed.assessmentScores);
+          }
+          
+          // Restore current assessment state (but don't restore active assessment)
+          if (parsed.currentAssessment && !parsed.currentAssessment.isActive) {
+            this.currentAssessment.pillar = parsed.currentAssessment.pillar || 'ceo';
+          }
+          
+          // Restore assessment results
+          if (parsed.assessmentResults) {
+            Object.assign(this.assessmentResults, parsed.assessmentResults);
+          }
+          
+          // Restore immediate actions
+          if (parsed.immediateActions) {
+            this.immediateActions = parsed.immediateActions;
+          }
+          
+          // Restore goal periods
+          if (parsed.goalPeriods) {
+            this.goalPeriods = parsed.goalPeriods;
+          }
+          
+          console.log('✅ Assessment data loaded from localStorage');
+          console.log('📅 Last updated:', parsed.lastUpdated);
+        }
+      } catch (error) {
+        console.error('❌ Error loading from localStorage:', error);
+      }
+    },
+
+    clearAllData() {
+      if (confirm('Are you sure you want to clear all your progress? This action cannot be undone.')) {
+        localStorage.removeItem('benzeneEvolutionFramework');
+        
+        // Reset all data
+        Object.keys(this.assessmentScores).forEach(key => {
+          this.assessmentScores[key] = 0;
+        });
+        
+        this.currentAssessment = {
+          pillar: 'ceo',
+          questionIndex: 0,
+          answers: [],
+          isActive: false
+        };
+        
+        this.assessmentResults = {
+          show: false,
+          percentage: 0,
+          stage: '',
+          recommendations: []
+        };
+        
+        console.log('🗑️ All data cleared');
+        alert('All progress has been cleared.');
+      }
+    },
+
+    exportData() {
+      const dataToExport = {
+        assessmentScores: this.assessmentScores,
+        currentAssessment: this.currentAssessment,
+        assessmentResults: this.assessmentResults,
+        immediateActions: this.immediateActions,
+        goalPeriods: this.goalPeriods,
+        exportedAt: new Date().toISOString(),
+        version: '1.0'
+      };
+      
+      const dataStr = JSON.stringify(dataToExport, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `benzene-framework-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      console.log('📥 Data exported successfully');
+    },
+
+    importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          
+          // Validate data structure
+          if (importedData.version && importedData.assessmentScores) {
+            // Restore data
+            Object.assign(this.assessmentScores, importedData.assessmentScores);
+            
+            if (importedData.immediateActions) {
+              this.immediateActions = importedData.immediateActions;
+            }
+            
+            if (importedData.goalPeriods) {
+              this.goalPeriods = importedData.goalPeriods;
+            }
+            
+            // Save to localStorage
+            this.saveAssessmentData();
+            
+            console.log('📤 Data imported successfully');
+            alert('Data imported successfully!');
+            
+            // Refresh view
+            this.setActiveView('dashboard');
+          } else {
+            throw new Error('Invalid data format');
+          }
+        } catch (error) {
+          console.error('❌ Error importing data:', error);
+          alert('Error importing data. Please check the file format.');
+        }
+      };
+      reader.readAsText(file);
+    },
+
+    toggleGoalCompletion(period, goalIndex) {
+      period.goals[goalIndex].completed = !period.goals[goalIndex].completed;
+      this.saveAssessmentData();
+    },
+
+    toggleActionCompletion(actionId) {
+      const action = this.immediateActions.find(a => a.id === actionId);
+      if (action) {
+        action.completed = !action.completed;
+        this.saveAssessmentData();
+      }
     }
   },
 

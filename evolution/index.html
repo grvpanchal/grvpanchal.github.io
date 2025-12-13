@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evolution Framework: Seven Pillars of Holistic Personal Development</title>
+    <title>Benzene Evolution Framework: Seven Pillars of Holistic Personal Development</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -15,7 +15,7 @@
             <div class="container">
                 <div class="header-content">
                     <div class="logo">
-                        <h1>Evolution Framework</h1>
+                        <h1>Benzene Evolution Framework</h1>
                         <p>Seven Pillars of Holistic Personal Development</p>
                     </div>
                     <nav class="main-nav">
@@ -48,11 +48,11 @@
                     </div>
                     
                     <div class="framework-diagram">
-                        <div class="center-pillar" @click="showPillarModal('swadharma')">
+                        <div class="center-pillar" @click="showPillarModal('ceo')">
                             <div class="pillar-content">
                                 <h3>{{ frameworkData.framework.centerPillar.name }}</h3>
-                                <div class="pillar-score" :class="getScoreColorClass(assessmentScores.swadharma)">
-                                    {{ assessmentScores.swadharma }}%
+                                <div class="pillar-score" :class="getScoreColorClass(assessmentScores.ceo)">
+                                    {{ assessmentScores.ceo }}%
                                 </div>
                             </div>
                         </div>
@@ -486,6 +486,24 @@
                         </div>
                     </div>
 
+                    <!-- Data Management Section -->
+                    <div class="data-management card" style="margin-bottom: var(--space-32); padding: var(--space-24);">
+                        <h3 style="margin-bottom: var(--space-16);">Data Management</h3>
+                        <p style="margin-bottom: var(--space-20); color: var(--color-text-secondary);">Backup, restore, or reset your progress data</p>
+                        <div class="data-controls" style="display: flex; gap: var(--space-12); flex-wrap: wrap;">
+                            <button @click="exportData" class="btn btn--secondary" title="Download your progress as JSON">
+                                📥 Export Progress
+                            </button>
+                            <label class="btn btn--secondary" title="Import previously exported data">
+                                📤 Import Progress
+                                <input type="file" accept=".json" @change="importData" style="display: none;">
+                            </label>
+                            <button @click="clearAllData" class="btn btn--outline" title="Clear all saved data">
+                                🗑️ Clear All Data
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="resource-library">
                         <h3>Curated Resources</h3>
                         <div class="resource-filter">
@@ -565,7 +583,7 @@
             <div class="container">
                 <div class="footer-content">
                     <div class="footer-section">
-                        <h4>Evolution Framework</h4>
+                        <h4>Benzene Evolution Framework</h4>
                         <p>Holistic Personal Development System</p>
                     </div>
                     <div class="footer-section">
@@ -582,6 +600,13 @@
                             <li><a href="#" target="_blank">Help Center</a></li>
                             <li><a href="#" target="_blank">Community</a></li>
                             <li><a href="#" target="_blank">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h5>Your Data</h5>
+                        <ul>
+                            <li><a href="#" @click.prevent="exportData">Export Progress</a></li>
+                            <li><a href="#" @click.prevent="clearAllData">Clear Data</a></li>
                         </ul>
                     </div>
                 </div>

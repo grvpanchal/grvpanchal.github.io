@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains the transformation of the Evolution Framework application from vanilla JavaScript to Vue.js 3 using CDN.
+This document explains the transformation of the Benzene Evolution Framework application from vanilla JavaScript to Vue.js 3 using CDN.
 
 ## Key Changes Made
 
