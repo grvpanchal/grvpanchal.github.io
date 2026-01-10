@@ -27,10 +27,12 @@
         if (response.target.status === 200) {
           // The form submission was successful
           form.reset();
-          formResponse.innerHTML = 'Thanks for the message. I’ll be in touch shortly.';
+          formResponse.innerHTML = 'Thanks for the message. I\'ll be in touch shortly.';
+          formResponse.style.display = 'block';
         } else {
           // The form submission failed
           formResponse.innerHTML = 'Something went wrong';
+          formResponse.style.display = 'block';
           console.error(JSON.parse(response.target.response).message);
         }
       };
