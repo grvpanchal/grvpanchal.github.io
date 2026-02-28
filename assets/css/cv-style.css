@@ -106,7 +106,7 @@ page>.wrapper>.content-side>main>section h3~p {
 
 page>.wrapper>.content-side>main>section,
 page>.wrapper>aside>.content {
-    margin-bottom: 40px;
+    margin-bottom: 32px;
 }
 
 page>.wrapper>.content-side>main>section .content::before {
@@ -131,7 +131,7 @@ section>.content ul {
 }
 
 section>.content ul>li {
-    padding: 2px 0;
+    padding: 4px 0;
 }
 
 section>.content>.content-entry {
