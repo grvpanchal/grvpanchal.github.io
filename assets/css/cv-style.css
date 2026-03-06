@@ -30,6 +30,11 @@ h6 {
     font-family: 'Montserrat', sans-serif;
 }
 
+ul strong,
+p strong {
+    color: #000;
+}
+
 page {
     background: white;
     display: block;
