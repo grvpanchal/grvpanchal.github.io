@@ -1,0 +1,177 @@
+---
+title: grvpanchal n8n - Google Integration App
+description: grvpanchal n8n provides secure Google authentication to automate workflows with Google Sheets, Gmail, Drive, and Blogger via n8n.
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ page.title }}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.ico" />
+    <meta name="robots" content="index, follow" />
+    <link href="./assets/css/style.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/chota" />
+    <style>
+      .app-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+        line-height: 1.7;
+      }
+      .app-page h1 {
+        margin-bottom: 0.5rem;
+      }
+      .app-page .subtitle {
+        color: #888;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+      .app-page h2 {
+        margin-top: 2rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.3rem;
+      }
+      .app-page ul {
+        margin-left: 1.5rem;
+      }
+      .app-page .service-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+      }
+      .app-page .service-card h3 {
+        margin: 0 0 0.5rem 0;
+      }
+      .app-page .service-card p {
+        margin: 0;
+        color: #555;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 1rem;
+        text-decoration: none;
+      }
+      .badge {
+        display: inline-block;
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="app-page">
+        <a href="./" class="back-link">&larr; Back to Home</a>
+
+        <h1>grvpanchal n8n <span class="badge">Google Verified</span></h1>
+        <p class="subtitle">
+          Secure Google authentication for workflow automation powered by n8n
+        </p>
+
+        <h2>What is grvpanchal n8n?</h2>
+        <p>
+          <strong>grvpanchal n8n</strong> is a workflow automation application built by
+          <a href="./">Gaurav Panchal</a> using <a href="https://n8n.io" target="_blank" rel="noreferrer">n8n</a>,
+          an open-source automation platform. It provides secure Google OAuth 2.0 authentication to connect
+          with Google services and automate tasks across multiple Google products.
+        </p>
+        <p>
+          The app allows authorized users to authenticate with their Google account so that n8n workflows
+          can securely read and interact with Google services on their behalf.
+        </p>
+
+        <h2>Google Services We Access</h2>
+        <p>
+          When you authenticate with <strong>grvpanchal n8n</strong>, the app may request access to the
+          following Google services based on the workflows you use:
+        </p>
+
+        <div class="row">
+          <div class="col-12 col-6-md">
+            <div class="service-card">
+              <h3>Google Sheets</h3>
+              <p>Read and write spreadsheet data to automate data collection, reporting, and tracking workflows.</p>
+            </div>
+          </div>
+          <div class="col-12 col-6-md">
+            <div class="service-card">
+              <h3>Gmail</h3>
+              <p>Read emails and send automated messages for notification, communication, and email-based workflows.</p>
+            </div>
+          </div>
+          <div class="col-12 col-6-md">
+            <div class="service-card">
+              <h3>Google Drive</h3>
+              <p>Access, organize, and manage files in Google Drive for file-based automation workflows.</p>
+            </div>
+          </div>
+          <div class="col-12 col-6-md">
+            <div class="service-card">
+              <h3>Blogger</h3>
+              <p>Read and publish blog posts to automate content management and publishing workflows.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2>How It Works</h2>
+        <ol>
+          <li><strong>Sign in with Google</strong> &mdash; You authenticate securely using Google OAuth 2.0. We never see or store your Google password.</li>
+          <li><strong>Authorize access</strong> &mdash; You review and approve the specific Google services the app needs to access.</li>
+          <li><strong>Workflows run securely</strong> &mdash; n8n uses your authorized credentials to execute automation workflows on your behalf.</li>
+          <li><strong>Revoke anytime</strong> &mdash; You can revoke access at any time from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer">Google Account Permissions</a>.</li>
+        </ol>
+
+        <h2>Data &amp; Privacy</h2>
+        <ul>
+          <li>We only request the minimum permissions (scopes) needed for each workflow.</li>
+          <li>Your Google data is processed only within the n8n automation workflows you authorize.</li>
+          <li>We do <strong>not</strong> sell, share, or use your data for advertising.</li>
+          <li>Our use of Google data adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.</li>
+          <li>Read our full <a href="./privacy">Privacy Policy</a> for details.</li>
+        </ul>
+
+        <h2>Who Can Use This?</h2>
+        <p>
+          This app is intended for authorized users invited by Gaurav Panchal to use the n8n automation
+          setup. If you have been given access, you can sign in with your Google account to enable
+          automated workflows.
+        </p>
+
+        <h2>Security</h2>
+        <ul>
+          <li>All connections use HTTPS encryption.</li>
+          <li>OAuth 2.0 tokens are stored securely within the n8n instance and are never exposed publicly.</li>
+          <li>The n8n instance is self-hosted and managed by Gaurav Panchal.</li>
+          <li>Access is restricted to invited users only.</li>
+        </ul>
+
+        <h2>Contact</h2>
+        <p>
+          If you have questions about <strong>grvpanchal n8n</strong> or need support, please reach out:
+        </p>
+        <ul>
+          <li>Website: <a href="https://grvpanchal.me">grvpanchal.me</a></li>
+          <li>GitHub: <a href="https://github.com/grvpanchal" target="_blank" rel="noreferrer">github.com/grvpanchal</a></li>
+        </ul>
+
+        <hr />
+        <p style="text-align: center; margin-top: 2rem;">
+          <a href="./">Home</a> &middot;
+          <a href="./privacy">Privacy Policy</a> &middot;
+          <a href="./terms">Terms of Service</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
