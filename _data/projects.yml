@@ -1,0 +1,208 @@
+# Projects shown under each sector on the home page.
+# `sector` matches a `slug` in _data/sectors.yml.
+# `active: true` puts the project under the CURRENT heading; false puts it under PREVIOUS.
+# `icon` (optional) is a devicon slug from https://icongr.am/devicon/{icon}-original.svg
+# Leave `icon` off for concepts that have no logo (e.g., PWA, Performance).
+
+# === Professional ===
+- name: LG BlueSky US
+  sector: professional
+  active: true
+  desc: On-shore Lead and architect delivering BlueSky with an advanced UI/UX approach using Atomic Design and module federation micro-frontends.
+  tags:
+    - { name: React, icon: react }
+    - { name: NextJS }
+    - { name: Atomic Design }
+    - { name: Redux SAGA }
+    - { name: Material UI }
+    - { name: TypeScript, icon: typescript }
+
+- name: 1800Flowers Enterprise React 4.2 PWA
+  sector: professional
+  active: false
+  desc: Built a micro-frontend website solution covering checkout and payments across all 1800flowers brands.
+  tags:
+    - { name: React, icon: react }
+    - { name: Redux }
+    - { name: Redux SAGA }
+    - { name: PWA }
+    - { name: Material UI }
+
+- name: 1800Flowers Polymer 2.0 PWA
+  sector: professional
+  active: false
+  desc: Delivered a high-performing PWA e-commerce site using Polymer-based web components.
+  tags:
+    - { name: Polymer 2 }
+    - { name: PWA }
+    - { name: Paper UI }
+    - { name: nodejs, icon: nodejs }
+
+- name: Billion Dollar Paydown
+  sector: professional
+  active: false
+  desc: Built a dashboard on VueJS, WordPress templates and Docker. Led the team for development.
+  tags:
+    - { name: vue, icon: vuejs }
+    - { name: wordpress, icon: wordpress }
+    - { name: PHP, icon: php }
+    - { name: SCSS, icon: sass }
+    - { name: Bootstrap, icon: bootstrap }
+    - { name: Docker, icon: docker }
+
+- name: FolioDynamix Client Portal
+  sector: professional
+  active: false
+  desc: Built a React app for clients using Redux and Spring Boot APIs.
+  tags:
+    - { name: React, icon: react }
+    - { name: Redux }
+    - { name: SCSS, icon: sass }
+    - { name: Bootstrap, icon: bootstrap }
+    - { name: Webpack, icon: webpack }
+
+- name: Cetera Financial Advisor Portal
+  sector: professional
+  active: false
+  desc: Built an on-boarding portal for financial advisors on AngularJS proxied via NodeJS to APIs.
+  tags:
+    - { name: AngularJS, icon: angularjs }
+    - { name: Bootstrap, icon: bootstrap }
+    - { name: SCSS, icon: sass }
+    - { name: nodeJS, icon: nodejs }
+
+- name: SaveDay
+  sector: professional
+  active: false
+  desc: Roth and 401K app built on AngularJS and proxied via NodeJS to API.
+  tags:
+    - { name: AngularJS, icon: angularjs }
+    - { name: Foundation }
+    - { name: SCSS, icon: sass }
+    - { name: Grunt, icon: grunt }
+
+- name: In Silico PCR
+  sector: professional
+  active: false
+  desc: Bioinformatic tool on PHP, Python and NCBI database to get virtual results of PCR cycles.
+  tags:
+    - { name: PHP, icon: php }
+    - { name: Python, icon: python }
+    - { name: NCBI }
+    - { name: MYSQL, icon: mysql }
+
+- name: Clubking Custom Widgets
+  sector: professional
+  active: false
+  desc: Built custom widget interfaces for wristbands and wheel of fortune.
+  tags:
+    - { name: HTML, icon: html5 }
+    - { name: CSS, icon: css3 }
+    - { name: jQuery, icon: jquery }
+    - { name: JavaScript, icon: javascript }
+
+# === Personal ===
+- name: Elegant Frontend Architecture
+  sector: personal
+  active: true
+  desc: AI-driven frontend training program advancing developers from fundamentals through modern React, NextJS and AI-assisted UI workflows.
+  tags:
+    - { name: AI }
+    - { name: React, icon: react }
+    - { name: NextJS }
+    - { name: TypeScript, icon: typescript }
+    - { name: Training }
+
+- name: Routine Notes
+  sector: personal
+  active: true
+  desc: A routine and goal setting app designed as a PWA.
+  tags:
+    - { name: vueJS, icon: vuejs }
+    - { name: Vuetify }
+    - { name: PWA }
+    - { name: GraphQL }
+    - { name: nodeJS, icon: nodejs }
+
+- name: Family Wealth
+  sector: personal
+  active: true
+  desc: A suggestive app to deliver a financial freedom strategy to its users.
+  tags:
+    - { name: vueJS, icon: vuejs }
+    - { name: Vuetify }
+    - { name: PWA }
+    - { name: GraphQL }
+    - { name: nodeJS, icon: nodejs }
+
+- name: Performance Maintainer
+  sector: personal
+  active: false
+  desc: A tool to enhance the performance of your Windows system.
+  tags:
+    - { name: "C#", icon: csharp }
+    - { name: windows, icon: windows8 }
+    - { name: Performance }
+
+# === Genetics ===
+- name: Genome GC
+  sector: genetics
+  active: true
+  desc: Analyses the GC percentage of eukaryote genomes across the animal kingdom.
+  tags:
+    - { name: codeigniter, icon: codeigniter, icon_variant: plain }
+    - { name: PHP, icon: php }
+    - { name: python, icon: python }
+    - { name: django, icon: django }
+    - { name: bootstrap, icon: bootstrap, icon_variant: plain }
+    - { name: ncbi }
+
+- name: Gene Nucleotide Order Pattern
+  sector: genetics
+  active: true
+  desc: Research project applying machine learning to gene nucleotide patterns.
+  tags:
+    - { name: codeigniter, icon: codeigniter, icon_variant: plain }
+    - { name: vue, icon: vuejs }
+    - { name: PHP, icon: php }
+    - { name: bootstrap, icon: bootstrap, icon_variant: plain }
+    - { name: ncbi }
+
+# === Open Source ===
+- name: Bootstrap WC
+  sector: open-source
+  active: true
+  url: https://github.com/grvpanchal/bootstrap-wc
+  desc: Bootstrap-styled web components for building reusable design systems.
+  tags:
+    - { name: Web Components }
+    - { name: Bootstrap, icon: bootstrap, icon_variant: plain }
+    - { name: JavaScript, icon: javascript }
+
+- name: Bootstrap Essentials
+  sector: open-source
+  active: true
+  url: https://github.com/grvpanchal/bootstrap-essentials
+  desc: Bootstrap 4 features for your Bootstrap 3 site.
+  tags:
+    - { name: SCSS, icon: sass }
+
+- name: Raftaar JS
+  sector: open-source
+  active: true
+  desc: A JavaScript framework to build frontend web components and a backend GraphQL/MongoDB server with a single app logic.
+  tags:
+    - { name: JavaScript, icon: javascript }
+    - { name: Web Components }
+    - { name: nodeJS, icon: nodejs }
+    - { name: mongodb, icon: mongodb }
+    - { name: GraphQL }
+
+- name: Wordpress Boilerplate
+  sector: open-source
+  active: true
+  url: https://github.com/grvpanchal/wordpress-boilerplate
+  desc: A Docker-based setup for managing WordPress sites under a Git repository.
+  tags:
+    - { name: Wordpress, icon: wordpress }
+    - { name: Docker, icon: docker }

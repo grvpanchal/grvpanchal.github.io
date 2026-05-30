@@ -14,16 +14,17 @@
 // Names of the two caches used in this version of the service worker.
 // Change to v2, etc. when you update any of the local resources, which will
 // in turn trigger the install event again.
-const PRECACHE = 'precache-v11';
+const PRECACHE = 'precache-v15';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
 const PRECACHE_URLS = [
   'index.html',
   './', // Alias for index.html
+  './assets/css/chota.min.css',
   './assets/css/style.min.css',
+  './assets/css/blog-feed.css',
   './assets/js/main.min.js',
-  './assets/img/background.jpg',
   './assets/img/css_sprites.png'
 ];
 
@@ -50,27 +51,41 @@ self.addEventListener('activate', event => {
   );
 });
 
-// The fetch handler serves responses for same-origin resources from a cache.
-// If no response is found, it populates the runtime cache with the response
-// from the network before returning it to the page.
+// HTML uses network-first (so onboarding / data edits show up on next visit
+// without a cache-version bump). Assets use cache-first (fast, offline-friendly).
 self.addEventListener('fetch', event => {
-  // Skip cross-origin requests, like those for Google Analytics.
-  if (event.request.url.startsWith(self.location.origin)) {
-    event.respondWith(
-      caches.match(event.request).then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+  const req = event.request;
 
-        return caches.open(RUNTIME).then(cache => {
-          return fetch(event.request).then(response => {
-            // Put a copy of the response in the runtime cache.
-            return cache.put(event.request, response.clone()).then(() => {
-              return response;
-            });
-          });
-        });
-      })
+  // Skip cross-origin requests (Google Analytics, fonts, icongr.am icons, etc.).
+  if (!req.url.startsWith(self.location.origin)) return;
+
+  const isHTML = req.destination === 'document' ||
+    (req.headers.get('accept') || '').includes('text/html');
+
+  if (isHTML) {
+    // Network-first for HTML.
+    event.respondWith(
+      fetch(req)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(RUNTIME).then(cache => cache.put(req, copy));
+          return response;
+        })
+        .catch(() => caches.match(req).then(c => c || caches.match('index.html')))
     );
+    return;
   }
+
+  // Cache-first for everything else.
+  event.respondWith(
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return caches.open(RUNTIME).then(cache =>
+        fetch(req).then(response => {
+          cache.put(req, response.clone());
+          return response;
+        })
+      );
+    })
+  );
 });

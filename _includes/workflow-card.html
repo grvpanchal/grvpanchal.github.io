@@ -1,0 +1,27 @@
+{%- assign wf = include.wf %}
+{%- assign phase = include.phase %}
+{%- if wf %}
+<div class="wf-card" data-active="{{ wf.active | default: true }}">
+  {%- if wf.screenshot %}
+  <img class="wf-screenshot" src="{{ wf.screenshot }}" alt="{{ wf.name }} screenshot" />
+  {%- endif %}
+  <span class="wf-card-phase">Routine {{ phase | capitalize }}</span>
+  <h3 class="wf-card-name">{{ wf.name }}</h3>
+  <p class="wf-card-desc">{{ wf.description | default: "Description coming soon." }}</p>
+  {%- if wf.integrations and wf.integrations.size > 0 %}
+  <div class="wf-integrations">
+    {%- for i in wf.integrations %}
+    <span class="wf-integration-badge">{{ i }}</span>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+  <div class="wf-actions">
+    <a class="wf-import" href="{{ wf.json_path }}" download>Import to n8n</a>
+    <a class="wf-view" href="{{ wf.json_path }}" target="_blank" rel="noopener">View JSON</a>
+  </div>
+</div>
+{%- else %}
+<div class="wf-empty">
+  Routine {{ phase | capitalize }} not yet published.
+</div>
+{%- endif %}

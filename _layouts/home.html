@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" class="fill">
+  <head>
+    {%- assign owner = site.data.owner -%}
+    <title>{{ owner.name }}{% if owner.title_suffix %} - {{ owner.title_suffix }}{% endif %}</title>
+    <meta name="description" content="{{ owner.meta_description | default: owner.tagline }}" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <link rel="apple-touch-icon" href="/assets/img/512.png" />
+    <meta
+      name="msapplication-square512x512logo"
+      content="/assets/img/512.png"
+    />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.ico" />
+    <meta name="robots" content="index, follow" />
+    <link rel="dns-prefetch" href="https://icongr.am" />
+    <link rel="preconnect" href="https://api.codetabs.com" crossorigin />
+    {% include home-critical-css.html %}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    {% if site.data.owner.google_analytics_id %}
+    <script>
+      // Load Google Analytics lazily — on first interaction, with an idle
+      // fallback — so its ~350ms of script execution never lands on the main
+      // thread during initial render. Keeps Total Blocking Time low.
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      (function () {
+        var loaded = false;
+        function loadGA() {
+          if (loaded) return;
+          loaded = true;
+          var s = document.createElement("script");
+          s.async = true;
+          s.src = "https://www.googletagmanager.com/gtag/js?id={{ site.data.owner.google_analytics_id }}";
+          document.head.appendChild(s);
+          gtag("js", new Date());
+          gtag("config", "{{ site.data.owner.google_analytics_id }}");
+        }
+        ["scroll", "mousemove", "touchstart", "keydown", "pointerdown"].forEach(function (e) {
+          window.addEventListener(e, loadGA, { once: true, passive: true });
+        });
+        // Fallback for visitors who never interact (fires well after the page settles).
+        window.addEventListener("load", function () { setTimeout(loadGA, 6000); });
+      })();
+    </script>
+    {% endif %}
+    {% seo title=false %}
+  </head>
+
+  <body>
+    <noscript>To run this application, JavaScript is required to be enabled.</noscript>
+    <div class="container">
+
+      <div class="hero is-full-screen">
+        <div class="logo is-center is-vertical-align">
+          <div class="row">
+            <div class="col-10" style="padding: 0 2vw">
+              <h1>{{ owner.name }}</h1>
+              <p id="aboutme">{{ owner.tagline }}</p>
+              <ul class="h2 list-inline social-icons">
+                {%- for s in owner.social %}
+                <li>
+                  <a href="{{ s.url }}" class="text-white no-underline" aria-label="{{ s.platform | capitalize }}" rel="noreferrer" target="_blank">
+                    <div class="{{ s.icon_class }}"></div>
+                  </a>
+                </li>
+                {%- endfor %}
+              </ul>
+              <div>
+                <a class="button outline dark" href="#blog" onclick="makeSelectionActive(this)">
+                  Learn More
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <div class="row">
+          <div class="col brand is-vertical-align">
+            <h2 class="is-marginless">{{ owner.name }}</h2>
+          </div>
+          <div class="col is-right">
+            <nav class="tabs">
+              <a href="#blog" onclick="makeSelectionActive(this)" class="active">Blog</a>
+              <a href="#projects" onclick="makeSelectionActive(this)">Projects</a>
+              <a href="#contact" onclick="makeSelectionActive(this)">Contact</a>
+              <a href="./resume" onclick="makeSelectionActive(this)">Resume</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <div id="blog" class="hero is-full-screen">
+        <div class="menu-spacer"><div></div></div>
+        <div class="content">
+          <div style="padding-bottom: 50px">
+            <h1>Featured Blogs</h1>
+            <div class="row" id="featured-blogs-container">
+              <div class="col-12 text-center">
+                <p class="text-grey">Loading latest blogs...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p></p>
+        <div class="text-center">
+          <a class="button outline dark" href="{{ owner.blog.more_posts_url }}" target="_blank" rel="noopener">
+            More Posts
+          </a>
+        </div>
+      </div>
+
+      <div id="projects" class="hero is-full-screen">
+        <div class="menu-spacer"><div></div></div>
+        <div class="content">
+          <section>
+            <h1>Projects</h1>
+            <div class="tab-wrapper-content">
+              <section class="tabs-container">
+                {%- for sector in site.data.sectors %}
+                <label for="tab{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %} onclick="makeSelectionActive(this)">
+                  {{ sector.name }}</label>
+                {%- endfor %}
+                <label for="tab{{ site.data.sectors.size | plus: 1 }}" onclick="makeSelectionActive(this)">
+                  Skills</label>
+              </section>
+
+              {%- for sector in site.data.sectors %}
+              <input name="tab" id="tab{{ forloop.index }}" type="radio"{% if forloop.first %} checked=""{% endif %} />
+              <section class="tab-content">
+                {%- if sector.description != blank %}
+                <p>{{ sector.description | markdownify | replace: '<p>', '' | replace: '</p>', '' | strip_newlines }}</p>
+                <p>&nbsp;</p>
+                {%- endif %}
+
+                {%- assign sector_projects = site.data.projects | where: "sector", sector.slug %}
+                {%- assign current_projects = sector_projects | where: "active", true %}
+                {%- assign previous_projects = sector_projects | where: "active", false %}
+
+                {%- if current_projects.size > 0 %}
+                <h2 class="work-group-label is-marginless"><b>CURRENT</b></h2>
+                {%- for proj in current_projects %}
+                <div class="work-item">
+                  <h3>
+                    {%- if proj.url -%}
+                    <a href="{{ proj.url }}" target="_blank" rel="noopener">{{ proj.name }}</a>
+                    {%- else -%}
+                    {{ proj.name }}
+                    {%- endif -%}
+                  </h3>
+                  <div style="margin-bottom: 1rem">
+                    {%- for tag in proj.tags %}
+                    <span class="tag is-small">{{ tag.name }}</span>
+                    {%- endfor %}
+                  </div>
+                  <p>{{ proj.desc }}</p>
+                </div>
+                {%- endfor %}
+                {%- endif %}
+
+                {%- if previous_projects.size > 0 %}
+                {%- if current_projects.size > 0 %}<p>&nbsp;</p>{% endif %}
+                <h2 class="work-group-label is-marginless"><b>PREVIOUS</b></h2>
+                {%- for proj in previous_projects %}
+                <div class="work-item">
+                  <h3>
+                    {%- if proj.url -%}
+                    <a href="{{ proj.url }}" target="_blank" rel="noopener">{{ proj.name }}</a>
+                    {%- else -%}
+                    {{ proj.name }}
+                    {%- endif -%}
+                  </h3>
+                  <div style="margin-bottom: 1rem">
+                    {%- for tag in proj.tags %}
+                    <span class="tag is-small">{{ tag.name }}</span>
+                    {%- endfor %}
+                  </div>
+                  <p>{{ proj.desc }}</p>
+                </div>
+                {%- endfor %}
+                {%- endif %}
+              </section>
+              {%- endfor %}
+
+              {%- assign skills_tab_id = site.data.sectors.size | plus: 1 %}
+              <input name="tab" id="tab{{ skills_tab_id }}" type="radio" />
+              <section class="tab-content">
+                <div class="skills-section">
+                  {%- for category in site.data.skills %}
+                  <div>
+                    <h2>{{ category.category }}</h2>
+                    <div class="row">
+                      {%- for item in category.items %}
+                      <div class="col-2-md">
+                        {%- if item.image -%}
+                        <img class="img-64" src="{{ item.image }}" alt="{{ item.text }}" loading="lazy" decoding="async" />
+                        {%- elsif item.icon -%}
+                        <img src="https://icongr.am/devicon/{{ item.icon }}-{{ item.icon_variant | default: 'original' }}.svg" alt="{{ item.text | downcase }}" loading="lazy" decoding="async" />
+                        {%- endif %}
+                        {{ item.text }}
+                      </div>
+                      {%- endfor %}
+                    </div>
+                  </div>
+                  {%- endfor %}
+                </div>
+              </section>
+              <input name="tab" id="tab{{ skills_tab_id | plus: 1 }}" type="radio" />
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div id="contact" class="hero is-full-screen" style="padding-bottom: 150px">
+        <div class="menu-spacer"><div></div></div>
+        <div class="content">
+          <form method="post" style="max-width: 600px" action="{{ owner.contact_form_action }}">
+            <div class="row">
+              <div class="col-12 text-center">
+                <h1>Media</h1>
+                <ul class="h2 list-inline social-icons">
+                  {%- for s in owner.social %}
+                  <li>
+                    <a href="{{ s.url }}" class="text-white no-underline" aria-label="{{ s.platform | capitalize }}" rel="noreferrer" target="_blank">
+                      <div class="{{ s.icon_class }}"></div>
+                    </a>
+                  </li>
+                  {%- endfor %}
+                </ul>
+              </div>
+              <div class="col-12">
+                <h1 class="text-center">Get In Touch</h1>
+              </div>
+              <div class="col-12 col-6-md">
+                <input type="text" name="name" id="name" value="" placeholder="Name" required="" />
+              </div>
+              <div class="col-12 col-6-md">
+                <input type="email" name="reply_to" id="email" value="" placeholder="Email" required="" />
+              </div>
+              <div class="col-12">
+                <textarea name="message" id="message" placeholder="Enter your message" rows="6" required=""></textarea>
+              </div>
+              <div class="col-12 text-center">
+                <input type="submit" value="Send Message" />
+                <p id="js-form-response"></p>
+              </div>
+              <div class="col-12 text-center" style="margin-top: 1.5rem; font-size: 0.85rem; color: #888;">
+                <a href="./privacy" style="color: #888; text-decoration: none; margin: 0 0.5rem;">Privacy Policy</a>
+                &middot;
+                <a href="./terms" style="color: #888; text-decoration: none; margin: 0 0.5rem;">Terms of Service</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/js/main.min.js" defer></script>
+    <script src="./assets/js/form-submit.js" defer></script>
+    <script>
+      // Smooth in-page scrolling is handled natively via `scroll-behavior: smooth`
+      // (see critical CSS), so no JS/jQuery is needed for anchor navigation.
+      function makeSelectionActive(e) {
+        Array.from(e.parentElement.children).forEach((item) =>
+          item.classList.remove("active")
+        );
+        e.classList.add("active");
+      }
+    </script>
+    <script>window.BLOG_FEED_URL = "{{ owner.blog.feed_url }}";</script>
+    <script src="./assets/js/blog-feed.js" defer></script>
+    <script>
+      // Register (don't merely execute) the service worker, and do it after load
+      // so SW install/precache never competes with the hero's render. Registering
+      // it as a plain <script src> previously ran the worker's code in the page
+      // context and never actually called register(), so the PWA never installed.
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/service-worker.js").catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>
