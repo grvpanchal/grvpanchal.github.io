@@ -1,0 +1,19 @@
+{
+  "name": "evolution-framework",
+  "version": "1.0.0",
+  "description": "The 7-pillar framework + n8n routines I use to keep myself growing — fork it, run it, evolve.",
+  "private": true,
+  "scripts": {
+    "onboard": "node scripts/onboard.js",
+    "sync-workflows": "node scripts/sync-workflows.js",
+    "sanitize-workflow": "node scripts/sanitize-workflow.js"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^5.3.8",
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

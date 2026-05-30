@@ -1,0 +1,15 @@
+# Showcase workflow registry — populated by `npm run sync-workflows`.
+#
+# Source-of-truth policy (Q8 hybrid):
+#   - `name`, `pillar`, `phase`, `id`, `json_path`  →  owned by n8n; sync overwrites.
+#   - `description`, `integrations`, `screenshot`, `active`  →  owned by this file;
+#     sync preserves your edits across re-syncs.
+#
+# Pillar order in catalog: CEO → COO → CTO → CIO → CFO → CXO → CMO (5 of which
+# follow the discipline-check / action / analysis pattern; CMO is content-driven;
+# COO is define/plan/execute with auto-triggered reflect).
+#
+# This file ships empty — run `npm run sync-workflows` after tagging your
+# workflows in n8n with `evolution`, `pillar:<x>`, `phase:start|end`.
+
+[]

@@ -1,0 +1,40 @@
+# Identity, contact, and integrations for the current site occupant.
+# Forkers: run `npm run onboard` to replace these values with yours.
+
+name: Gaurav Panchal
+tagline: I build systems for better evolution.
+title_suffix: The Coder
+meta_description: The Quaternary Coder
+
+# Profile image lives at this path; replace assets/img/profile.jpg with your own.
+profile_image: /assets/img/profile.jpg
+
+# Social links shown in the hero and contact sections.
+# Comment out any you don't use.
+social:
+  - platform: linkedin
+    url: http://www.linkedin.com/in/grvpanchal/
+    icon_class: bg-linkedin_square
+  - platform: facebook
+    url: http://fb.me/grvpanchal
+    icon_class: bg-facebook
+  - platform: twitter
+    url: http://twitter.com/grvpanchal
+    icon_class: bg-twitter
+  - platform: instagram
+    url: http://instagram.com/grvpanchal
+    icon_class: bg-instagram
+  - platform: github
+    url: http://github.com/grvpanchal
+    icon_class: bg-github
+
+# RSS feed for the "Featured Blogs" section. Rendered client-side via blog-feed.js.
+blog:
+  feed_url: https://blog.grvpanchal.me/feeds/posts/default
+  more_posts_url: https://blog.grvpanchal.me
+
+# Contact form submits here. Replace with your own Lambda / form endpoint.
+contact_form_action: https://ggll0gab25.execute-api.ap-south-1.amazonaws.com/dev/static-site-mailer
+
+# Google Analytics (optional). Leave blank to disable.
+google_analytics_id: UA-39757842-3

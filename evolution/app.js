@@ -324,6 +324,9 @@ createApp({
         currentStageIndex: 0
       },
 
+      // Workflow registry, fetched from /workflows.json (emitted by Jekyll from _data/workflows.yml).
+      workflows: [],
+
       selectedSynergy: {
         title: 'Select a connection to learn more',
         description: 'Integration opportunities will appear here.'
@@ -497,6 +500,18 @@ createApp({
         cxo: this.frameworkData.framework.surroundingPillars[4],
         cmo: this.frameworkData.framework.surroundingPillars[5]
       }
+    },
+
+    // Workflows for the pillar currently shown in the modal (start + end).
+    modalPillarWorkflows() {
+      const key = this.modal.currentPillarKey;
+      if (!key) return { start: null, end: null };
+      const pillar = key.toUpperCase();
+      const ofPillar = this.workflows.filter((w) => w.pillar === pillar);
+      return {
+        start: ofPillar.find((w) => w.phase === 'start') || null,
+        end: ofPillar.find((w) => w.phase === 'end') || null,
+      };
     },
 
     // Current pillar data
@@ -1252,7 +1267,15 @@ createApp({
   mounted() {
     // Load saved data
     this.loadAssessmentData();
-    
+
+    // Pull the workflow registry. Resolves relative to the deployed site root, so it
+    // works at /evolution/ on github.io. Failure is non-fatal — the modal just shows
+    // an empty workflows section.
+    fetch('/workflows.json')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => { this.workflows = Array.isArray(data) ? data : []; })
+      .catch(() => { this.workflows = []; });
+
     // Initialize chart if progress view is active
     if (this.activeView === 'progress') {
       this.$nextTick(() => {

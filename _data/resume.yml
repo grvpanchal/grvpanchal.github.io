@@ -1,0 +1,437 @@
+# Resume data. Rendered by _layouts/resume.html.
+# Layout is multi-page A4 with explicit page breaks declared in `pages` at the bottom.
+# Each page references content blocks declared above it.
+# Forkers: edit content blocks, then arrange them across pages to fit your CV.
+
+# ===========================================================================
+# Header (page 1 only)
+# ===========================================================================
+header:
+  name: Gaurav Panchal
+  position: Tech Lead at Encora Technologies
+  location: New Jersey, US
+  profile_image: assets/img/profile.jpg
+
+# ===========================================================================
+# Footer (every page)
+# ===========================================================================
+footer:
+  phone: "+1 8483918889"
+  social_handle: /grvpanchal
+  social_icons: [facebook, twitter, linkedin, github]
+
+# ===========================================================================
+# Aside: contact details (page 1 only)
+# ===========================================================================
+details:
+  phone: "+1 8483918889"
+  web: grvpanchal.me
+  email: grvpanchal@gmail.com
+  medium: medium.com/@grvpanchal
+
+# ===========================================================================
+# Aside: skills grid (page 1)
+# ===========================================================================
+resume_skills:
+  - category: Syntax
+    items:
+      - { text: JavaScript, icon: javascript }
+      - { text: HTML, icon: html5 }
+      - { text: CSS / SCSS, icon: css3 }
+      - { text: PHP, icon: php }
+      - { text: Python, icon: python }
+      - { text: "C#", icon: csharp }
+
+  - category: Frameworks
+    items:
+      - { text: PWA, image: /assets/img/pwa.png }
+      - { text: NextJS, image: /assets/img/next.png }
+      - { text: ReactJS, icon: react }
+      - { text: VueJS, icon: vuejs }
+      - { text: AngularJS, icon: angularjs }
+      - { text: WordPress, icon: wordpress }
+      - { text: Tailwind, image: /assets/img/tailwind.svg }
+      - { text: Bootstrap, icon: bootstrap, icon_variant: plain }
+      - { text: Web Components, image: /assets/img/open-wc.png }
+      - { text: Codeigniter, icon: codeigniter, icon_variant: plain }
+      - { text: jQuery, icon: jquery }
+      - { text: ExpressJS, icon: express }
+
+  - category: Tools
+    items:
+      - { text: ADK, image: /assets/img/adk.png }
+      - { text: Webpack, icon: webpack }
+      - { text: Vite, image: /assets/img/vite.png }
+      - { text: Babel, icon: babel }
+      - { text: AWS, icon: amazonwebservices }
+      - { text: Claude Code, image: /assets/img/claude-code.svg }
+
+  - category: Certified
+    items:
+      - { text: Solutions Architect, image: /assets/img/awssa.png, large: true }
+      - { text: MCSA, image: /assets/img/mcsa.png, large: true }
+
+# ===========================================================================
+# Aside: languages (page 2)
+# ===========================================================================
+languages:
+  - { name: English, level: 100 }
+  - { name: Hindi, level: 90 }
+  - { name: Marathi, level: 70 }
+
+references: Available on Request.
+
+# ===========================================================================
+# Main: profile (page 1)
+# ===========================================================================
+profile_html: >-
+  As Tech Lead - UI at Encora Technologies, I lead frontend development
+  initiatives with advanced proficiency in <strong>Web App Performance</strong>,
+  <strong>NextJS</strong>, and <strong>PWA</strong>. My expertise includes
+  architecting and deploying micro frontend solutions within cloud-based
+  environments, enabling scalable and modular application design.
+
+# ===========================================================================
+# Main: skills overview bullets (page 1)
+# ===========================================================================
+skills_overview:
+  - >-
+    An accomplished <strong>Web Architect</strong>, specializing in
+    <strong>JavaScript / TypeScript Based Technology</strong> like
+    <strong>React</strong>. Extensive technical, analytical, and problem-solving
+    skills.
+  - >-
+    Proficient in architecting and implementing <strong>micro frontend
+    solutions</strong> using <strong>module federation</strong> for both
+    <strong>client-side rendering (CSR)</strong> and <strong>server-side
+    rendering (SSR)</strong> applications.
+  - >-
+    Led a high performing <strong>frontend development</strong> and
+    <strong>leadership team</strong>, overseeing <strong>recruitment</strong>,
+    <strong>onboarding</strong>, and <strong>continuous professional
+    development</strong> and training to ensure technical excellence and
+    cohesive team dynamics.
+  - >-
+    Have fortified a strong understanding of <strong>payment gateway
+    integration</strong> for <strong>e-commerce websites</strong> over several
+    years.
+  - >-
+    Fostered a collaborative, inclusive culture by introducing regular
+    knowledge-sharing sessions, <strong>code reviews</strong>, and
+    <strong>mentorship initiatives</strong>, resulting in improved code quality
+    and increased team engagement.
+  - >-
+    Utilized <strong>agile methodologies</strong> to optimize project workflows,
+    increase efficiency, and adapt to evolving project requirements.
+
+# ===========================================================================
+# Main: experience entries (pages 1 + 2)
+# ===========================================================================
+experience:
+  - title: Tech Lead at Encora (formerly Sooryen Technologies)
+    location: New Jersey, US
+    dates: 09/2018 - Present
+    web: encora.com
+    bullets:
+      - >-
+        Leads the design and delivery of <strong>scalable front-end
+        architectures</strong> for enterprise-grade applications, with a strong
+        focus on <strong>performance</strong>, maintainability, and long-term
+        extensibility.
+      - >-
+        Owns <strong>micro-frontend</strong> strategy and implementation,
+        enabling independent team deployments while maintaining shared
+        <strong>design systems</strong> and governance standards.
+      - >-
+        Drives development using <strong>Next.js</strong>,
+        <strong>TypeScript</strong>, <strong>Redux</strong>, and <strong>Redux
+        SAGA</strong>, ensuring high-quality UI engineering aligned with modern
+        web standards.
+      - >-
+        Mentors senior and mid-level engineers, setting <strong>coding
+        standards</strong>, conducting <strong>design reviews</strong>, and
+        raising overall engineering maturity.
+      - >-
+        Actively explores <strong>AI-assisted</strong> front-end workflows and
+        <strong>intelligent UI patterns</strong> to improve developer
+        productivity and end-user outcomes.
+
+  - title: Sr. Software Developer at Sooryen Technologies
+    location: Ahmedabad, IN
+    dates: 12/2015 - 08/2018
+    web: sooryen.com
+    bullets:
+      - >-
+        Designed and implemented <strong>front-end technology
+        architectures</strong> for multiple client projects, balancing speed,
+        scalability, and cross-browser compatibility.
+      - >-
+        Built responsive web applications using <strong>AngularJS</strong>,
+        <strong>Polymer</strong>, <strong>Bootstrap</strong>, and
+        <strong>Foundation</strong>, tailored for both enterprise and startup
+        environments.
+      - >-
+        Led <strong>payment gateway integrations</strong> for
+        <strong>e-commerce</strong> platforms, ensuring secure, reliable, and
+        seamless transaction flows.
+      - >-
+        Developed and maintained an internal HR management system using
+        <strong>CodeIgniter</strong>, supporting operational workflows and data
+        accuracy.
+      - >-
+        Worked directly with clients to deliver full-cycle websites on
+        <strong>WordPress</strong>, translating business goals into functional
+        and maintainable solutions.
+      - >-
+        Managed and supported local and <strong>AWS</strong>-based
+        infrastructure, contributing to deployment stability and system
+        reliability.
+      - >-
+        Strengthened <strong>application security</strong> awareness in
+        front-end implementations, reducing vulnerabilities in production
+        systems.
+
+  - title: Placement Student at University of Hertfordshire
+    location: Hatfield, UK
+    dates: 08/2014 - 01/2015
+    web: herts.ac.uk
+    bullets:
+      - >-
+        Contributed to academic research through the development of an
+        <strong>In-Silico PCR</strong> bioinformatics tool, supporting
+        experimental simulation and analysis.
+      - >-
+        Performed <strong>statistical analysis</strong> on PCR conditions,
+        assisting in validating research outcomes and experimental reliability.
+      - >-
+        Managed and queried <strong>NCBI</strong> biological databases, ensuring
+        accurate data handling for research workflows.
+      - >-
+        Collaborated with academic researchers, combining <strong>software
+        development</strong> with <strong>computational biology</strong>
+        principles.
+
+  - title: Web Developer at Clubking Ltd - Part Time
+    location: Hertford, UK
+    dates: 04/2011 - 09/2014
+    web: clubking.co.uk
+    bullets:
+      - >-
+        Developed and maintained web applications using <strong>HTML</strong>,
+        <strong>CSS</strong>, <strong>PHP</strong>, <strong>jQuery</strong>, and
+        <strong>AJAX</strong>, supporting business operations and customer
+        engagement.
+      - >-
+        Built and administered newsletter and <strong>mail server</strong>
+        systems using <strong>Dovecot</strong> and <strong>Postfix</strong>,
+        improving communication reliability.
+      - >-
+        Managed <strong>MySQL</strong> and <strong>MSSQL</strong> databases,
+        ensuring data integrity and performance across applications.
+      - >-
+        Provided hands-on <strong>IT support</strong>, including system
+        maintenance and infrastructure upkeep.
+      - >-
+        Supported <strong>Amazon FBA</strong> operations, including warehouse
+        coordination and process execution, gaining operational exposure beyond
+        software development.
+
+# ===========================================================================
+# Main: projects (page 3)
+# ===========================================================================
+projects:
+  - name: LG BlueSky US
+    organization: Encora Technologies
+    dates: Jan 2022 - Present
+    tags:
+      - { name: React, icon: react }
+      - { name: NextJS, icon: nextjs }
+      - { name: Atomic Design }
+      - { name: Redux Saga, icon: redux }
+      - { name: Material UI }
+    description: >-
+      Work as on Shore Lead and architect to deliver BlueSky project with
+      advanced UI/UX approach using Atomic Design.
+
+  - name: 1800Flowers Enterprise React 4.2 PWA
+    organization: Encora Technologies
+    dates: Oct 2020 - Dec 2021
+    tags:
+      - { name: React, icon: react }
+      - { name: Redux, icon: redux }
+      - { name: Redux SAGA, icon: redux }
+      - { name: PWA }
+      - { name: Material UI }
+    description: >-
+      Working with React to build a Micro-frontend Website Solution for all
+      brands of 1800flowers.
+
+  - name: 1800Flowers Polymer 2.0 PWA
+    organization: Sooryen Technologies
+    tags:
+      - { name: Polymer 2 }
+      - { name: PWA }
+      - { name: Paper UI }
+      - { name: nodejs, icon: nodejs }
+    description: >-
+      Working with Polymer based web-components framework to deliver highly
+      performing PWA e-commerce site.
+
+  - name: Billion Dollar Paydown
+    organization: Sooryen Technologies
+    tags:
+      - { name: vue, icon: vuejs }
+      - { name: WordPress, icon: wordpress }
+      - { name: PHP, icon: php }
+      - { name: SCSS, icon: sass }
+      - { name: Bootstrap, icon: bootstrap }
+      - { name: Docker, icon: docker }
+    description: >-
+      Build a dashboard on vueJS and WordPress Templates and Docker. Lead the
+      team for development.
+
+  - name: FolioDynamix Client Portal
+    organization: Sooryen Technologies
+    tags:
+      - { name: React, icon: react }
+      - { name: Redux, icon: redux }
+      - { name: SCSS, icon: sass }
+      - { name: Bootstrap, icon: bootstrap }
+      - { name: Webpack, icon: webpack }
+    description: Building a React App for clients using Redux and Spring Boot APIs.
+
+  - name: Financial Advisor Portal for Cetera Financial Group
+    organization: Sooryen Technologies
+    tags:
+      - { name: AngularJS, icon: angularjs }
+      - { name: Bootstrap, icon: bootstrap }
+      - { name: SCSS, icon: sass }
+      - { name: nodeJS, icon: nodejs }
+    description: Build an on-boading Portal for clients on AngularJS and nodeJS.
+
+  - name: SaveDay
+    organization: Sooryen Technologies
+    tags:
+      - { name: AngularJS, icon: angularjs }
+      - { name: Foundation }
+      - { name: SCSS, icon: sass }
+      - { name: Grunt, icon: grunt }
+    description: Roth and 401K app built on Angular JS and proxied via nodejs to API.
+
+  - name: In Silico PCR
+    organization: University of Hertfordshire
+    tags:
+      - { name: PHP, icon: php }
+      - { name: Python, icon: python }
+      - { name: NCBI }
+      - { name: MYSQL, icon: mysql }
+      - { name: HTML, icon: html5 }
+      - { name: CSS, icon: css3 }
+    description: >-
+      Bioinformatic tool on PHP, Python and NCBI database to get virtual results
+      of PCR Cycles.
+
+# ===========================================================================
+# Main: open source (page 4)
+# ===========================================================================
+open_source_intro: >-
+  There are a few technologies I developed in open source to stay ahead in
+  technology
+
+open_source:
+  - name: Wordpress Boilerplate
+    url: https://github.com/grvpanchal/wordpress-boilerplate
+    description: >-
+      A Default boilerplate for working on any wordpress project using Docker
+      and Underscores.
+
+  - name: Bootstrap Essentials
+    url: https://github.com/grvpanchal/bootstrap-essentials
+    description: Collection of Bootstrap 4 features that are missing in Bootstrap 3 site.
+
+  - name: Performance Maintainer
+    url: http://sf.net/projects/pcsm
+    description: >-
+      Performance Maintainer is a software tool which can be used to perform
+      regular maintenance checks on your PC, optimizing your system's
+      performance.
+
+# ===========================================================================
+# Main: education (page 4)
+# ===========================================================================
+education:
+  - degree: MSc Biotechnology
+    institution: University of Hertfordshire, UK
+    dates: 2013 - 2014
+    web: herts.ac.uk
+    description: >-
+      Achieved Upper Second Class (2:1, 65%) with Speciality in Bioinformatic in
+      Core Molecular Biology
+
+  - degree: BSc, Molecular Biology and Genetics
+    institution: University of Hertfordshire, UK
+    dates: 2009 - 2013
+    web: herts.ac.uk
+    description: Achieved Lower Second Class (2:2) with 62% in Bioinformatics Project
+
+  - degree: A Level ISC Board, Science
+    institution: SGVP International School, IN
+    dates: 2003 - 2008
+    web: sgvp.org
+    description: Scored A+ (78%)
+
+# ===========================================================================
+# Main: courses & certifications (page 4)
+# ===========================================================================
+courses:
+  - PMP Project Management Foundations (2025)
+  - AWS Certified Solutions Architect – Associate Level (2017)
+  - Microsoft Certified System Administrator Messaging (2010)
+  - "Jetking: Networking and Linux Server Deployment (2010)"
+
+# ===========================================================================
+# Main: training (page 4)
+# ===========================================================================
+training: >-
+  I regularly provide training towards understanding UI and UX, Web Components
+  and efficient JavaScript programming in general. We have developed Elegant
+  Frontend Training program to advance trainee skilset to AI-driven development
+  level. Please provide a call to schedule sessions with your developers to
+  enhance their skillset in frontend technologies.
+
+# ===========================================================================
+# Page layout
+# Each page references content blocks above.
+# `experience_slice: [start, count]` slices the experience array.
+# The layout file (_layouts/resume.html) reads this and renders.
+# ===========================================================================
+pages:
+  - id: 1
+    show_header: true
+    main:
+      - { type: profile }
+      - { type: skills_overview }
+      - { type: experience, slice: [0, 1] }
+    aside:
+      - { type: details }
+      - { type: resume_skills }
+
+  - id: 2
+    main:
+      - { type: experience, slice: [1, 3] }
+    aside:
+      - { type: languages }
+      - { type: references }
+
+  - id: 3
+    main:
+      - { type: projects }
+    aside: []
+
+  - id: 4
+    main:
+      - { type: open_source }
+      - { type: education }
+      - { type: courses }
+      - { type: training }
+    aside: []

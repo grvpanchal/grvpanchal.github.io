@@ -1,0 +1,42 @@
+# Skills shown under the "Skills" tab on the home page, grouped by category.
+# `icon` is a devicon slug from https://icongr.am/devicon/{icon}-original.svg
+# `image` is a local image path (used for items not on devicon, e.g., certifications).
+# Leave both off and only `text` will render.
+
+- category: Syntax
+  items:
+    - { text: JavaScript, icon: javascript }
+    - { text: HTML, icon: html5 }
+    - { text: CSS / SCSS, icon: css3 }
+    - { text: PHP, icon: php }
+    - { text: Python, icon: python }
+    - { text: "C#", icon: csharp }
+
+- category: Frameworks
+  items:
+    - { text: PWA, image: /assets/img/pwa.png }
+    - { text: Polymer 2.0, image: /assets/img/polymer.png }
+    - { text: ReactJS, icon: react }
+    - { text: VueJS, icon: vuejs }
+    - { text: Wordpress, icon: wordpress }
+    - { text: AngularJS, icon: angularjs }
+    - { text: Bootstrap, icon: bootstrap, icon_variant: plain }
+    - { text: Django, icon: django }
+    - { text: Web Components, image: /assets/img/open-wc.png }
+    - { text: Codeigniter, icon: codeigniter, icon_variant: plain }
+    - { text: jQuery, icon: jquery }
+    - { text: ExpressJS, icon: express }
+
+- category: Tools
+  items:
+    - { text: NPM, icon: npm, icon_variant: original-wordmark }
+    - { text: Webpack, icon: webpack }
+    - { text: Grunt, icon: grunt }
+    - { text: Babel, icon: babel }
+    - { text: AWS, icon: amazonwebservices }
+    - { text: Composer, image: /assets/img/composer.png }
+
+- category: Certified
+  items:
+    - { text: Solutions Architect, image: /assets/img/awssa.png }
+    - { text: MCSA, image: /assets/img/mcsa.png }

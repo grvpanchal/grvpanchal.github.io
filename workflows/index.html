@@ -1,0 +1,95 @@
+---
+title: Evolution Framework — Workflows
+description: The 14 n8n routines (Start + End per pillar) that power the Evolution Framework. Import any of them into your own n8n.
+permalink: /workflows/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ page.title }}</title>
+  <meta name="description" content="{{ page.description }}" />
+  <link rel="stylesheet" href="https://unpkg.com/chota" />
+  <link rel="stylesheet" href="/assets/css/style.min.css" />
+  <style>
+    :root {
+      --bg-color: #fafafa;
+      --card-bg: #ffffff;
+      --card-border: #e5e5e5;
+      --pillar-color: #222;
+      --muted: #666;
+    }
+    body { background: var(--bg-color); color: #222; }
+    .wf-page-header { padding: 4rem 0 2rem; text-align: center; }
+    .wf-page-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .wf-page-header p { color: var(--muted); max-width: 640px; margin: 0 auto 1rem; }
+    .wf-pillar { padding: 2rem 0; border-top: 1px solid var(--card-border); }
+    .wf-pillar:first-of-type { border-top: 0; }
+    .wf-pillar-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1rem; }
+    .wf-pillar-head h2 { margin: 0; font-size: 1.5rem; color: var(--pillar-color); }
+    .wf-pillar-head .wf-pillar-tag { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .wf-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 700px) { .wf-pair { grid-template-columns: 1fr; } }
+    .wf-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px; padding: 1.25rem; display: flex; flex-direction: column; }
+    .wf-card[data-active="false"] { opacity: 0.45; }
+    .wf-card-phase { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .wf-card-name { font-size: 1.1rem; font-weight: 700; margin: 0.25rem 0 0.5rem; }
+    .wf-card-desc { color: #444; flex: 1; margin-bottom: 1rem; font-size: 0.95rem; }
+    .wf-integrations { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+    .wf-integration-badge { font-size: 0.7rem; padding: 0.15rem 0.5rem; background: #f1f1f1; border-radius: 999px; color: #555; }
+    .wf-actions { display: flex; gap: 0.5rem; }
+    .wf-actions a { font-size: 0.85rem; padding: 0.5rem 0.9rem; border-radius: 4px; text-decoration: none; }
+    .wf-import { background: #222; color: #fff; }
+    .wf-view { border: 1px solid var(--card-border); color: #222; }
+    .wf-empty { padding: 1.25rem; border: 1px dashed var(--card-border); border-radius: 6px; color: var(--muted); text-align: center; font-size: 0.9rem; }
+    .wf-screenshot { width: 100%; max-height: 160px; object-fit: cover; border-radius: 4px; margin-bottom: 0.75rem; }
+    .wf-back { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="wf-page-header">
+      <p><a href="/" class="wf-back">← {{ site.data.owner.name }}</a></p>
+      <h1>Evolution Framework Workflows</h1>
+      <p>{{ page.description }}</p>
+      <p style="font-size: 0.85rem;">
+        <a href="/evolution/">Take the 7-pillar self-assessment →</a>
+      </p>
+    </header>
+
+    {%- assign pillars = "CEO,COO,CTO,CIO,CFO,CXO,CMO" | split: "," %}
+    {%- assign all = site.data.workflows %}
+
+    {%- for pillar in pillars %}
+      {%- assign for_pillar = all | where: "pillar", pillar %}
+      {%- assign start = for_pillar | where: "phase", "start" | first %}
+      {%- assign end_wf = for_pillar | where: "phase", "end" | first %}
+
+      <section class="wf-pillar" id="pillar-{{ pillar | downcase }}">
+        <div class="wf-pillar-head">
+          <h2>{{ pillar }}</h2>
+          <span class="wf-pillar-tag">Routine</span>
+        </div>
+        <div class="wf-pair">
+          {% include workflow-card.html wf=start phase="start" %}
+          {% include workflow-card.html wf=end_wf phase="end" %}
+        </div>
+      </section>
+    {%- endfor %}
+
+    {%- if all.size == 0 %}
+    <div class="wf-empty" style="margin: 2rem 0;">
+      No workflows registered yet. Tag your n8n workflows with
+      <code>evolution</code>, <code>pillar:&lt;x&gt;</code>, <code>phase:start|end</code>
+      and run <code>npm run sync-workflows</code>.
+    </div>
+    {%- endif %}
+
+    <footer style="text-align: center; padding: 3rem 0; color: var(--muted); font-size: 0.85rem;">
+      Part of the <strong>Evolution Framework</strong> —
+      <a href="https://github.com/{{ site.github_username | default: site.data.owner.name | replace: ' ', '' | downcase }}/grvpanchal.github.io" target="_blank" rel="noopener">fork on GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Project sectors / tabs shown on the home page.
+# Each sector groups projects from _data/projects.yml by `sector` slug.
+# Skills appear as a special tab rendered from _data/skills.yml.
+
+- slug: professional
+  name: Professional
+  description: >-
+    Frontend architecture and delivery across enterprise e-commerce, financial
+    services, and SaaS — micro-frontends, design systems, performance, and
+    AI-assisted UI workflows on cloud infrastructure.
+
+- slug: personal
+  name: Personal
+  description: >-
+    Side projects that shape how I work and live — routine and wealth tools for
+    the family, and the **Elegant Frontend** approach for AI-driven architecture
+    and training.
+
+- slug: genetics
+  name: Genetics
+  description: >-
+    Bioinformatics work building on my
+    [DOI:10.13140/RG.2.1.3300.9363](https://www.researchgate.net/deref/http%3A%2F%2Fdx.doi.org%2F10.13140%2FRG.2.1.3300.9363?_sg%5B0%5D=acL-R8hmuRoM8rXIQBWZX5CDzd4tb_peZFpr1tpgiIiXZkBR9pnNksUEiqYlk-8atf6MmrdM6DvDIxL85wKQgAAqoA.WTMpyLLL1A_f3Xfnow7vhe-DcEqDZ2EpmGW6OqF3I82E2aJrgDtIE-2c5lwN8_pkgthFBAL4NLDoQ7sDp-cLPQ)
+    research into eukaryotic DNA patterns — tools that decode gene structure
+    and surface evolutionary signal.
+
+- slug: open-source
+  name: Open Source
+  description: >-
+    Projects pushing toward **better web standards** — favouring native web
+    components, progressive enhancement, and platform primitives over
+    framework lock-in. Each repo is a small bet on what the web should ship
+    natively, packaged as a building block others can reuse.

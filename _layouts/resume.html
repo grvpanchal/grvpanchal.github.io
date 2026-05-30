@@ -1,9 +1,302 @@
----
-layout: resume
----
-{% include resume-header.html %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {%- assign resume = site.data.resume -%}
+  {%- assign owner = site.data.owner -%}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ page.title | default: page.name | default: resume.header.name }}</title>
+  <meta name="description" content="{{ page.description | default: 'CV of ' | append: resume.header.name }}"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans&display=swap">
+  <link rel="stylesheet" href="./assets/css/cv-style.css">
+  <link rel="stylesheet" media="print" href="./assets/css/cv-style-print.css">
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
 
-{{ content }}
+{%- for pg in resume.pages %}
+<page size="A4">
+  <div class="wrapper">
+    <div class="content-side">
+
+      {%- if pg.show_header %}
+      <header class="page-pt header-pb">
+        {%- if resume.header.profile_image %}
+        <img src="{{ resume.header.profile_image }}" alt="Profile Image" />
+        {%- endif %}
+        <span class="info">
+          <h1>{{ resume.header.name }}</h1>
+          <div class="position">{{ resume.header.position }}</div>
+          <address>
+            <i class="fa fa-map-marker"></i>
+            {{ resume.header.location }}
+          </address>
+        </span>
+      </header>
+      {%- else %}
+      <header class="page-pt"></header>
+      {%- endif %}
+
+      <main{% unless pg.show_header %} style="height: 27cm"{% endunless %}>
+        {%- for section in pg.main %}
+
+        {%- if section.type == "profile" %}
+        <section>
+          <h2>Profile</h2>
+          <div class="content">
+            <p>{{ resume.profile_html }}</p>
+          </div>
+        </section>
+
+        {%- elsif section.type == "skills_overview" %}
+        <section>
+          <h2>Skills &amp; Expertise</h2>
+          <div class="content">
+            <ul>
+              {%- for bullet in resume.skills_overview %}
+              <li>{{ bullet }}</li>
+              {%- endfor %}
+            </ul>
+          </div>
+        </section>
+
+        {%- elsif section.type == "experience" %}
+        {%- assign exp_start = section.slice[0] | default: 0 %}
+        {%- assign exp_count = section.slice[1] | default: resume.experience.size %}
+        {%- assign exp_slice = resume.experience | slice: exp_start, exp_count %}
+        <section>
+          <h2>Experience</h2>
+          <div class="content">
+            {%- for job in exp_slice %}
+            <div class="content-entry">
+              <h3>{{ job.title }}</h3>
+              <div>
+                {%- if job.location %}
+                <span class="location">
+                  <i class="fa fa-map-marker"></i>{{ job.location }}
+                </span>
+                {%- endif %}
+                {%- if job.dates %}
+                <span class="dates">
+                  <i class="fa fa-calendar"></i>{{ job.dates }}
+                </span>
+                {%- endif %}
+                {%- if job.web %}
+                <span class="web">
+                  <i class="fa fa-globe"></i>{{ job.web }}
+                </span>
+                {%- endif %}
+              </div>
+              <ul>
+                {%- for bullet in job.bullets %}
+                <li>{{ bullet }}</li>
+                {%- endfor %}
+              </ul>
+            </div>
+            {%- endfor %}
+          </div>
+        </section>
+
+        {%- elsif section.type == "projects" %}
+        <section>
+          <h2>Projects</h2>
+          <div class="content">
+            {%- for proj in resume.projects %}
+            <div class="content-entry">
+              <h3>{{ proj.name }}</h3>
+              <div>
+                {%- if proj.organization %}
+                <span class="work">
+                  <i class="fa fa-building"></i>{{ proj.organization }}
+                </span>
+                {%- endif %}
+                {%- if proj.dates %}
+                <span class="dates">
+                  <i class="fa fa-calendar"></i>{{ proj.dates }}
+                </span>
+                {%- endif %}
+              </div>
+              <div class="tags">
+                {%- for tag in proj.tags %}
+                <span class="tag is-small">{{ tag.name }}</span>
+                {%- endfor %}
+              </div>
+              <p>{{ proj.description }}</p>
+            </div>
+            {%- endfor %}
+          </div>
+        </section>
+
+        {%- elsif section.type == "open_source" %}
+        <section>
+          <h2>Open Source</h2>
+          <div class="content">
+            {%- if resume.open_source_intro %}
+            <p>{{ resume.open_source_intro }}</p>
+            {%- endif %}
+            {%- for item in resume.open_source %}
+            <div class="content-entry">
+              <h3>{{ item.name }}</h3>
+              <div>
+                <span class="location">
+                  <i class="fa fa-globe"></i>{{ item.url }}
+                </span>
+              </div>
+              <p>{{ item.description }}</p>
+            </div>
+            {%- endfor %}
+          </div>
+        </section>
+
+        {%- elsif section.type == "education" %}
+        <section>
+          <h2>Education</h2>
+          <div class="content">
+            {%- for ed in resume.education %}
+            <div class="content-entry">
+              <h3>{{ ed.degree }}</h3>
+              <div>
+                <span class="work">
+                  <i class="fa fa-university"></i>
+                  {{ ed.institution }}
+                </span>
+                {%- if ed.dates %}
+                <span class="dates">
+                  <i class="fa fa-calendar"></i>{{ ed.dates }}
+                </span>
+                {%- endif %}
+                {%- if ed.web %}
+                <span class="web">
+                  <i class="fa fa-globe"></i>{{ ed.web }}
+                </span>
+                {%- endif %}
+              </div>
+              <p>{{ ed.description }}</p>
+            </div>
+            {%- endfor %}
+          </div>
+        </section>
+
+        {%- elsif section.type == "courses" %}
+        <section>
+          <h2>Courses &amp; Certifications</h2>
+          <div class="content">
+            {%- for course in resume.courses %}
+            <p>{{ course }}</p>
+            {%- endfor %}
+          </div>
+        </section>
+
+        {%- elsif section.type == "training" %}
+        <section>
+          <h2>Training</h2>
+          <div class="content">
+            <p>{{ resume.training }}</p>
+          </div>
+        </section>
+        {%- endif %}
+
+        {%- endfor %}
+      </main>
+    </div>
+
+    <aside class="aside{% unless pg.show_header %} page-pt{% endunless %}">
+      {%- for section in pg.aside %}
+
+      {%- if section.type == "details" %}
+      <div class="content">
+        <h2>Details</h2>
+        <p>
+          {%- if resume.details.phone %}
+          <i class="fa fa-phone"></i>{{ resume.details.phone }}
+          <br />
+          {%- endif %}
+          {%- if resume.details.web %}
+          <i class="fa fa-globe"></i>{{ resume.details.web }}
+          <br />
+          {%- endif %}
+          {%- if resume.details.email %}
+          <i class="fa fa-envelope"></i>{{ resume.details.email }}
+          <br />
+          {%- endif %}
+          <br />
+          {%- if resume.details.medium %}
+          {{ resume.details.medium }}
+          <br />
+          {%- endif %}
+        </p>
+      </div>
+
+      {%- elsif section.type == "resume_skills" %}
+      {%- for category in resume.resume_skills %}
+      <div class="content">
+        <h2>{{ category.category }}</h2>
+        {%- assign total = category.items.size %}
+        {%- assign last_idx = total | minus: 1 %}
+        {%- assign last_row_start = last_idx | divided_by: 3 | times: 3 %}
+        {%- for item in category.items %}
+        {%- assign idx = forloop.index0 %}
+        {%- assign mod = idx | modulo: 3 %}
+        {%- if mod == 0 %}<div class="flex-grid">{% endif %}
+        {%- assign in_last_row = false %}
+        {%- if idx >= last_row_start %}{% assign in_last_row = true %}{% endif %}
+        <div class="col{% if in_last_row %} pb-0{% endif %}">
+          {%- if item.image -%}
+          <img{% if item.large %} class="img-64"{% endif %} src="{{ item.image }}" alt="{{ item.text }}" />
+          {%- elsif item.icon -%}
+          <img src="https://icongr.am/devicon/{{ item.icon }}-{{ item.icon_variant | default: 'original' }}.svg" alt="{{ item.text | downcase }}" />
+          {%- endif -%}
+          {{ item.text }}
+        </div>
+        {%- if mod == 2 or forloop.last %}</div>{% endif %}
+        {%- endfor %}
+      </div>
+      {%- endfor %}
+
+      {%- elsif section.type == "languages" %}
+      <div class="content">
+        <h2>Languages</h2>
+        <div>
+          {%- for lang in resume.languages %}
+          <div>{{ lang.name }}</div>
+          <progress value="{{ lang.level }}" max="100"></progress>
+          {%- endfor %}
+          <div>&nbsp;</div>
+        </div>
+      </div>
+
+      {%- elsif section.type == "references" %}
+      <div class="content">
+        <h2>References</h2>
+        <p>{{ resume.references }}</p>
+      </div>
+      {%- endif %}
+
+      {%- endfor %}
+    </aside>
+
+    <footer>
+      {%- if resume.footer.phone %}
+      <div class="pull-left">{{ resume.footer.phone }}</div>
+      {%- endif %}
+      <div class="pull-right social-icons">
+        {%- for icon in resume.footer.social_icons %}
+        <i class="fa fa-{{ icon }}"></i>
+        {%- endfor %}
+        <span>{{ resume.footer.social_handle }}</span>
+      </div>
+    </footer>
+  </div>
+</page>
+{%- endfor %}
+
+<script>
+  var isChrome =
+    /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+</script>
 </body>
-
 </html>

@@ -5,7 +5,7 @@
 
 class BlogFeedReader {
     constructor() {
-        this.RSS_URL = 'https://blog.grvpanchal.me/feeds/posts/default';
+        this.RSS_URL = (typeof window !== 'undefined' && window.BLOG_FEED_URL) || 'https://blog.grvpanchal.me/feeds/posts/default';
         this.MAX_POSTS = 6;
         
         // Simplified proxy list with proven reliable services
@@ -192,12 +192,12 @@ class BlogFeedReader {
                 <div class="card" style="height: 100%; display: flex; flex-direction: column;">
                     ${featuredImageHTML}
                     <header>
-                        <h4 style="margin-bottom: 0.5rem; line-height: 1.3;">
-                            <a href="${blog.link}" target="_blank" rel="noopener" 
+                        <h2 class="blog-card-title" style="margin-bottom: 0.5rem; line-height: 1.3;">
+                            <a href="${blog.link}" target="_blank" rel="noopener"
                                style="text-decoration: none; color: inherit;">
                                 ${this.escapeHtml(blog.title)}
                             </a>
-                        </h4>
+                        </h2>
                         <div style="margin-bottom: 1rem;">
                             <small class="text-grey">${publishedDate}</small>
                         </div>
@@ -208,9 +208,9 @@ class BlogFeedReader {
                     </div>
                     
                     <footer class="is-right">
-                        <a href="${blog.link}" target="_blank" rel="noopener" 
+                        <a href="${blog.link}" target="_blank" rel="noopener"
                            class="button primary">
-                            Read More
+                            Read More<span class="sr-only"> about ${this.escapeHtml(blog.title)}</span>
                         </a>
                     </footer>
                 </div>
@@ -301,11 +301,19 @@ class BlogFeedReader {
      * Initialize the blog feed reader
      */
     init() {
-        // Load blogs when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.loadFeaturedBlogs());
+        // Defer the (network-heavy, below-the-fold) feed load until the page is
+        // fully loaded and the main thread is idle, so it never competes with the
+        // hero's first/largest contentful paint.
+        const start = () => this.loadFeaturedBlogs();
+        const schedule = () =>
+            'requestIdleCallback' in window
+                ? requestIdleCallback(start, { timeout: 2000 })
+                : setTimeout(start, 200);
+
+        if (document.readyState === 'complete') {
+            schedule();
         } else {
-            this.loadFeaturedBlogs();
+            window.addEventListener('load', schedule);
         }
     }
 }

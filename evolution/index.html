@@ -555,10 +555,10 @@
                     <div class="pillar-stages">
                         <h4>Evolutionary Stages</h4>
                         <div class="stages-list">
-                            <div 
-                                v-for="(stage, index) in modal.pillar?.stages" 
+                            <div
+                                v-for="(stage, index) in modal.pillar?.stages"
                                 :key="index"
-                                class="stage-item" 
+                                class="stage-item"
                                 :class="{ current: index === modal.currentStageIndex }">
                                 <div class="stage-name">{{ stage }}</div>
                                 <div class="stage-description">
@@ -566,6 +566,28 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="pillar-workflows" v-if="modalPillarWorkflows.start || modalPillarWorkflows.end">
+                        <h4>Routines</h4>
+                        <div class="pillar-workflow-grid">
+                            <div v-if="modalPillarWorkflows.start" class="pillar-workflow-card" :data-active="modalPillarWorkflows.start.active !== false">
+                                <span class="pillar-workflow-phase">Routine Start</span>
+                                <h5 class="pillar-workflow-name">{{ modalPillarWorkflows.start.name }}</h5>
+                                <p class="pillar-workflow-desc">{{ modalPillarWorkflows.start.description || 'Description coming soon.' }}</p>
+                                <a class="pillar-workflow-import" :href="modalPillarWorkflows.start.json_path" download>Import to n8n</a>
+                            </div>
+                            <div v-else class="pillar-workflow-empty">Routine Start not yet published.</div>
+                            <div v-if="modalPillarWorkflows.end" class="pillar-workflow-card" :data-active="modalPillarWorkflows.end.active !== false">
+                                <span class="pillar-workflow-phase">Routine End</span>
+                                <h5 class="pillar-workflow-name">{{ modalPillarWorkflows.end.name }}</h5>
+                                <p class="pillar-workflow-desc">{{ modalPillarWorkflows.end.description || 'Description coming soon.' }}</p>
+                                <a class="pillar-workflow-import" :href="modalPillarWorkflows.end.json_path" download>Import to n8n</a>
+                            </div>
+                            <div v-else class="pillar-workflow-empty">Routine End not yet published.</div>
+                        </div>
+                        <p class="pillar-workflow-meta">
+                            <a href="/workflows/" target="_blank" rel="noopener">Browse all routines →</a>
+                        </p>
                     </div>
                     <div class="modal-actions">
                         <button class="btn btn--primary" @click="startAssessmentFromModal">
