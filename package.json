@@ -9,7 +9,7 @@
     "sanitize-workflow": "node scripts/sanitize-workflow.js"
   },
   "dependencies": {
-    "@inquirer/prompts": "^5.3.8",
+    "@inquirer/prompts": "^8.5.1",
     "dotenv": "^16.4.5",
     "js-yaml": "^4.1.0"
   },
