@@ -46,9 +46,10 @@
   transform: scale(1.05);
 }
 
-/* Card title: keep the h2 (for heading order) visually card-sized */
+/* Card title: keep the h2 (for heading order) visually card-sized.
+   Chota sets html{font-size:62.5%} so 1rem=10px; 2rem=20px matches the old <h4>. */
 #featured-blogs-container .card header .blog-card-title {
-  font-size: 1.25rem;
+  font-size: 2rem;
 }
 
 /* Ensure blog title links don't have default link styling */
