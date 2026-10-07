@@ -1,154 +1,43 @@
 /**
- * Blog Feed Reader - Simplified and Reliable
- * Fetches latest blogs from RSS feed using reliable proxy services
+ * Blog Feed Reader
+ * Renders the latest blog posts from the featured-blogs JSON endpoint, falling back to
+ * the bundled assets/js/fallback-blogs.json when the endpoint is unavailable.
  */
 
 class BlogFeedReader {
     constructor() {
-        this.RSS_URL = (typeof window !== 'undefined' && window.BLOG_FEED_URL) || 'https://blog.grvpanchal.me/feeds/posts/default';
+        // JSON endpoint (n8n "Site - Featured Blogs API" workflow) that returns the latest
+        // posts already shaped for the cards below, with CORS enabled. Browsers can't read
+        // the Blogger feed directly (no CORS headers), and the public CORS proxies this used
+        // to rely on are dead (codetabs 522, cors-anywhere 403, allorigins timeout).
+        this.API_URL = (typeof window !== 'undefined' && window.FEATURED_BLOGS_URL) || '';
         this.MAX_POSTS = 6;
-        
-        // Simplified proxy list with proven reliable services
-        this.PROXIES = [
-            'https://api.codetabs.com/v1/proxy?quest=',
-            'https://cors-anywhere.herokuapp.com/',
-            'https://api.allorigins.win/raw?url='
-        ];
+        this.TIMEOUT_MS = 6000;
     }
 
     /**
-     * Try fetching RSS feed using different proxy services
+     * Fetch posts from the featured-blogs endpoint. Returns [] on any failure.
      */
-    async fetchFeed() {
-        // First, try each proxy service
-        for (const proxy of this.PROXIES) {
-            try {
-                console.log(`Trying proxy: ${proxy}`);
-                
-                const proxyUrl = proxy.includes('quest=') 
-                    ? proxy + encodeURIComponent(this.RSS_URL)
-                    : proxy + encodeURIComponent(this.RSS_URL);
-                
-                const response = await fetch(proxyUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-                    }
-                });
-
-                if (response.ok) {
-                    const xmlText = await response.text();
-                    if (xmlText && xmlText.trim().startsWith('<')) {
-                        const parser = new DOMParser();
-                        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-                        
-                        if (!xmlDoc.querySelector('parsererror')) {
-                            console.log('Successfully fetched RSS feed via proxy');
-                            return xmlDoc;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.warn(`Proxy failed: ${proxy}`, error.message);
-            }
-        }
-
-        // If all proxies fail, try direct fetch as last resort
+    async fetchPosts() {
+        if (!this.API_URL) return [];
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = controller ? setTimeout(() => controller.abort(), this.TIMEOUT_MS) : null;
         try {
-            console.log('Trying direct fetch...');
-            const response = await fetch(this.RSS_URL);
-            if (response.ok) {
-                const xmlText = await response.text();
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-                console.log('Successfully fetched RSS feed directly');
-                return xmlDoc;
-            }
+            const response = await fetch(this.API_URL, {
+                headers: { Accept: 'application/json' },
+                signal: controller ? controller.signal : undefined,
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const posts = await response.json();
+            return Array.isArray(posts)
+                ? posts.filter(p => p && p.title && p.link && /^https?:\/\//.test(p.link))
+                : [];
         } catch (error) {
-            console.warn('Direct fetch failed:', error.message);
+            console.warn('Featured blogs fetch failed:', error.message);
+            return [];
+        } finally {
+            if (timer) clearTimeout(timer);
         }
-
-        console.error('All RSS fetch methods failed');
-        return null;
-    }
-
-    /**
-     * Parse blog entry from XML entry element
-     */
-    parseBlogEntry(entry) {
-        const getTextContent = (selector) => {
-            const element = entry.querySelector(selector);
-            return element ? element.textContent.trim() : '';
-        };
-
-        const title = getTextContent('title');
-        const link = entry.querySelector('link[rel="alternate"]')?.getAttribute('href') || '';
-        const published = getTextContent('published');
-        const content = getTextContent('content');
-        const categories = Array.from(entry.querySelectorAll('category')).map(cat => cat.getAttribute('term')).filter(Boolean);
-
-        // Extract the first image from content
-        const featuredImage = this.extractFeaturedImage(content);
-
-        return {
-            title,
-            link,
-            published,
-            content,
-            categories,
-            featuredImage
-        };
-    }
-
-    /**
-     * Extract the first image URL from HTML content
-     */
-    extractFeaturedImage(content) {
-        if (!content) return null;
-
-        // Create a temporary div to parse HTML safely
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
-
-        // Look for the first img tag
-        const firstImg = tempDiv.querySelector('img');
-        if (firstImg) {
-            const src = firstImg.getAttribute('src');
-            const alt = firstImg.getAttribute('alt') || '';
-            
-            // Validate that it's a proper image URL
-            if (src && (src.startsWith('http') || src.startsWith('//'))) {
-                return { src, alt };
-            }
-        }
-
-        // Also check for images in media:content or media:thumbnail (common in RSS feeds)
-        const mediaContent = tempDiv.querySelector('media\\:content, content[medium="image"]');
-        if (mediaContent) {
-            const url = mediaContent.getAttribute('url');
-            if (url) {
-                return { src: url, alt: 'Blog featured image' };
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Create excerpt from content
-     */
-    createExcerpt(content, maxLength = 120) {
-        if (!content) return '';
-        
-        // Remove HTML tags and decode entities
-        const textContent = content.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ');
-        
-        if (textContent.length <= maxLength) return textContent;
-        
-        const excerpt = textContent.substr(0, maxLength);
-        const lastSpace = excerpt.lastIndexOf(' ');
-        
-        return lastSpace > 0 ? excerpt.substr(0, lastSpace) + '...' : excerpt + '...';
     }
 
     /**
@@ -158,6 +47,13 @@ class BlogFeedReader {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * Escape a value for use inside a double-quoted HTML attribute
+     */
+    escapeAttr(text) {
+        return String(text || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     /**
@@ -171,8 +67,9 @@ class BlogFeedReader {
         });
 
         // Create tags using Chota's tag component
-        const tagsHTML = blog.categories.length > 0 
-            ? blog.categories.slice(0, 3).map(tag => 
+        const categories = Array.isArray(blog.categories) ? blog.categories : [];
+        const tagsHTML = categories.length > 0 
+            ? categories.slice(0, 3).map(tag => 
                 `<span class="tag is-small">${this.escapeHtml(tag)}</span>`
               ).join(' ')
             : '';
@@ -180,8 +77,8 @@ class BlogFeedReader {
         // Create featured image HTML if available
         const featuredImageHTML = blog.featuredImage 
             ? `<div class="blog-image" style="margin-bottom: 1rem;">
-                 <img src="${blog.featuredImage.src}" 
-                      alt="${this.escapeHtml(blog.featuredImage.alt)}"
+                 <img src="${this.escapeAttr(blog.featuredImage.src)}" 
+                      alt="${this.escapeAttr(blog.featuredImage.alt)}"
                       loading="lazy"
                       onerror="this.style.display='none'">
                </div>`
@@ -193,7 +90,7 @@ class BlogFeedReader {
                     ${featuredImageHTML}
                     <header>
                         <h2 class="blog-card-title" style="margin-bottom: 0.5rem; line-height: 1.3;">
-                            <a href="${blog.link}" target="_blank" rel="noopener"
+                            <a href="${this.escapeAttr(blog.link)}" target="_blank" rel="noopener"
                                style="text-decoration: none; color: inherit;">
                                 ${this.escapeHtml(blog.title)}
                             </a>
@@ -208,7 +105,7 @@ class BlogFeedReader {
                     </div>
                     
                     <footer class="is-right">
-                        <a href="${blog.link}" target="_blank" rel="noopener"
+                        <a href="${this.escapeAttr(blog.link)}" target="_blank" rel="noopener"
                            class="button primary">
                             Read More<span class="sr-only"> about ${this.escapeHtml(blog.title)}</span>
                         </a>
@@ -264,27 +161,10 @@ class BlogFeedReader {
 
         let blogs = [];
 
-        try {
-            // Try to fetch from RSS feed first
-            const xmlDoc = await this.fetchFeed();
-            if (xmlDoc) {
-                const entries = xmlDoc.querySelectorAll('entry');
-                if (entries.length > 0) {
-                    blogs = Array.from(entries)
-                        .slice(0, this.MAX_POSTS)
-                        .map(entry => this.parseBlogEntry(entry))
-                        .filter(blog => blog.title && blog.link && blog.link !== '#');
-                    
-                    console.log(`Successfully loaded ${blogs.length} blog posts from RSS feed`);
-                }
-            }
-        } catch (error) {
-            console.error('RSS fetch failed:', error);
-        }
+        blogs = await this.fetchPosts();
 
-        // If RSS failed or returned no blogs, use fallback
+        // Endpoint unreachable or empty: use the bundled fallback list
         if (blogs.length === 0) {
-            console.log('RSS feed failed, using fallback blogs');
             blogs = await this.loadFallbackBlogs();
         }
 
