@@ -1,15 +1,126 @@
-# Showcase workflow registry — populated by `npm run sync-workflows`.
-#
-# Source-of-truth policy (Q8 hybrid):
-#   - `name`, `pillar`, `phase`, `id`, `json_path`  →  owned by n8n; sync overwrites.
-#   - `description`, `integrations`, `screenshot`, `active`  →  owned by this file;
-#     sync preserves your edits across re-syncs.
-#
-# Pillar order in catalog: CEO → COO → CTO → CIO → CFO → CXO → CMO (5 of which
-# follow the discipline-check / action / analysis pattern; CMO is content-driven;
-# COO is define/plan/execute with auto-triggered reflect).
-#
-# This file ships empty — run `npm run sync-workflows` after tagging your
-# workflows in n8n with `evolution`, `pillar:<x>`, `phase:start|end`.
-
-[]
+- id: ceo-start
+  pillar: CEO
+  phase: start
+  name: CEO Start — Personal Peak Performance
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/ceo-start.json
+- id: ceo-end
+  pillar: CEO
+  phase: end
+  name: CEO End — Personal Peak Performance
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/ceo-end.json
+- id: coo-start
+  pillar: COO
+  phase: start
+  name: COO Start — Daily Operating Rhythm
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/coo-start.json
+- id: coo-end
+  pillar: COO
+  phase: end
+  name: COO End — Daily Operating Rhythm
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/coo-end.json
+- id: cto-start
+  pillar: CTO
+  phase: start
+  name: CTO Start — Technical Quality & Delivery
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cto-start.json
+- id: cto-end
+  pillar: CTO
+  phase: end
+  name: CTO End — Technical Quality & Delivery
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cto-end.json
+- id: cio-start
+  pillar: CIO
+  phase: start
+  name: CIO Start - Leverage Building
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cio-start.json
+- id: cio-end
+  pillar: CIO
+  phase: end
+  name: CIO End — Leverage Building
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cio-end.json
+- id: cfo-start
+  pillar: CFO
+  phase: start
+  name: CFO Start — Financial Guardrails
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cfo-start.json
+- id: cfo-end
+  pillar: CFO
+  phase: end
+  name: CFO End — Financial Guardrails
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cfo-end.json
+- id: cxo-start
+  pillar: CXO
+  phase: start
+  name: CXO Start - Response Desk
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cxo-start.json
+- id: cxo-end
+  pillar: CXO
+  phase: end
+  name: CXO End — Contribution & Service
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cxo-end.json
+- id: cmo-start
+  pillar: CMO
+  phase: start
+  name: CMO Start - Campaign Planner
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cmo-start.json
+- id: cmo-end
+  pillar: CMO
+  phase: end
+  name: CMO End - Campaign Publisher
+  description: ''
+  integrations: []
+  screenshot: null
+  active: true
+  json_path: /workflows/cmo-end.json

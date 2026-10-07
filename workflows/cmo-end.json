@@ -1,0 +1,1558 @@
+{
+  "name": "CMO End - Campaign Publisher",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cmo-end",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        300
+      ],
+      "id": "cmo-end-webhook",
+      "name": "Webhook",
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "const apiKey = \"<<REPLACE_ME>>\";\nreturn { apiKey };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        300
+      ],
+      "id": "api-key",
+      "name": "API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"query G($id: ID!) { goalItemById(id: $id) { id body contribution subTasks { id body isComplete } } }\",\n    \"variables\":{ \"id\":\"{{ $('Webhook').item.json.query.goal_id }}\" }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -200,
+        300
+      ],
+      "id": "get-goal",
+      "name": "Get Goal"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nconst g = (data.data ? data.data.goalItemById : data.goalItemById) || {};\nconst contribution = g.contribution || '';\nconst subs = g.subTasks || [];\nconst dryRun = String(($('Webhook').first().json.query.dryRun) || '') === '1';\n\nconst CHANNELS = [\n  { key:'blog',            label:'Blog',                    kind:'image', provider:'blogger',    platform:'blogger'   },\n  { key:'explainer_video', label:'Explainer Video',         kind:'video', provider:'uploadpost', platform:'youtube'   },\n  { key:'ig_reel',         label:'Instagram Reel',          aliases:['Instagram Reel to Post'], kind:'video', provider:'uploadpost', platform:'instagram' },\n  { key:'yt_reel',         label:'YouTube Reel',            kind:'video', provider:'uploadpost', platform:'youtube'   },\n  { key:'fb_post',         label:'Facebook Post',           kind:'image', provider:'uploadpost', platform:'facebook'  },\n  { key:'x_post',          label:'X Post + Engagement',     kind:'image', provider:'uploadpost', platform:'x', engagement:true },\n  { key:'tiktok',          label:'TikTok Post',             kind:'video', provider:'uploadpost', platform:'tiktok'    },\n  { key:'linkedin',        label:'LinkedIn Post',           kind:'image', provider:'uploadpost', platform:'linkedin'  },\n];\nconst byLabel = {}; CHANNELS.forEach(c => { byLabel[c.label] = c; (c.aliases || []).forEach(a => byLabel[a] = c); });\n\n// parse contribution sections by \"## Label\"\nconst sectionByLabel = {};\nconst re = /(?:^|\\n)##\\s+([^\\n]+)\\n([\\s\\S]*?)(?=\\n##\\s+|$)/g;\nlet m;\nwhile ((m = re.exec(contribution))) {\n  const label = m[1].trim(); const body = m[2];\n  const headline = (body.match(/\\*\\*([^*]+)\\*\\*/) || [])[1] || '';\n  const script = (body.match(/Script:\\s*([\\s\\S]*?)(?=\\nB-roll:|\\nCaption:|\\n#|\\nCTA:|$)/) || [])[1] || '';\n  const brollBlock = (body.match(/B-roll:\\s*([\\s\\S]*?)(?=\\nCaption:|\\n#|\\nCTA:|$)/) || [])[1] || '';\n  const broll = brollBlock.split('\\n').map(l => l.replace(/^\\s*(?:\\d+\\.|[-*])\\s*/, '').trim()).filter(Boolean);\n  const caption = ((body.match(/Caption:\\s*([\\s\\S]*?)(?=\\n#|\\nCTA:|$)/) || [])[1] || '').trim();\n  // image-channel prose = lines that aren't markers\n  const prose = body.split('\\n').filter(l => {\n    const t = l.trim();\n    return t && !/^\\*\\*/.test(t) && !/^#/.test(t) && !/^Script:/.test(t) && !/^B-roll:/.test(t)\n      && !/^Caption:/.test(t) && !/^CTA:/.test(t) && !/^\\d+\\.\\s/.test(t);\n  }).join('\\n').trim();\n  sectionByLabel[label] = { headline, script: script.trim(), broll, caption, prose };\n}\n\nlet checked = [];\nsubs.filter(s => s.isComplete).forEach(s => {\n  const label = String(s.body || '').trim();\n  const ch = byLabel[label]; if (!ch) return;\n  const sec = sectionByLabel[label] || {};\n  checked.push({ label, key:ch.key, provider:ch.provider, platform:ch.platform, kind:ch.kind,\n    engagement:!!ch.engagement, title:(sec.headline||label),\n    caption:(sec.caption||sec.prose||''), script:sec.script||'', broll:sec.broll||[], prose:sec.prose||'' });\n});\n// ?only=<channel key> re-runs a single channel (e.g. only=blog to correct the blog post)\nconst only = String(($('Webhook').first().json.query.only) || '').trim();\nif (only) checked = checked.filter(x => x.key === only);\n\n// Start's LinkedIn copy carries a __YOUTUBE_URL__ placeholder; fill it with the explainer's published\n// YouTube link (yt: render-cache marker) or the blog URL, else drop it\nconst ytUrl = ((contribution.match(/^- yt:explainer_video:(\\S+)/m) || [])[1] || '');\nconst blogUrlPrev = ((contribution.match(/^- \\[blog\\] Blog: (?:posted|updated) (\\S+)/m) || [])[1] || '');\nconst linkUrl = ytUrl || blogUrlPrev || '';\nchecked.forEach(c => {\n  if (c.caption) c.caption = c.caption.replace(/__YOUTUBE_URL__/g, linkUrl).trim();\n  if (c.prose) c.prose = c.prose.replace(/__YOUTUBE_URL__/g, linkUrl).trim();\n});\n\n// full blog markdown from the ## Blog section (everything before the Caption:/hashtag/CTA marketing tail);\n// first **headline** line becomes the Blogger post title, not body content\nconst blogSec = (contribution.match(/(?:^|\\n)##\\s+Blog\\n([\\s\\S]*?)(?=\\n##\\s+|$)/) || [])[1] || '';\nlet blogMd = blogSec.split(/\\nCaption:/)[0].replace(/\\n-{3,}\\s*$/, '').trim();\nlet blogHeadline = '';\nconst hm = blogMd.match(/^\\*\\*([^*\\n]+)\\*\\*\\s*\\n/);\nif (hm) { blogHeadline = hm[1].trim(); blogMd = blogMd.slice(hm[0].length).trim(); }\n\n// minimal markdown -> HTML (headings, images, links, bold/italic/code, ol/ul, hr, paragraphs)\nconst mdToHtml = (md) => {\n  const inline = (s) => s\n    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')\n    .replace(/!\\[([^\\]]*)\\]\\(([^)]+)\\)/g, '<img src=\"$2\" alt=\"$1\" style=\"max-width:100%;height:auto;display:block;margin:1.2em auto;\"/>')\n    .replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href=\"$2\">$1</a>')\n    .replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>')\n    .replace(/(^|[\\s(])\\*([^*\\n]+)\\*(?=[\\s).,;:!?]|$)/g, '$1<em>$2</em>')\n    .replace(/`([^`]+)`/g, '<code>$1</code>');\n  const out = []; let list = null; let para = [];\n  const flushPara = () => { if (para.length) { out.push('<p>' + inline(para.join(' ')) + '</p>'); para = []; } };\n  const flushList = () => { if (list) { out.push('</' + list + '>'); list = null; } };\n  for (const raw of md.split('\\n')) {\n    const l = raw.trim();\n    if (!l) { flushPara(); flushList(); continue; }\n    const h = l.match(/^(#{2,4})\\s+(.*)$/);\n    if (h) { flushPara(); flushList(); const lv = h[1].length; out.push('<h'+lv+'>' + inline(h[2]) + '</h'+lv+'>'); continue; }\n    if (/^-{3,}$/.test(l)) { flushPara(); flushList(); out.push('<hr/>'); continue; }\n    const oi = l.match(/^\\d+\\.\\s+(.*)$/);\n    if (oi) { flushPara(); if (list !== 'ol') { flushList(); out.push('<ol>'); list = 'ol'; } out.push('<li>' + inline(oi[1]) + '</li>'); continue; }\n    const ui = l.match(/^[-*]\\s+(.*)$/);\n    if (ui) { flushPara(); if (list !== 'ul') { flushList(); out.push('<ul>'); list = 'ul'; } out.push('<li>' + inline(ui[1]) + '</li>'); continue; }\n    if (list) flushList();\n    para.push(l);\n  }\n  flushPara(); flushList();\n  return out.join('\\n');\n};\nconst blogHtml = blogMd ? mdToHtml(blogMd) : '';\n// hashtag line in the section's marketing tail (e.g. \"#AIEngineering #AgenticAI ...\") -> Blogger labels\nconst tagLine = (blogSec.match(/^\\s*(#[A-Za-z0-9_]+(?:\\s+#[A-Za-z0-9_]+)*)\\s*$/m) || [])[1] || '';\nconst blogLabels = tagLine.split(/\\s+/).map(t => t.replace(/^#/, '')).filter(Boolean).slice(0, 20);\n// blogpost cache marker -> update the existing Blogger post instead of creating a duplicate\nconst blogPostId = ((contribution.match(/^- blogpost:(\\S+)\\s*$/m) || [])[1] || '');\n\nconst blog = checked.find(x => x.provider === 'blogger');\nconst anyImage = checked.some(x => x.kind === 'image');\nreturn [{ json: {\n  goalId: $('Webhook').first().json.query.goal_id,\n  idea: g.body || '', dryRun, only, originalContribution: contribution,\n  anyImage, blogChecked: !!blog,\n  blogTitle: blog ? (blogHeadline || blog.title || (g.body||'').slice(0,80)) : '',\n  blogProse: blog ? blog.prose : '',\n  blogHtml, blogPostId, blogLabels, blogUrlPrev, blogHasImg: /<img/.test(blogHtml),\n  totalChannels: subs.length, checkedCount: checked.length, checked\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "id": "parse--select",
+      "name": "Parse + Select"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Build Reward HTML').first().json.pageHtml }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3560,
+        1260
+      ],
+      "id": "respond",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ !$('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        180
+      ],
+      "id": "live-run",
+      "name": "Live Run?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        480
+      ],
+      "id": "dry-run",
+      "name": "Dry Run?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"google/gemini-2.5-flash-image\", modalities: [\"image\", \"text\"], messages: [ { role: \"user\", content: 'Create a vibrant, professional, modern campaign hero illustration in 16:9 aspect ratio. Clean flat-illustration style, bold color, NO text or words in the image. Topic: ' + $('Parse + Select').first().json.idea } ] }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        300
+      ],
+      "id": "generate-hero-image",
+      "name": "Generate Hero Image",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst resp = $input.first().json;\nlet b64='', mime='image/png', hasImage=false;\n// OpenRouter image response: choices[0].message.images[].image_url.url = data URI\ntry {\n  const msg = resp.choices && resp.choices[0] && resp.choices[0].message;\n  if (msg && Array.isArray(msg.images) && msg.images.length) {\n    const u = (msg.images[0].image_url && msg.images[0].image_url.url) || msg.images[0].url || '';\n    const m = u.match(/^data:(image\\/[a-zA-Z+]+);base64,(.+)$/);\n    if (m) { mime = m[1]; b64 = m[2]; hasImage = true; }\n  }\n} catch (e) {}\n// Legacy Gemini format fallback: candidates[0].content.parts[].inlineData\nif (!hasImage) { try {\n  const parts = resp.candidates[0].content.parts || [];\n  for (const p of parts) { const d = p.inlineData || p.inline_data; if (d && d.data) { mime=d.mimeType||d.mime_type||'image/png'; b64=d.data; hasImage=true; break; } }\n} catch (e) {} }\nconst o = { json: { hasImage, mime }, pairedItem: 0 };\nif (hasImage) { const buf = Buffer.from(b64,'base64'); o.binary = { data: await this.helpers.prepareBinaryData(buf,'cmo-hero.png',mime) }; }\nreturn [o];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "id": "prep-image",
+      "name": "Prep Image"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "=cmo-hero.png",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "<<REPLACE_ME>>"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        800,
+        300
+      ],
+      "id": "upload-to-drive",
+      "name": "Upload to Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchalus Drive)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/permissions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ role:'reader', type:'anyone' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        300
+      ],
+      "id": "make-public",
+      "name": "Make Public",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchalus Drive)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst P = $('Parse + Select').first().json;\nlet heroUrl = '';\ntry { const id = ($('Upload to Drive').first().json || {}).id; if (id) heroUrl = 'https://lh3.googleusercontent.com/d/' + id + '=w1600'; } catch (e) {}\nconst ch = {};\nfor (const c of (P.checked || [])) ch[c.key] = { title: c.title || c.label, caption: c.caption || '' };\nreturn [{ json: { heroUrl, ch, goalId: P.goalId, dryRun: P.dryRun } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        300
+      ],
+      "id": "publish-prep",
+      "name": "Publish Prep"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'fb_post') && !$('Parse + Select').first().json.dryRun && $('Publish Prep').first().json.heroUrl !== '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2360,
+        20
+      ],
+      "id": "fb-post",
+      "name": "FB Post?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded",
+        "body": "=user=grvpanchal&platform[]=facebook&title={{ encodeURIComponent($('Publish Prep').first().json.ch.fb_post.title) }}&caption={{ encodeURIComponent(($('Publish Prep').first().json.ch.fb_post.caption || '') + ($('Social Sync').first().json.blogUrl ? ('\\n\\nRead the full post: ' + $('Social Sync').first().json.blogUrl) : '')) }}&photos[]={{ encodeURIComponent($('Publish Prep').first().json.heroUrl) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        20
+      ],
+      "id": "post-fb-photo",
+      "name": "Post FB Photo",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'x_post') && !$('Parse + Select').first().json.dryRun && $('Publish Prep').first().json.heroUrl !== '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2360,
+        180
+      ],
+      "id": "x-post",
+      "name": "X Post?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded",
+        "body": "=user=grvpanchal&platform[]=x&title={{ encodeURIComponent($('Publish Prep').first().json.ch.x_post.title) }}&caption={{ encodeURIComponent(($('Publish Prep').first().json.ch.x_post.caption || '') + ($('Social Sync').first().json.blogUrl ? ('\\n\\nRead the full post: ' + $('Social Sync').first().json.blogUrl.replace(/^https?:\\/\\//, '')) : '')) }}&photos[]={{ encodeURIComponent($('Publish Prep').first().json.heroUrl) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        180
+      ],
+      "id": "post-x-photo",
+      "name": "Post X Photo",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'linkedin') && !$('Parse + Select').first().json.dryRun && $('Publish Prep').first().json.heroUrl !== '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2360,
+        260
+      ],
+      "id": "linkedin-post",
+      "name": "LinkedIn Post?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded",
+        "body": "=user=grvpanchal&platform[]=linkedin&title={{ encodeURIComponent($('Publish Prep').first().json.ch.linkedin.title) }}&caption={{ encodeURIComponent(($('Publish Prep').first().json.ch.linkedin.caption || '') + ($('Social Sync').first().json.blogUrl ? ('\\n\\nRead the full post: ' + $('Social Sync').first().json.blogUrl) : '')) }}&photos[]={{ encodeURIComponent($('Publish Prep').first().json.heroUrl) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        260
+      ],
+      "id": "post-linkedin",
+      "name": "Post LinkedIn",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'x_post' && c.engagement) && !$('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2360,
+        340
+      ],
+      "id": "x-engage",
+      "name": "X Engage?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Engage on X via Upload-Post: find this campaign's X post, reply to it with the blog as the solution.\nconst UP = 'Apikey <<REPLACE_ME>>';\nconst httpReq = (o) => this.helpers.httpRequest(o);\nconst P = $('Publish Prep').first().json;\nlet blogUrl = '';\ntry { blogUrl = String($('Social Sync').first().json.blogUrl || ''); } catch (e) {}\ntry {\n  // 1) the X post to engage with: this run's Post X Photo result, else the latest matching X post in history\n  let postId = '';\n  try { postId = String(((($('Post X Photo').first().json || {}).results || {}).x || {}).post_id || ''); } catch (e) {}\n  if (!postId) {\n    const h = await httpReq({ method:'GET', url:'https://api.upload-post.com/api/uploadposts/history?limit=20',\n      headers:{ Authorization: UP }, json:true, timeout:30000 });\n    const xs = (h.history || []).filter(p => p.platform === 'x' && p.success && p.platform_post_id);\n    const want = String((P.ch.x_post && P.ch.x_post.title) || '').trim();\n    const match = xs.find(p => want && String(p.post_title || '').trim() === want) || xs[0];\n    if (match) postId = String(match.platform_post_id);\n  }\n  if (!postId) return [{ json: { error: { message: 'no X post found to reply to' } } }];\n  if (!blogUrl) return [{ json: { error: { message: 'no blog url available for engagement reply' } } }];\n  // bare-domain form survives Upload-Post's URL stripping on X; X still auto-links it\n  const bare = blogUrl.replace(/^https?:\\/\\//, '');\n  const text = 'Full breakdown, with the architecture and examples, on the blog:\\n' + bare;\n  const body = 'user=grvpanchal&platform[]=x&title=' + encodeURIComponent(text) + '&reply_to_id=' + encodeURIComponent(postId);\n  const r = await httpReq({ method:'POST', url:'https://api.upload-post.com/api/upload_text',\n    headers:{ Authorization: UP, 'Content-Type':'application/x-www-form-urlencoded' }, body, timeout:120000 });\n  const rj = (typeof r === 'string') ? JSON.parse(r) : r;\n  const xr = ((rj || {}).results || {}).x || {};\n  if (rj && rj.success && xr.success) return [{ json: { ok:true, repliedTo: postId, replyId: xr.post_id || '', url: xr.url || '', text } }];\n  return [{ json: { error: { message: ('reply failed: ' + JSON.stringify(rj)).slice(0, 300) } } }];\n} catch (e) {\n  return [{ json: { error: { message: String(e.message || e).slice(0, 300) } } }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        340
+      ],
+      "id": "x-engagement",
+      "name": "X Engagement",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.blogChecked && !$('Parse + Select').first().json.dryRun && $('Parse + Select').first().json.blogHtml !== '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1400,
+        520
+      ],
+      "id": "blog-checked",
+      "name": "Blog Checked?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "bp1",
+              "leftValue": "={{ $('Parse + Select').first().json.blogPostId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        460
+      ],
+      "id": "blog-new",
+      "name": "Blog New?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "bp1",
+              "leftValue": "={{ $('Parse + Select').first().json.blogPostId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        620
+      ],
+      "id": "blog-update",
+      "name": "Blog Update?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/blogger/v3/blogs/8131061913183445170/posts/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Parse + Select').first().json.blogTitle }}"
+            },
+            {
+              "name": "labels",
+              "value": "={{ $('Parse + Select').first().json.blogLabels }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Parse + Select').first().json.blogHasImg ? $('Parse + Select').first().json.blogHtml : ('<img src=\"' + $('Publish Prep').first().json.heroUrl + '\" style=\"max-width:100%;height:auto;margin:0 auto 1.5em;display:block\"/>' + $('Parse + Select').first().json.blogHtml) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        460
+      ],
+      "id": "post-to-blogger",
+      "name": "Post to Blogger",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Blogger)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://www.googleapis.com/blogger/v3/blogs/8131061913183445170/posts/{{ $('Parse + Select').first().json.blogPostId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $('Parse + Select').first().json.blogPostId }}"
+            },
+            {
+              "name": "blog",
+              "value": "={{ { id: '8131061913183445170' } }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $('Parse + Select').first().json.blogTitle }}"
+            },
+            {
+              "name": "labels",
+              "value": "={{ $('Parse + Select').first().json.blogLabels }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Parse + Select').first().json.blogHasImg ? $('Parse + Select').first().json.blogHtml : ('<img src=\"' + $('Publish Prep').first().json.heroUrl + '\" style=\"max-width:100%;height:auto;margin:0 auto 1.5em;display:block\"/>' + $('Parse + Select').first().json.blogHtml) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        620
+      ],
+      "id": "update-blogger",
+      "name": "Update Blogger",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Blogger)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst post = $input.first().json || {};\nconst P = $('Parse + Select').first().json;\nconst postId = String(post.id || P.blogPostId || '');\nconst postUrl = String(post.url || '');\nconst wasUpdate = !!P.blogPostId;\nif (!postId) return [{ json: { done:false, error:'no blogger post id in response' } }];\nconst httpReq = (o) => this.helpers.httpRequest(o);\nconst sleep = (ms) => new Promise(r => setTimeout(r, ms));\nconst gq = async (query, variables) => {\n  const r = await httpReq({ method:'POST', url:'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call',\n    headers:{'Content-Type':'application/json','X-API-Key':'<<REPLACE_ME>>'},\n    body:{ jsonrpc:'2.0', method:'tools/call', params:{ name:'graphql_query', arguments:{ query, variables } }, id:1 },\n    json:true, timeout:30000 });\n  return JSON.parse(r.result.content[0].text);\n};\nconst line = '- [blog] Blog: ' + (wasUpdate ? 'updated' : 'posted') + (postUrl ? (' ' + postUrl) : (' post ' + postId));\nconst mutate = (c) => {\n  const ri = c.indexOf('\\n# Campaign Report');\n  let base = ri >= 0 ? c.slice(0, ri) : c, rest = ri >= 0 ? c.slice(ri) : '';\n  const marker = '- blogpost:' + postId;\n  if (/^- blogpost:.*$/m.test(base)) base = base.replace(/^- blogpost:.*$/m, marker);\n  else if (base.includes('## Render Cache')) base = base.replace('## Render Cache', '## Render Cache\\n' + marker);\n  else base = base.trimEnd() + '\\n\\n## Render Cache\\n' + marker + '\\n';\n  let c2 = base + rest;\n  c2 = c2.split('\\n').filter(l => !/^- \\[blog\\] Blog:/.test(l)).join('\\n');\n  return c2.trimEnd() + '\\n' + line + '\\n';\n};\ntry {\n  for (let a = 0; a < 4; a++) {\n    const d = await gq('query G($id: ID!) { goalItemById(id: $id) { contribution } }', { id: P.goalId });\n    const cur = ((((d.data || d).goalItemById) || {}).contribution) || '';\n    await gq('mutation S($id: ID!, $c: String) { updateGoalItemContribution(id: $id, contribution: $c) { id } }', { id: P.goalId, c: mutate(cur) });\n    await sleep(1500 + Math.floor(Math.random() * 1500));\n    const v = await gq('query G($id: ID!) { goalItemById(id: $id) { contribution } }', { id: P.goalId });\n    const vc = ((((v.data || v).goalItemById) || {}).contribution) || '';\n    if (vc.includes('- blogpost:' + postId) && vc.includes(line)) return [{ json: { done:true, postId, postUrl, wasUpdate } }];\n  }\n  return [{ json: { done:false, postId, postUrl, error:'marker write kept getting clobbered' } }];\n} catch (e) { return [{ json: { done:false, postId, error:String(e.message||e).slice(0,200) } }]; }\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        540
+      ],
+      "id": "save-blog-marker",
+      "name": "Save Blog Marker",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst P = $('Parse + Select').first().json;\nlet prep = { heroUrl: '' };\ntry { prep = $('Publish Prep').first().json; } catch (e) {}\nconst httpReq = (o) => this.helpers.httpRequest(o);\nconst grab = (name) => { try { const it = $(name).first(); return it ? it.json : null; } catch (e) { return null; } };\nconst published = [], staged = [], errors = [], brollPlans = [];\n\n// b-roll dryRun planning (rendering itself lives in CMO Video Render)\nconst INTRO_FRAC=0.12, OUTRO_FRAC=0.08, CLIP_SEC=5, MAX_CLIPS=60;\nconst planBroll = (ch, dur) => {\n  let beats = (ch.broll && ch.broll.length) ? ch.broll\n            : ((String(ch.script||'').match(/[^.!?]+[.!?]+/g) || [ch.script||'']).map(s=>s.trim()).filter(Boolean));\n  if (!beats.length) beats = [String(ch.title||'business')];\n  const winStart = +(dur*INTRO_FRAC).toFixed(1);\n  const winLen = Math.max(CLIP_SEC, dur*(1-OUTRO_FRAC) - winStart);\n  const nClips = Math.min(MAX_CLIPS, Math.max(1, Math.ceil(winLen/CLIP_SEC)));\n  const queries=[];\n  for (let i=0;i<nClips;i++){ const t=winStart+(i+0.5)*winLen/nClips; const frac=Math.max(0,Math.min(1,t/dur));\n    const bi=beats.length>1?Math.min(beats.length-1, Math.round(frac*(beats.length-1))):0; queries.push(beats[bi]||''); }\n  return { winStart, winLen, nClips, queries, beatCount: beats.length };\n};\n\nconst imgNodeByKey = { fb_post:'Post FB Photo', x_post:'Post X Photo', linkedin:'Post LinkedIn' };\nfor (const ch of (P.checked || [])) {\n  if (ch.provider === 'blogger') {\n    if (P.dryRun) { published.push({ label: ch.label, via: 'Blogger (dryRun)' }); continue; }\n    const upd = grab('Update Blogger'), post = grab('Post to Blogger');\n    const r = upd || post;\n    if (r && r.url) published.push({ label: ch.label, via: (upd ? 'Blogger updated' : 'Blogger posted'), url: r.url });\n    else if (r && r.error) errors.push({ label: ch.label, error: String(r.error.message || r.error).slice(0,150) });\n    else staged.push({ label: ch.label, reason: 'blogger node did not run' });\n    continue;\n  }\n  if (ch.kind === 'video') {\n    if (!ch.script) { staged.push({ label: ch.label, reason: 'no script in plan' }); continue; }\n    if (P.dryRun) {\n      const words = String(ch.script).split(/\\s+/).filter(Boolean).length;\n      const estDur = Math.max(20, Math.round(words/2.5));\n      const plan = planBroll(ch, estDur);\n      const cov = Math.round(plan.winLen/estDur*100);\n      brollPlans.push({ label: ch.label, estDurationSec: estDur, brollCoveragePct: cov, avatarPct: 100-cov,\n        clips: plan.queries.length, beats: plan.beatCount, queries: plan.queries });\n      published.push({ label: ch.label, via: 'video (dryRun - planned ' + plan.queries.length + ' Pexels b-roll clips, ~' + cov + 'pct b-roll / ~' + (100-cov) + 'pct avatar)' });\n      continue;\n    }\n    published.push({ label: ch.label, via: 'video render dispatching to cmo-video (async; result appended when ready)' });\n    continue;\n  }\n  // image channels\n  if (P.dryRun) { published.push({ label: ch.label, via: 'upload-post ' + ch.platform + ' (dryRun)' }); continue; }\n  if (!prep.heroUrl) { staged.push({ label: ch.label, reason: 'hero image not generated' }); continue; }\n  const r = grab(imgNodeByKey[ch.key]);\n  if (r && !r.error) published.push({ label: ch.label, via: 'upload-post ' + ch.platform, resp: JSON.stringify(r).slice(0,160) });\n  else if (r && r.error) errors.push({ label: ch.label, error: String(r.error.message || r.error).slice(0,160) });\n  else staged.push({ label: ch.label, reason: 'publish node did not run' });\n  if (ch.engagement) {\n    const er = grab('X Engagement');\n    if (er && !er.error) published.push({ label: ch.label + ' (engagement)', via: 'X reply with blog link' + (er.url ? (' ' + er.url) : '') });\n    else if (er && er.error) errors.push({ label: ch.label + ' engagement', error: String(er.error.message || er.error).slice(0,120) });\n  }\n}\n\nconst JWT='Apikey <<REPLACE_ME>>', CS='Bearer <<REPLACE_ME>>', CS_ACCOUNT='6a32d4389433589ea9aeadb5', USER='grvpanchal';\nlet prevPerf = {};\ntry { prevPerf.social = await httpReq({ method:'GET', url:'https://api.upload-post.com/api/analytics/'+USER+'?platforms=instagram,youtube,x', headers:{'Authorization':JWT}, json:true }); } catch (e) { prevPerf.socialError = String(e.message||e).slice(0,120); }\ntry { prevPerf.linkedin = await httpReq({ method:'POST', url:'https://api.connectsafely.ai/linkedin/analytics/creator', headers:{'Authorization':CS,'Content-Type':'application/json'}, body:{ accountId:CS_ACCOUNT, resultType:'growth' }, json:true }); } catch (e) { prevPerf.linkedinError = String(e.message||e).slice(0,120); }\n\nreturn [{ json: { published, staged, errors, prevPerf, brollPlans, idea:P.idea, goalId:P.goalId,\n  originalContribution:P.originalContribution, dryRun:P.dryRun, heroUrl:prep.heroUrl,\n  blogChecked:P.blogChecked, checkedCount:P.checkedCount, totalChannels:P.totalChannels } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2360,
+        860
+      ],
+      "id": "collect-results",
+      "name": "Collect Results",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ system_instruction:{ parts:[{ text:\"You are the CMO performance analyst. Given the campaign idea, channels just published (and any staged/errors), and prior social-performance data, return ONLY raw JSON (no fences) with keys: performanceSummary (2-3 sentences), projection (expected lift for this campaign), nextStep.\" }] }, contents:[{ role:'user', parts:[{ text: JSON.stringify({ idea: $('Collect Results').first().json.idea, published: $('Collect Results').first().json.published, staged: $('Collect Results').first().json.staged, priorPerformance: $('Collect Results').first().json.prevPerf }).slice(0,8000) }] }], generationConfig:{ responseMimeType:'application/json', temperature:0.4 } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        860
+      ],
+      "id": "insight",
+      "name": "Insight",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Gemini(PaLM) Api account grvpanchalindia)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst p = $('Collect Results').first().json;\nlet ins = {};\ntry { const c = $('Insight').first().json; const t = (c.candidates[0].content.parts||[]).map(p=>p.text||'').join(''); ins = JSON.parse(t); } catch (e) {}\nconst reportMd = '# Campaign Report\\n\\n'\n  + 'Published: ' + ((p.published||[]).map(x=>x.label+(x.via?(' ('+x.via+')'):'')+(x.url?(' '+x.url):'')).join('; ') || 'none') + '\\n\\n'\n  + (p.staged&&p.staged.length ? ('Staged: ' + p.staged.map(x=>x.label+' - '+x.reason).join('; ') + '\\n\\n') : '')\n  + (p.errors&&p.errors.length ? ('Errors: ' + p.errors.map(x=>x.label+': '+x.error).join('; ') + '\\n\\n') : '')\n  + (p.brollPlans&&p.brollPlans.length ? ('B-roll plan (dryRun):\\n' + p.brollPlans.map(b =>\n      '- ' + b.label + ': ~' + b.estDurationSec + 's, ~' + b.brollCoveragePct + '% b-roll / ~' + b.avatarPct\n      + '% avatar, ' + b.clips + ' Pexels clips from ' + b.beats + ' beats\\n'\n      + b.queries.map((x,i)=>'   ' + (i+1) + '. ' + x).join('\\n')).join('\\n') + '\\n\\n') : '')\n  + 'Performance: ' + (ins.performanceSummary||'') + '\\n\\n'\n  + 'Projection: ' + (ins.projection||'') + '\\n\\n'\n  + 'Next: ' + (ins.nextStep||'');\nconst base = String(p.originalContribution||'').split('\\n# Campaign Report')[0].trim();\n// keep the per-channel result lines appended by cmo-video / blog runs (they live after the report)\nconst keep = (String(p.originalContribution||'').match(/^- \\[[a-z]+\\][^\\n]*$/gm) || []).join('\\n');\nreturn [{ json: { newContribution: base + '\\n\\n---\\n\\n' + reportMd + (keep ? '\\n\\n' + keep : ''), goalId: p.goalId } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2760,
+        860
+      ],
+      "id": "build-report",
+      "name": "Build Report"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"mutation SetC($id: ID!, $contribution: String) { updateGoalItemContribution(id: $id, contribution: $contribution) { id } }\",\n    \"variables\":{ \"id\":\"{{ $json.goalId }}\", \"contribution\": {{ JSON.stringify($json.newContribution) }} }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        860
+      ],
+      "id": "set-contribution",
+      "name": "Set Contribution",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'explainer_video' && c.script) && !$('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3160,
+        620
+      ],
+      "id": "explainer",
+      "name": "Explainer?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://workflows.grvpanchal.me/webhook/cmo-video-veo?goal_id={{ encodeURIComponent($('Parse + Select').first().json.goalId) }}&channel=explainer_video",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        620
+      ],
+      "id": "dispatch-explainer",
+      "name": "Dispatch Explainer",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'ig_reel' && c.script) && !$('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3160,
+        780
+      ],
+      "id": "ig-reel",
+      "name": "IG Reel?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://workflows.grvpanchal.me/webhook/cmo-video-veo?goal_id={{ encodeURIComponent($('Parse + Select').first().json.goalId) }}&channel=ig_reel",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        780
+      ],
+      "id": "dispatch-ig-reel",
+      "name": "Dispatch IG Reel",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'tiktok' && c.script) && !$('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3160,
+        1100
+      ],
+      "id": "tiktok",
+      "name": "TikTok?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://workflows.grvpanchal.me/webhook/cmo-video-veo?goal_id={{ encodeURIComponent($('Parse + Select').first().json.goalId) }}&channel=tiktok",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        1100
+      ],
+      "id": "dispatch-tiktok",
+      "name": "Dispatch TikTok",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "id": "buildRewardHtml01",
+      "name": "Build Reward HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3160,
+        1260
+      ],
+      "parameters": {
+        "jsCode": "const P = $('Parse + Select').first().json;\nconst R = $('Collect Results').first().json;\nlet blogUrl = '';\ntry { blogUrl = String($('Social Sync').first().json.blogUrl || ''); } catch (e) {}\n\nconst esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst BRAND = '#d35400';\nconst GREEN = '#27ae60', RED = '#e74c3c', AMBER = '#f39c12';\n\nconst pub = R.published || [], errs = R.errors || [], stag = R.staged || [];\nconst total = pub.length + errs.length + stag.length;\nconst progress = total ? Math.round(pub.length / total * 100) : 0;\nconst barColor = progress >= 70 ? GREEN : progress >= 40 ? AMBER : RED;\n\nconst li = (items, render, emptyMsg) => items.length\n  ? items.map(i => '<li style=\"margin:6px 0;padding-left:4px;\">' + render(i) + '</li>').join('')\n  : '<li style=\"margin:6px 0;color:#95a5a6;\">' + emptyMsg + '</li>';\nconst liPub = li(pub, x => '<b>' + esc(x.label) + '</b>' + (x.via ? (' &middot; <span style=\"color:#57606f;\">' + esc(x.via) + '</span>') : '')\n  + (x.url ? (' &middot; <a href=\"' + esc(x.url) + '\" style=\"color:' + BRAND + ';\">' + esc(x.url) + '</a>') : ''), 'Nothing published');\nconst liErr = li(errs, x => '<b>' + esc(x.label) + '</b> &middot; <span style=\"color:' + RED + ';\">' + esc(x.error || 'failed') + '</span>', 'No failures');\nconst liStag = li(stag, x => '<b>' + esc(x.label) + '</b> &middot; <span style=\"color:#57606f;\">' + esc(x.reason || 'skipped') + '</span>', 'Nothing staged');\n\nconst tile = (n, label, c) =>\n  '<div style=\"flex:1;background:#f8f9fa;border-left:4px solid ' + c + ';border-radius:6px;padding:10px;\">'\n  + '<div style=\"font-size:22px;font-weight:800;color:' + c + ';\">' + n + '</div>'\n  + '<div style=\"font-size:11px;color:#57606f;\">' + label + '</div></div>';\nconst tiles = '<div style=\"display:flex;gap:10px;margin:14px 0;\">'\n  + tile(pub.length, 'Passed', GREEN) + tile(errs.length, 'Failed', RED) + tile(stag.length, 'Staged', AMBER) + '</div>';\n\nconst blogCard = blogUrl\n  ? ('<div style=\"background:#f8f9fa;border-left:4px solid ' + BRAND + ';border-radius:8px;padding:12px 14px;margin:14px 0;\">'\n   + '<div style=\"font-size:13px;font-weight:600;color:#2c3e50;\">\\u{1F517} Blog post shared across channels</div>'\n   + '<div style=\"font-size:13px;margin-top:2px;\"><a href=\"' + esc(blogUrl) + '\" style=\"color:' + BRAND + ';\">' + esc(blogUrl) + '</a></div></div>')\n  : '';\n\nfunction pad(n){ return String(n).padStart(2,'0'); }\nconst now = new Date();\nconst dateStr = pad(now.getDate()) + '-' + pad(now.getMonth()+1) + '-' + now.getFullYear();\nconst badge = P.dryRun ? ' <span style=\"font-size:11px;font-weight:600;background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;vertical-align:middle;\">DRY RUN</span>' : '';\n\nconst frag = '<div style=\"max-width:640px;margin:0 auto;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#2c3e50;\">'\n + '<div style=\"background:' + BRAND + ';color:#fff;border-radius:12px 12px 0 0;padding:18px 20px;\">'\n + '<div style=\"font-size:13px;opacity:.85;\">CMO Campaign &middot; Publish Report &middot; ' + dateStr + '</div>'\n + '<div style=\"font-size:20px;font-weight:700;margin-top:4px;\">\\u{1F4E3} ' + esc(R.idea || 'Campaign') + badge + '</div>'\n + '</div>'\n + '<div style=\"background:#fff;border-radius:0 0 12px 12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);\">'\n + '<div style=\"display:flex;align-items:center;gap:14px;margin-bottom:6px;\">'\n + '<div style=\"font-size:34px;font-weight:800;color:' + barColor + ';\">' + progress + '%</div>'\n + '<div style=\"flex:1;background:#ecf0f1;border-radius:8px;height:14px;overflow:hidden;\">'\n + '<div style=\"width:' + progress + '%;height:100%;background:' + barColor + ';\"></div>'\n + '</div></div>'\n + '<div style=\"font-size:14px;color:#57606f;margin-bottom:4px;\">' + pub.length + ' of ' + total + ' channels published' + (P.dryRun ? ' (dry run)' : '') + '</div>'\n + tiles + blogCard\n + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:' + GREEN + ';\">Published</h3>'\n + '<ul style=\"margin:0;padding-left:20px;font-size:14px;\">' + liPub + '</ul>'\n + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:' + RED + ';\">Failed</h3>'\n + '<ul style=\"margin:0;padding-left:20px;font-size:14px;\">' + liErr + '</ul>'\n + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:' + AMBER + ';\">Staged</h3>'\n + '<ul style=\"margin:0;padding-left:20px;font-size:14px;\">' + liStag + '</ul>'\n + '<div style=\"margin-top:18px;font-size:11px;color:#95a5a6;text-align:right;\">Generated by CMO End &middot; ' + dateStr + '</div>'\n + '</div></div>';\n\nconst pageHtml = '<!DOCTYPE html><html><head><meta charset=\"utf-8\">'\n + '<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">'\n + '<title>CMO Campaign - Publish Report</title></head>'\n + '<body style=\"margin:0;padding:16px;background:#f4f6f8;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#2c3e50;\">'\n + frag + '</body></html>';\n\nreturn [{ json: { goalId: R.goalId, rewardHtml: frag, pageHtml } }];\n"
+      }
+    },
+    {
+      "id": "setRewardNode01",
+      "name": "Set Reward",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        1260
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"mutation SetR($id: ID!, $reward: String) { updateGoalItemReward(id: $id, reward: $reward) { id } }\",\n    \"variables\":{ \"id\":\"{{ $('Build Reward HTML').first().json.goalId }}\", \"reward\": {{ JSON.stringify($('Build Reward HTML').first().json.rewardHtml) }} }\n  }},\"id\":1\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "noBlogGate01",
+      "name": "No Blog?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1400,
+        760
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ !($('Parse + Select').first().json.blogChecked && !$('Parse + Select').first().json.dryRun && $('Parse + Select').first().json.blogHtml !== '') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "socialSync01",
+      "name": "Social Sync",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        700
+      ],
+      "parameters": {
+        "jsCode": "// blog URL shared by every social caption: this run's Blogger post if it just published,\n// else the cached marker from a previous run\nlet blogUrl = '';\ntry { const m = $('Save Blog Marker').first().json; if (m && m.postUrl) blogUrl = String(m.postUrl); } catch (e) {}\nif (!blogUrl) { try { blogUrl = String($('Parse + Select').first().json.blogUrlPrev || ''); } catch (e) {} }\nreturn [{ json: { blogUrl } }];\n"
+      }
+    },
+    {
+      "id": "ytReelGate01",
+      "name": "YT Reel?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3160,
+        940
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $('Parse + Select').first().json.checked.some(c => c.key === 'yt_reel' && c.script) && !$('Parse + Select').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ytReelDispatch01",
+      "name": "Dispatch YT Reel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3360,
+        940
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://workflows.grvpanchal.me/webhook/cmo-video-veo?goal_id={{ encodeURIComponent($('Parse + Select').first().json.goalId) }}&channel=yt_reel",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse + Select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Select": {
+      "main": [
+        [
+          {
+            "node": "Live Run?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dry Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Live Run?": {
+      "main": [
+        [
+          {
+            "node": "Generate Hero Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Hero Image": {
+      "main": [
+        [
+          {
+            "node": "Prep Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Image": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Make Public",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Public": {
+      "main": [
+        [
+          {
+            "node": "Publish Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run?": {
+      "main": [
+        [
+          {
+            "node": "Publish Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Prep": {
+      "main": [
+        [
+          {
+            "node": "Blog Checked?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "No Blog?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FB Post?": {
+      "main": [
+        [
+          {
+            "node": "Post FB Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Post?": {
+      "main": [
+        [
+          {
+            "node": "Post X Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Post?": {
+      "main": [
+        [
+          {
+            "node": "Post LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Engage?": {
+      "main": [
+        [
+          {
+            "node": "X Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Checked?": {
+      "main": [
+        [
+          {
+            "node": "Blog New?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Blog Update?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog New?": {
+      "main": [
+        [
+          {
+            "node": "Post to Blogger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Update?": {
+      "main": [
+        [
+          {
+            "node": "Update Blogger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Blogger": {
+      "main": [
+        [
+          {
+            "node": "Save Blog Marker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Blogger": {
+      "main": [
+        [
+          {
+            "node": "Save Blog Marker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Results": {
+      "main": [
+        [
+          {
+            "node": "Insight",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insight": {
+      "main": [
+        [
+          {
+            "node": "Build Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Report": {
+      "main": [
+        [
+          {
+            "node": "Set Contribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Contribution": {
+      "main": [
+        [
+          {
+            "node": "Explainer?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IG Reel?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "YT Reel?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TikTok?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Reward HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explainer?": {
+      "main": [
+        [
+          {
+            "node": "Dispatch Explainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Reel?": {
+      "main": [
+        [
+          {
+            "node": "Dispatch IG Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok?": {
+      "main": [
+        [
+          {
+            "node": "Dispatch TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reward HTML": {
+      "main": [
+        [
+          {
+            "node": "Set Reward",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Reward": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Blog?": {
+      "main": [
+        [
+          {
+            "node": "Social Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Blog Marker": {
+      "main": [
+        [
+          {
+            "node": "Social Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Social Sync": {
+      "main": [
+        [
+          {
+            "node": "FB Post?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "X Post?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LinkedIn Post?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "X Engage?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Collect Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YT Reel?": {
+      "main": [
+        [
+          {
+            "node": "Dispatch YT Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 1800,
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:55.437Z",
+      "createdAt": "2026-05-31T13:28:55.437Z",
+      "id": "RHxuUFIbX5MpXjYc",
+      "name": "pillar:cmo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.950Z",
+      "createdAt": "2026-05-31T13:28:52.950Z",
+      "id": "vkEv2UGPNBfyH74Y",
+      "name": "phase:end"
+    }
+  ]
+}

@@ -1,0 +1,1428 @@
+{
+  "name": "COO End — Daily Operating Rhythm",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "coo-end",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6e11ad8c-3c3d-4b19-a6f0-b366e24ff7b4",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        480
+      ],
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Routine Notes API key.\nconst apiKey = \"<<REPLACE_ME>>\";\nreturn { apiKey };"
+      },
+      "id": "d416733c-24b4-498c-9da3-cb4ddcaf10fa",
+      "name": "API Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward date period subTasks { id body isComplete } } }\",\n      \"variables\": { \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\" }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "id": "b3455c73-dd24-4e67-8ec7-6567e09da63f",
+      "name": "Get Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unwrap the MCP JSON-RPC envelope into the goal object.\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nreturn { json: data.data ? data.data : data };"
+      },
+      "id": "4ad9bed1-3953-4dea-bae1-161a054f7f99",
+      "name": "Parse Goal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "88312389-8623-4bdd-b206-e6b4e7eb2a9f",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:define",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "define"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "coo-plan-route-cond",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:plan",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "plan"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "41bc0bec-5661-4280-bca0-622916d687e7",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:execute",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  },
+                  {
+                    "id": "coo-execute-not-check",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:check",
+                    "operator": {
+                      "type": "array",
+                      "operation": "notContains",
+                      "rightType": "any"
+                    }
+                  },
+                  {
+                    "id": "coo-execute-not-reflect",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:reflect",
+                    "operator": {
+                      "type": "array",
+                      "operation": "notContains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "execute"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "coo-reflect-route-cond",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:reflect",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  },
+                  {
+                    "id": "coo-check-route-cond",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:check",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "reflect"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "9ffcf79d-0b8a-4abe-a943-734e7b36e1ef",
+      "name": "Route Subrole",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// area:coo:plan End branch — turn the plan goal's TICKED subtasks into real day tasks.\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst gql = async (query, variables) => {\n  const args = variables !== undefined ? { query, variables } : { query };\n  const resp = await helpers.httpRequest({\n    method: 'POST', url: MCP,\n    headers: { 'Content-Type': 'application/json', 'X-API-Key': RN },\n    body: { jsonrpc: '2.0', method: 'tools/call', id: 1, params: { name: 'graphql_query', arguments: args } },\n    json: true,\n  });\n  return JSON.parse(resp.result.content[0].text);\n};\n\nconst g = $('Parse Goal').first().json.goalItemById || {};\nconst contribution = g.contribution || '';\nconst ticked = (g.subTasks || []).filter(s => s.isComplete);\nif (!ticked.length) return [{ json: { ok: true, createdCount: 0, note: 'no ticked subtasks' } }];\n\n// --- dates (US Eastern) — same convention as the plan Start: weeks run Saturday->Friday and each\n// week goal is keyed by the week's FRIDAY. Use the COMING Friday (today if Friday, else next). ---\nconst nowE = $now.setZone('America/New_York');\nconst today = nowE.toFormat('dd-MM-yyyy');\nconst fwd = (5 - nowE.weekday + 7) % 7;\nconst weekStart = nowE.plus({ days: fwd }).toFormat('dd-MM-yyyy');\n\n// --- this week's goals -> map trimmed routine name -> { taskRef, goalRef, tags, weekGoalBody } ---\nconst wg = (await gql('query{ goalDatePeriod(date:\"' + weekStart + '\",period:\"week\"){ goalItems{ id body taskRef goalRef tags routine{ id name } } } }')).data.goalDatePeriod;\nconst weekItems = (wg && wg.goalItems) || [];\nconst byRoutine = {};\nfor (const it of weekItems) {\n  const rn = ((it.routine && it.routine.name) || '').trim().toLowerCase();\n  if (!rn) continue;\n  // link the day task to the routine's PARENT goal task = the week goal itself (its id),\n  // so the task nests under it. (Using it.goalRef would link to the week goal's parent,\n  // making the day task a sibling of the week goal instead of its child.)\n  byRoutine[rn] = { taskRef: it.taskRef, weekGoalId: it.id, tags: it.tags || [], weekGoalBody: it.body || '' };\n}\n\n// --- idempotency: routines already carrying a plan:auto day task today ---\nconst dg = (await gql('query{ dailyGoals(date:\"' + today + '\"){ goalItems{ taskRef tags } } }')).data.dailyGoals;\nconst dgGroups = Array.isArray(dg) ? dg : (dg ? [dg] : []);\nconst plannedRefs = new Set();\nfor (const grp of dgGroups) for (const it of (grp.goalItems || [])) {\n  if ((it.tags || []).includes('plan:auto') && it.taskRef) plannedRefs.add(it.taskRef);\n}\n\n// --- recover a subtask's detail section from the plan goal contribution (## <subBody>) ---\nfunction sectionFor(subBody) {\n  const parts = ('\\n' + contribution).split('\\n## ');\n  for (const p of parts) {\n    const nl = p.indexOf('\\n');\n    const head = (nl < 0 ? p : p.slice(0, nl)).trim();\n    if (head === subBody) {\n      const body = nl < 0 ? '' : p.slice(nl + 1);\n      return body.split('\\n').filter(l => {\n        const t = l.trim();\n        return t && !/^Routine:/.test(t) && !/^Week goal:/i.test(t) && !/^-{3,}$/.test(t);\n      }).join('\\n').trim();\n    }\n  }\n  return '';\n}\n\nconst ADD_REF = 'mutation($date:String!,$period:String!,$body:String,$contribution:String,$taskRef:String,$goalRef:String,$tags:[String]){ addGoalItem(date:$date,period:$period,body:$body,contribution:$contribution,taskRef:$taskRef,goalRef:$goalRef,tags:$tags,isComplete:false,isMilestone:true){ id } }';\nconst ADD_NOREF = 'mutation($date:String!,$period:String!,$body:String,$contribution:String,$taskRef:String,$tags:[String]){ addGoalItem(date:$date,period:$period,body:$body,contribution:$contribution,taskRef:$taskRef,tags:$tags,isComplete:false){ id } }';\n\nconst created = [], skipped = [], errors = [];\nfor (const s of ticked) {\n  const subBody = String(s.body || '').trim();\n  const m = subBody.match(/^\\[(.+?)\\]\\s*([\\s\\S]*)$/);\n  if (!m) { skipped.push({ sub: subBody, reason: 'no [routine] prefix' }); continue; }\n  const routineName = m[1].trim();\n  const title = m[2].trim();\n  const r = byRoutine[routineName.toLowerCase()];\n  if (!r || !title) { skipped.push({ sub: subBody, reason: 'routine not in this week goals' }); continue; }\n  if (plannedRefs.has(r.taskRef)) { skipped.push({ sub: subBody, reason: 'already planned today' }); continue; }\n\n  const desc = sectionFor(subBody);\n  const contributionTxt = (desc ? desc + '\\n\\n' : '') + 'Routine: ' + routineName + '\\nTowards week goal: ' + r.weekGoalBody;\n  const tags = Array.from(new Set([...(r.tags || []), 'area:coo:execute', 'plan:auto']));\n  const base = { date: today, period: 'day', body: title, contribution: contributionTxt, taskRef: r.taskRef, tags };\n  const useRef = !!r.weekGoalId;\n  const v = useRef ? { ...base, goalRef: r.weekGoalId } : base;\n  try {\n    const res = await gql(useRef ? ADD_REF : ADD_NOREF, v);\n    if (res.errors) errors.push({ sub: subBody, error: res.errors[0].message });\n    else { created.push({ routine: routineName, body: title, id: res.data.addGoalItem.id }); plannedRefs.add(r.taskRef); }\n  } catch (e) { errors.push({ sub: subBody, error: String(e) }); }\n  await new Promise(rs => setTimeout(rs, 400)); // avoid the addGoalItem lost-update race\n}\n\nreturn [{ json: { ok: true, today, weekStart, ticked: ticked.length,\n  createdCount: created.length, created, skipped, errors } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        240
+      ],
+      "id": "plan-materialise",
+      "name": "Plan: Materialise"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, source: 'coo:plan', createdCount: $json.createdCount, created: $json.created, skipped: $json.skipped, errors: $json.errors } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1824,
+        240
+      ],
+      "id": "plan-respond",
+      "name": "Plan: Respond"
+    },
+    {
+      "parameters": {
+        "content": "## area:coo:plan — materialise\nFires when the **plan goal is ticked** (routine endEvent -> coo-end).\n\nReads the goal's **ticked subtasks** (`[<routine>] <title>`), re-derives each routine's week-goal `taskRef`/`goalRef`/tags, and creates the ticked ones as real **day tasks** tagged `area:coo:execute` + `plan:auto`.\n\nIdempotent: skips routines already carrying a `plan:auto` task today.",
+        "height": 384,
+        "width": 524
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        32
+      ],
+      "id": "plan-end-sticky",
+      "name": "Sticky Note Plan End"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Execute (end of office work) — collect everything COMPLETED today under the trigger goal's\n// routine (taskRef), straight from the app. No Jira calls: ticket keys are read off the work itself.\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst gql = async (query, variables) => {\n  const args = variables !== undefined ? { query, variables } : { query };\n  const resp = await helpers.httpRequest({\n    method: 'POST', url: MCP,\n    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + RN },\n    body: { jsonrpc: '2.0', method: 'tools/call', id: 1, params: { name: 'graphql_query', arguments: args } },\n    json: true,\n  });\n  return JSON.parse(resp.result.content[0].text);\n};\n\nconst WORKDAY_HOURS = 8;\nconst SCRUM_HOURS = 2; // ceremonies are a fixed 2h block whenever they happened at all\nconst goalId = $('Webhook').first().json.query.goal_id;\nconst goal = $('Parse Goal').first().json.goalItemById || {};\n\n// \"Get Goal\" does not select taskRef, and date/period come back null — re-read what we need.\nconst nowNy = $now.setZone('America/New_York');\nlet today = nowNy.toFormat('dd-MM-yyyy'), taskRef = goal.taskRef || null;\ntry {\n  const gi = (await gql('query($id:ID!){ goalItemById(id:$id){ id date period taskRef } }', { id: goalId })).data.goalItemById;\n  if (gi) { today = gi.date || today; taskRef = gi.taskRef || taskRef; }\n} catch (e) {}\n\n// --- today's DAY group only (dailyGoals also returns week/month/year groups) ---\nlet dayItems = [];\ntry {\n  const dg = (await gql('query{ dailyGoals(date:\"' + today + '\"){ date period goalItems{ id body isComplete completedAt tags taskRef contribution subTasks{ id body isComplete } } } }')).data.dailyGoals;\n  const groups = Array.isArray(dg) ? dg : (dg ? [dg] : []);\n  const day = groups.find(g => g.period === 'day') || { goalItems: [] };\n  dayItems = (day.goalItems || []).filter(g => g.taskRef === taskRef);\n} catch (e) {}\n\nconst clean = (s, n) => String(s || '').replace(/\\r/g, '').trim().slice(0, n);\n\n// --- only the completed work: finished goals, plus finished subtasks of any goal ---\nconst activities = [];\nfor (const g of dayItems) {\n  const doneSubs = (g.subTasks || []).filter(s => s.isComplete === true).map(s => clean(s.body, 200));\n  if (g.isComplete === true) {\n    activities.push({\n      kind: 'task', body: clean(g.body, 200), tags: g.tags || [],\n      notes: clean(g.contribution, 1500), completedSubtasks: doneSubs,\n      completedAt: g.completedAt || null,\n    });\n  } else if (doneSubs.length) {\n    // the parent is still open, but these subtasks are finished work and still count\n    activities.push({\n      kind: 'subtasks', body: clean(g.body, 200), tags: g.tags || [],\n      notes: '', completedSubtasks: doneSubs, completedAt: null,\n    });\n  }\n}\nactivities.sort((a, b) => (a.completedAt || 0) - (b.completedAt || 0));\n\n// --- ticket keys, read off the completed work (no Jira lookup) ---\nconst KEY_RE = /\\b([A-Z][A-Z0-9]{1,9}-\\d+)\\b/g;\nconst keyCount = {};\nfor (const a of activities) {\n  const hay = [a.body, a.notes].concat(a.completedSubtasks).join(' \\n ');\n  const found = hay.match(KEY_RE) || [];\n  for (const k of found) keyCount[k] = (keyCount[k] || 0) + 1;\n}\nconst ticketKeys = Object.keys(keyCount);\n\n// --- prompt ---\nconst systemPrompt =\n  'You are the COO end-of-day agent for a senior front-end engineer at an enterprise e-commerce programme. ' +\n  'You are given ONLY the work the engineer actually COMPLETED today. Turn it into the three artefacts they must file. ' +\n  'Use only what is in the input — never invent tickets, meetings or work that is not there. ' +\n  'If the input reports that nothing was completed, that is a real answer: return ' +\n  '{\"sre\":[],\"scrum\":{\"yesterday\":\"\",\"today\":\"\",\"blockers\":\"\"},\"tempo\":[],' +\n  '\"timesheet\":{\"development\":0,\"testing\":0,\"operations\":0,\"monitoring\":0,\"management\":0}} ' +\n  'and invent NOTHING — the goal title alone is not evidence of work done. ' +\n  'Return STRICT JSON only, no prose:\\n' +\n  '{\"sre\":[\"<exactly 5 bullets for the team SRE/status Confluence page: outcome-first, past tense, ' +\n  'each <= 160 chars, naming the ticket key when the input has one>\"],' +\n  '\"scrum\":{\"yesterday\":\"<1-2 sentences: what was completed today, for tomorrow\\'s standup>\",' +\n  '\"today\":\"<1-2 sentences: the obvious next step>\",\"blockers\":\"<blockers named in the input, or \\'None\\'>\"},' +\n  '\"tempo\":[{\"ticket\":\"<ticket key from the input, or \\\\\"Scrum\\\\\" for ceremonies/standup/meetings>\",' +\n  '\"description\":\"<worklog comment, <= 120 chars>\",\"hours\":<number>}],' +\n  '\"timesheet\":{\"development\":<number>,\"testing\":<number>,\"operations\":<number>,\"monitoring\":<number>,\"management\":<number>}}\\n' +\n  'Rules: give one tempo entry per distinct ticket key found, plus exactly one \"Scrum\" entry covering standups, ' +\n  'refinement and meetings evidenced in the input — ONLY if the input actually evidences ceremonies. ' +\n  'When that \"Scrum\" entry is present it is always exactly ' + SCRUM_HOURS + ' hours and the remaining ' +\n  (WORKDAY_HOURS - SCRUM_HOURS) + ' hours are spread across the ticket entries. Tempo hours must total ' + WORKDAY_HOURS + '. ' +\n  'Timesheet values must also total ' + WORKDAY_HOURS + ' and split the SAME day across the five Coforge categories: ' +\n  'development (coding, PRs, refactors), testing (tests, QA, verification), operations (releases, pipelines, ' +\n  'dependency/vulnerability work), monitoring (dashboards, analytics, alerts, audits), management (standups, ' +\n  'meetings, planning, specs, reviews of others). Use 0 for a category with no evidence.';\n\nconst lines = activities.map((a, i) =>\n  (i + 1) + '. [' + a.kind + '] ' + a.body + (a.tags.length ? '  (' + a.tags.join(', ') + ')' : '') +\n  (a.completedSubtasks.length ? '\\n   completed:\\n' + a.completedSubtasks.map(s => '     - ' + s).join('\\n') : '') +\n  (a.notes ? '\\n   notes:\\n     ' + a.notes.split('\\n').join('\\n     ') : ''));\n\nconst userMessage =\n  'Date: ' + nowNy.toFormat('cccc, dd LLLL yyyy') + '\\n' +\n  'Routine block: ' + (goal.body ? goal.body : 'Office work') + '\\n' +\n  (ticketKeys.length ? 'Ticket keys present in today\\'s completed work: ' + ticketKeys.join(', ') + '\\n' : '') +\n  '\\nCOMPLETED TODAY (' + activities.length + ' item(s)):\\n\\n' +\n  (lines.length ? lines.join('\\n\\n') : '(nothing was marked complete today)');\n\nreturn [{ json: {\n  systemPrompt, userMessage,\n  wrap: { today, goalId, taskRef, workdayHours: WORKDAY_HOURS, scrumHours: SCRUM_HOURS, ticketKeys, activities,\n          activityCount: activities.length, routineBody: goal.body || '' },\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        704
+      ],
+      "id": "exec-collect-activity",
+      "name": "Execute: Collect Activity"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "COO Daily Wrap"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models: ['~google/gemini-flash-latest'], messages: [{ role: 'system', content: $json.systemPrompt }, { role: 'user', content: $json.userMessage } ], temperature: 0.3, max_tokens: 2500, top_p: 0.9, reasoning: { enabled: false }, response_format: { type: 'json_object' } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        704
+      ],
+      "id": "exec-generate-wrap",
+      "name": "Execute: Generate Wrap",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Execute (end of office work) — turn the model's JSON into one copy-paste HTML sheet and store it\n// on the goal's REWARD. body and contribution are never written by this branch.\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst gql = async (query, variables) => {\n  const resp = await helpers.httpRequest({\n    method: 'POST', url: MCP,\n    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + RN },\n    body: { jsonrpc: '2.0', method: 'tools/call', id: 1, params: { name: 'graphql_query', arguments: { query, variables } } },\n    json: true,\n  });\n  return JSON.parse(resp.result.content[0].text);\n};\n\nconst wrap = $('Execute: Collect Activity').first().json.wrap;\nconst TOTAL = wrap.workdayHours;\nconst SCRUM_HOURS = wrap.scrumHours;\n\n// --- parse the model's JSON ---\nconst raw = $input.first().json;\nlet content = '{}';\ntry { content = raw.choices[0].message.content; } catch (e) {}\nlet parsed;\ntry { parsed = JSON.parse(content); }\ncatch (e) { const m = content && content.match(/\\{[\\s\\S]*\\}/); parsed = m ? JSON.parse(m[0]) : {}; }\n\nconst CATS = ['development', 'testing', 'operations', 'monitoring', 'management'];\nconst hasWork = wrap.activityCount > 0;\n\n// Nothing completed means nothing to report. Without this the model happily writes a status\n// update out of the goal's title alone, which would file fiction into a real Confluence page.\nconst sre = hasWork ? (parsed.sre || []).map(s => String(s).trim()).filter(Boolean).slice(0, 5) : [];\nconst scrum = hasWork ? (parsed.scrum || {}) : {};\n\n// --- hours are normalised here, not trusted from the model: exact totals, quarter-hour steps ---\nconst round25 = (n) => Math.round(n * 4) / 4;\nconst normalise = (values, total) => {\n  const nums = values.map(v => (Number(v) > 0 ? Number(v) : 0));\n  let sum = nums.reduce((a, b) => a + b, 0);\n  const base = sum > 0 ? nums : nums.map(() => 1); // no signal at all -> split evenly\n  sum = base.reduce((a, b) => a + b, 0);\n  const scaled = base.map(v => round25((v * total) / sum));\n  const drift = round25(total - scaled.reduce((a, b) => a + b, 0));\n  if (drift !== 0 && scaled.length) {\n    let i = 0; for (let j = 1; j < scaled.length; j++) if (scaled[j] > scaled[i]) i = j;\n    scaled[i] = Math.max(0, round25(scaled[i] + drift));\n  }\n  return scaled;\n};\n\nlet tempo = (parsed.tempo || [])\n  .map(t => ({ ticket: String((t && t.ticket) || '').trim() || 'Scrum',\n               description: String((t && t.description) || '').trim(),\n               hours: Number(t && t.hours) || 0 }))\n  .filter(t => t.description || t.ticket);\n// Ceremonies are a fixed block, not something the model gets to estimate: when a Scrum row exists it\n// is pinned to SCRUM_HOURS and only the ticket rows share the rest of the day.\nconst isScrum = (t) => /scrum|stand[- ]?up|ceremon|meeting|refinement/i.test(t.ticket);\nif (hasWork && tempo.length) {\n  const si = tempo.findIndex(isScrum);\n  if (si === -1) {\n    const h = normalise(tempo.map(t => t.hours), TOTAL);\n    tempo = tempo.map((t, i) => ({ ...t, hours: h[i] }));\n  } else {\n    const others = tempo.filter((_, i) => i !== si);\n    // with nothing else logged, the ceremony block is the whole day rather than a 2h short day\n    const scrumHours = others.length ? Math.min(SCRUM_HOURS, TOTAL) : TOTAL;\n    const h = others.length ? normalise(others.map(t => t.hours), round25(TOTAL - scrumHours)) : [];\n    let k = 0;\n    tempo = tempo.map((t, i) => (i === si ? { ...t, hours: scrumHours } : { ...t, hours: h[k++] }));\n  }\n  tempo = tempo.filter(t => t.hours > 0);\n} else { tempo = []; }\n\nlet timesheet = CATS.map(c => ({ category: c, hours: Number((parsed.timesheet || {})[c]) || 0 }));\nif (hasWork) {\n  const h = normalise(timesheet.map(t => t.hours), TOTAL);\n  timesheet = timesheet.map((t, i) => ({ ...t, hours: h[i] }));\n} else { timesheet = timesheet.map(t => ({ ...t, hours: 0 })); }\n\nconst sum = (rows) => rows.reduce((a, r) => a + r.hours, 0);\nconst hrs = (n) => (Math.round(n * 100) / 100).toString();\n\n// --- HTML (self-contained, inline styles: it is stored and re-rendered inside the app) ---\nconst esc = (s) => String(s == null ? '' : s)\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst S = {\n  card: 'border:1px solid #d7dce3;border-radius:10px;margin:0 0 18px;overflow:hidden;background:#fff',\n  head: 'background:#f4f6f9;border-bottom:1px solid #d7dce3;padding:10px 14px;font:600 14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;color:#1b2430',\n  hint: 'font:400 12px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;color:#5b6673;margin:2px 0 0',\n  body: 'padding:14px',\n  pre:  'background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;overflow-x:auto;white-space:pre;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;margin:10px 0 0',\n  th:   'text-align:left;padding:8px 10px;border-bottom:2px solid #d7dce3;font:600 13px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;color:#1b2430',\n  td:   'padding:8px 10px;border-bottom:1px solid #eef1f5;font:13px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#26303c;vertical-align:top',\n  num:  'padding:8px 10px;border-bottom:1px solid #eef1f5;font:600 13px/1.5 ui-monospace,Menlo,monospace;color:#26303c;text-align:right;white-space:nowrap',\n};\n// several call sites append an extra declaration (S.th + 'text-align:right'), so every base\n// style must end in a semicolon or the two declarations fuse into one invalid rule.\nObject.keys(S).forEach(k => { if (!/;\\s*$/.test(S[k])) S[k] += ';'; });\nconst card = (title, hint, inner) =>\n  '<section style=\"' + S.card + '\"><div style=\"' + S.head + '\">' + esc(title) +\n  (hint ? '<div style=\"' + S.hint + '\">' + esc(hint) + '</div>' : '') + '</div>' +\n  '<div style=\"' + S.body + '\">' + inner + '</div></section>';\n\nconst sreHtml = sre.length\n  ? '<ul style=\"margin:0;padding-left:20px;font:14px/1.65 -apple-system,Segoe UI,Roboto,sans-serif;color:#26303c\">' +\n    sre.map(b => '<li>' + esc(b) + '</li>').join('') + '</ul>' +\n    '<pre style=\"' + S.pre + '\">' + esc(sre.map(b => '• ' + b).join('\\n')) + '</pre>'\n  : '<p style=\"' + S.hint + '\">Nothing was marked complete today, so there is nothing to file. ' +\n    'Tick your completed tasks and re-run.</p>';\n\nconst tempoHtml = tempo.length\n  ? '<table style=\"width:100%;border-collapse:collapse\"><tr><th style=\"' + S.th + '\">Ticket</th>' +\n    '<th style=\"' + S.th + '\">Worklog description</th><th style=\"' + S.th + 'text-align:right\">Hours</th></tr>' +\n    tempo.map(t => '<tr><td style=\"' + S.td + '\"><strong>' + esc(t.ticket) + '</strong></td><td style=\"' + S.td + '\">' +\n      esc(t.description) + '</td><td style=\"' + S.num + '\">' + hrs(t.hours) + '</td></tr>').join('') +\n    '<tr><td style=\"' + S.td + 'font-weight:600\">Total</td><td style=\"' + S.td + '\"></td><td style=\"' + S.num + '\">' +\n      hrs(sum(tempo)) + '</td></tr></table>' +\n    '<pre style=\"' + S.pre + '\">' + esc(tempo.map(t => t.ticket + '\\t' + hrs(t.hours) + '\\t' + t.description).join('\\n')) + '</pre>'\n  : '<p style=\"' + S.hint + '\">No completed ticket work to log.</p>';\n\nconst timesheetHtml =\n  '<table style=\"width:100%;border-collapse:collapse\"><tr><th style=\"' + S.th + '\">Category</th>' +\n  '<th style=\"' + S.th + 'text-align:right\">Hours</th></tr>' +\n  timesheet.map(t => '<tr><td style=\"' + S.td + '\">' + esc(t.category.charAt(0).toUpperCase() + t.category.slice(1)) +\n    '</td><td style=\"' + S.num + '\">' + hrs(t.hours) + '</td></tr>').join('') +\n  '<tr><td style=\"' + S.td + 'font-weight:600\">Total</td><td style=\"' + S.num + '\">' + hrs(sum(timesheet)) + '</td></tr></table>' +\n  '<pre style=\"' + S.pre + '\">' + esc(timesheet.map(t => t.category + '\\t' + hrs(t.hours)).join('\\n')) + '</pre>';\n\nconst scrumHtml =\n  '<p style=\"margin:0 0 8px;font:14px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#26303c\">' +\n  '<strong>Done:</strong> ' + esc(scrum.yesterday || '—') + '<br>' +\n  '<strong>Next:</strong> ' + esc(scrum.today || '—') + '<br>' +\n  '<strong>Blockers:</strong> ' + esc(scrum.blockers || 'None') + '</p>';\n\nconst html =\n  '<div style=\"max-width:860px;margin:0 auto;padding:16px;background:#eef1f5\">' +\n  '<div style=\"' + S.card + 'padding:14px 16px\">' +\n  '<div style=\"font:700 18px/1.3 -apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a\">Daily wrap — ' + esc(wrap.today) + '</div>' +\n  '<div style=\"' + S.hint + '\">Copy each block below into its destination. Built from the ' +\n  esc(String(wrap.activityCount)) + ' item(s) you completed today' +\n  (wrap.ticketKeys.length ? ' · tickets: ' + esc(wrap.ticketKeys.join(', ')) : '') + '.</div></div>' +\n  card('1 · SRE Confluence page', 'Paste these 5 bullets into today\\'s SRE page.', sreHtml) +\n  card('2 · Tempo worklogs', 'Log each row in Tempo (ticket · hours · description). Copy block is tab-separated.', tempoHtml + scrumHtml) +\n  card('3 · Coforge timesheet', 'Enter these hours against the five categories. Copy block is tab-separated.', timesheetHtml) +\n  '</div>';\n\n// --- store on REWARD only; body and contribution are left untouched ---\nconst errors = [];\ntry {\n  const res = await gql('mutation($id:ID!,$reward:String){ updateGoalItemReward(id:$id,reward:$reward){ id } }',\n                        { id: wrap.goalId, reward: html });\n  if (res.errors) errors.push(res.errors[0].message);\n} catch (e) { errors.push(String(e)); }\n\nreturn [{ json: {\n  ok: errors.length === 0,\n  date: wrap.today, goalId: wrap.goalId, taskRef: wrap.taskRef,\n  activityCount: wrap.activityCount, ticketKeys: wrap.ticketKeys,\n  sreBullets: sre.length, tempoEntries: tempo.length,\n  tempoHours: sum(tempo), timesheetHours: sum(timesheet),\n  timesheet: timesheet.reduce((o, t) => (o[t.category] = t.hours, o), {}),\n  errors, html,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        704
+      ],
+      "id": "exec-build-html",
+      "name": "Execute: Build Wrap HTML"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2288,
+        704
+      ],
+      "id": "exec-respond",
+      "name": "Execute: Respond"
+    },
+    {
+      "parameters": {
+        "content": "## area:coo:execute — daily wrap\nFires when the **office-work goal is ticked** (routine endEvent -> coo-end).\n\nCollects everything **completed today** under the goal's own `taskRef` (finished tasks + finished subtasks, with their contribution notes) straight from the app — **no Jira calls**; ticket keys are read off the work itself.\n\nProduces the three things that have to be filed: **5 SRE Confluence bullets**, **Tempo worklogs** (one row per ticket + one Scrum row) and the **Coforge timesheet** split across development / testing / operations / monitoring / management. Hours are normalised in code to total 8h in 0.25 steps — the model only proposes the shape.\n\nThe copy-paste HTML sheet is saved to the goal's **reward** (`updateGoalItemReward`) and returned as the webhook response. **body and contribution are never written by this branch.**",
+        "height": 444,
+        "width": 1124
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        448
+      ],
+      "id": "exec-wrap-sticky",
+      "name": "Sticky Note Execute Wrap"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Reflect (last routine of the day) — pull the whole day together from Routine Notes + chess.com\n// and hand the LLM only judgement calls (headline, COO feedback scores, soul line, 4 MCQs).\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst gql = async (query, variables) => {\n  const args = variables !== undefined ? { query, variables } : { query };\n  const resp = await helpers.httpRequest({\n    method: 'POST', url: MCP,\n    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + RN },\n    body: { jsonrpc: '2.0', method: 'tools/call', id: 1, params: { name: 'graphql_query', arguments: args } },\n    json: true,\n  });\n  return JSON.parse(resp.result.content[0].text);\n};\n\nconst goalId = $('Webhook').first().json.query.goal_id;\nconst goal = $('Parse Goal').first().json.goalItemById || {};\nconst nowE = $now.setZone('America/New_York');\nconst clip = (s, n) => String(s || '').replace(/\\r/g, '').trim().slice(0, n);\n\n// Resolve the goal's REAL day bucket (goalItemById returns null date/period), so a re-run\n// for yesterday's goal reflects yesterday, not whatever day the re-run happens on.\nlet today = goal.date || nowE.toFormat('dd-MM-yyyy');\ntry {\n  const gi = (await gql('query{ goalItemById(id:\"' + goalId + '\"){ date taskRef } }')).data.goalItemById || {};\n  if (gi.date) today = gi.date;\n  else if (gi.taskRef) {\n    const mt = (await gql('query{ monthTaskGoals(date:\"' + nowE.toFormat('dd-MM-yyyy') + '\",taskRef:\"' + gi.taskRef + '\"){ date period goalItems{ id } } }')).data.monthTaskGoals || [];\n    for (const grp of (Array.isArray(mt) ? mt : [mt])) {\n      if (grp && grp.period === 'day' && (grp.goalItems || []).some(g => g.id === goalId)) { today = grp.date; break; }\n    }\n  }\n} catch (e) {}\nconst dref = DateTime.fromFormat(today, 'dd-MM-yyyy', { zone: 'America/New_York' });\n\n// ---- Row 1: D/K/G stimuli + routine tick timing ----\nlet dkg = null, week = [];\ntry {\n  week = (await gql('query{ weekStimuli(date:\"' + today + '\"){ date D K G } }')).data.weekStimuli || [];\n  dkg = week.find(w => w.date === today) || null;\n} catch (e) {}\nlet routines = [];\ntry {\n  const rd = (await gql('query{ routineDate(date:\"' + today + '\"){ tasklist{ id name time points ticked passed redeemed passedPoints tags } } }')).data.routineDate;\n  routines = ((rd && rd.tasklist) || []).slice().sort((a, b) => String(a.time).localeCompare(String(b.time)));\n} catch (e) {}\nconst rlite = r => ({ name: String(r.name || '').trim(), time: r.time, points: r.points });\n// passed:true = the routine's window had already PASSED and points were used to tick it\n// (those rows carry redeemed/passedPoints) -> OUT of time. A plain tick (passed:false) is in time.\nconst inTime = routines.filter(r => r.ticked && !r.passed).map(rlite);\nconst outTime = routines.filter(r => r.ticked && r.passed).map(rlite);\nconst missed = routines.filter(r => !r.ticked).map(rlite);\nlet xp = null;\ntry { xp = (await gql('query{ xpBalance{ earned used available pendingToday } }')).data.xpBalance; } catch (e) {}\n\n// ---- day goals, bucketed by area tag ----\nlet dayItems = [];\ntry {\n  const dg = (await gql('query{ dailyGoals(date:\"' + today + '\"){ date period goalItems{ id body isComplete completedAt tags taskRef contribution reward subTasks{ id body isComplete } } } }')).data.dailyGoals;\n  const groups = Array.isArray(dg) ? dg : (dg ? [dg] : []);\n  dayItems = ((groups.find(g => g.period === 'day') || {}).goalItems) || [];\n} catch (e) {}\n// task-level time management: a completed day task is \"in time\" if it was ticked (completedAt,\n// epoch ms) on the same day and before its routine's window closed — the window runs from the\n// routine's start to the next routine's start; the last window runs to midnight Eastern.\nconst windows = {};\nfor (let i = 0; i < routines.length; i++) {\n  const nxt = routines[i + 1];\n  const hm = String((nxt || {}).time || '').split(':');\n  const end = nxt ? dref.set({ hour: Number(hm[0]) || 0, minute: Number(hm[1]) || 0, second: 0, millisecond: 0 })\n                  : dref.plus({ days: 1 }).startOf('day');\n  windows[routines[i].id] = { name: String(routines[i].name || '').trim(), time: routines[i].time, end };\n}\nconst tasksInTime = [], tasksOutTime = [];\nfor (const g of dayItems) {\n  if (g.isComplete !== true || !g.completedAt) continue;\n  const w = windows[g.taskRef];\n  if (!w) continue;\n  const at = DateTime.fromMillis(Number(g.completedAt)).setZone('America/New_York');\n  const sameDay = at.toFormat('dd-MM-yyyy') === today;\n  const rec = { body: clip(g.body, 90), routine: w.name, at: at.toFormat('HH:mm'), sameDay };\n  (sameDay && at < w.end ? tasksInTime : tasksOutTime).push(rec);\n}\n\nconst byTag = t => dayItems.filter(g => (g.tags || []).includes(t));\nconst lite = g => g ? { body: clip(g.body, 160), isComplete: g.isComplete === true,\n                        contribution: clip(g.contribution, 700), reward: clip(g.reward, 300),\n                        subs: (g.subTasks || []).map(s => ({ body: clip(s.body, 120), done: s.isComplete === true })) } : null;\n\n// Row 2 — CEO\nconst ceo = { mind: lite(byTag('area:ceo:mind')[0]), body: lite(byTag('area:ceo:body')[0]), soul: lite(byTag('area:ceo:soul')[0]) };\n\n// chess.com alertness (public API, no auth). Failure just leaves the tile empty.\nlet chess = null;\ntry {\n  const UA = { 'User-Agent': 'reflect-dashboard (workflows.grvpanchal.me)' };\n  const stats = await helpers.httpRequest({ url: 'https://api.chess.com/pub/player/grvpanchal/stats', json: true, headers: UA, timeout: 15000 });\n  const last = k => (stats[k] && stats[k].last && stats[k].last.rating) || null;\n  chess = { rapid: last('chess_rapid'), blitz: last('chess_blitz'), bullet: last('chess_bullet'),\n            puzzle: (stats.tactics && stats.tactics.highest && stats.tactics.highest.rating) || null };\n  const games = await helpers.httpRequest({ url: 'https://api.chess.com/pub/player/grvpanchal/games/' + dref.toFormat('yyyy/MM'), json: true, headers: UA, timeout: 15000 });\n  const dayStart = dref.startOf('day').toSeconds();\n  const dayEnd = dref.plus({ days: 1 }).startOf('day').toSeconds();\n  let w = 0, l = 0, d = 0, n = 0;\n  for (const g of (games.games || [])) {\n    if (!g.end_time || g.end_time < dayStart || g.end_time >= dayEnd) continue;\n    n++;\n    const me = String((g.white || {}).username || '').toLowerCase() === 'grvpanchal' ? g.white : g.black;\n    const res = (me || {}).result || '';\n    if (res === 'win') w++;\n    else if (['agreed', 'repetition', 'stalemate', 'insufficient', '50move', 'timevsinsufficient'].indexOf(res) >= 0) d++;\n    else l++;\n  }\n  chess.today = { games: n, wins: w, losses: l, draws: d };\n} catch (e) {}\n\n// nutrition via the mfp wrapper container (same docker network as n8n), pinned to the\n// resolved day bucket so re-runs report that day's diary. Cookie expiry -> 502 -> tile falls to TBD.\nlet nutrition = null;\ntry {\n  const mfp = await helpers.httpRequest({\n    method: 'GET', url: 'http://mfp:8000/diary?date=' + dref.toFormat('yyyy-MM-dd'),\n    headers: { 'X-API-Key': '<<REPLACE_ME>>' },\n    json: true, timeout: 20000,\n  });\n  const t = mfp.totals || {}, gl = mfp.goals || {};\n  const rnd = v => (v === null || v === undefined ? null : Math.round(Number(v)));\n  nutrition = { calories: rnd(t.calories), caloriesGoal: rnd(gl.calories),\n                protein: rnd(t.protein), proteinGoal: rnd(gl.protein),\n                carbs: rnd(t.carbohydrates), fat: rnd(t.fat) };\n} catch (e) {}\n\n// Row 3 — COO\nconst cooDefine = lite(byTag('area:coo:define')[0]);\nconst cooPlan = lite(byTag('area:coo:plan')[0]);\nconst execItems = byTag('area:coo:execute');\nconst execDone = execItems.filter(g => g.isComplete === true);\nlet subsTotal = 0, subsDone = 0;\nfor (const g of execItems) for (const s of (g.subTasks || [])) { subsTotal++; if (s.isComplete === true) subsDone++; }\nconst coo = { define: cooDefine, plan: cooPlan,\n              exec: { total: execItems.length, done: execDone.length, subsTotal, subsDone,\n                      items: execItems.map(g => ({ body: clip(g.body, 120), done: g.isComplete === true })) } };\n\n// Row 4 — CTO: ticket keys off the Jira goal's completed subtasks\nconst jira = dayItems.find(g => (g.tags || []).includes('project:jira')) || null;\nconst KEY_RE = /\\b([A-Z][A-Z0-9]{1,9}-\\d+)\\b/;\nconst tickets = { done: [], open: [] };\nfor (const s of ((jira || {}).subTasks || [])) {\n  const m = String(s.body || '').match(KEY_RE);\n  const entry = { key: m ? m[1] : null, body: clip(s.body, 110) };\n  (s.isComplete === true ? tickets.done : tickets.open).push(entry);\n}\nconst cto = { hasJira: !!jira, tickets };\n\n// Row 5 — CIO: parse the Leverage Report markdown table out of the cio goal contribution\nconst cioGoal = byTag('area:cio')[0] || null;\nconst lev = {};\nif (cioGoal && cioGoal.contribution) {\n  for (const line of String(cioGoal.contribution).split('\\n')) {\n    const m = line.match(/^\\s*\\|\\s*(Tech|Labou?r|Capital|Media)\\s*\\|\\s*([^|]*)\\|\\s*([^|]*)\\|/i);\n    if (m) {\n      const k = m[1].toLowerCase().replace('labour', 'labor');\n      if (!lev[k]) lev[k] = { entity: m[2].trim(), value: m[3].trim() };\n    }\n  }\n}\nconst cio = { goal: cioGoal ? { body: clip(cioGoal.body, 120), done: cioGoal.isComplete === true } : null, lev };\n\n// Row 6 — CFO: stage heading + fw-logo iframe straight out of the cfo goal contribution\nconst cfoGoal = byTag('area:cfo')[0] || null;\nlet cfoStage = null, cfoIframe = null;\nif (cfoGoal && cfoGoal.contribution) {\n  const m = String(cfoGoal.contribution).match(/Financial Stage:\\s*([^\\n]+)/i);\n  if (m) cfoStage = m[1].trim();\n  const f = String(cfoGoal.contribution).match(/<iframe[^>]*src=\"([^\"]+)\"/i);\n  if (f) cfoIframe = f[1];\n}\nconst cfo = { goal: cfoGoal ? { body: clip(cfoGoal.body, 120), done: cfoGoal.isComplete === true,\n                                subs: (cfoGoal.subTasks || []).map(s => ({ body: clip(s.body, 100), done: s.isComplete === true })) } : null,\n              stage: cfoStage, iframe: cfoIframe };\n\n// Rows 7/8 — CXO + CMO (mostly TBD tiles, but surface what the day recorded)\nconst cxoGoal = byTag('area:cxo')[0] || null;\nconst cmoGoal = byTag('area:cmo')[0] || null;\nlet chDone = 0, chTotal = 0;\nfor (const s of ((cmoGoal || {}).subTasks || [])) { chTotal++; if (s.isComplete === true) chDone++; }\nconst cxo = { goal: cxoGoal ? lite(cxoGoal) : null };\nconst cmo = { goal: cmoGoal ? { body: clip(cmoGoal.body, 120), done: cmoGoal.isComplete === true } : null, chDone, chTotal };\n\n// ---- LLM prompt: judgement only, numbers stay code-computed ----\nconst systemPrompt =\n  'You are the COO reflection agent closing out the day for a solo founder-operator running a ' +\n  'C-suite personal operating system (CEO body/mind/soul, COO define/plan/execute, CTO, CIO, CFO, CMO, CXO). ' +\n  'You get ONLY what actually happened today. Never invent events, numbers or work. ' +\n  'Return STRICT JSON, no prose:\\n' +\n  '{\"headline\":\"<one-sentence verdict on the day, direct second person, <=140 chars>\",' +\n  '\"coo\":{\"defineAlignment\":{\"score\":<0-10>,\"note\":\"<how well the define insight matched what the day became, <=140 chars>\"},' +\n  '\"planRelevance\":{\"score\":<0-10>,\"note\":\"<did the plan propose the right work, was it ticked and materialised, <=140 chars>\"},' +\n  '\"executionEfficiency\":{\"score\":<0-10>,\"note\":\"<completed vs planned + routine timing, <=140 chars>\"}},' +\n  '\"soul\":{\"thought\":\"<one progressive thought for tomorrow, grounded in today, <=160 chars>\"},' +\n  '\"mcq\":[{\"question\":\"<reflection question about today\\'s management performance>\",' +\n  '\"options\":[\"<option A>\",\"<option B>\",\"<option C>\",\"<option D>\"],\"answer\":<0-3>,\"why\":\"<why that answer fits today, <=140 chars>\"}]}\\n' +\n  'Rules: the top-level keys are EXACTLY headline, coo, soul, mcq — mcq is a TOP-LEVEL array, never nested. ' +\n  'Exactly 4 mcq entries, each anchored to a concrete fact from the input (a routine that slipped, ' +\n  'a task left open, a score, a win). Options must be plausible self-assessments, one clearly best. ' +\n  'Scores reflect the evidence: an unticked plan or mostly-missed routines cannot score high.';\n\nconst line = (label, v) => label + ': ' + (v === null || v === undefined ? 'n/a' : v);\nconst goalLine = (label, g) => label + ': ' + (g ? '\"' + g.body + '\" — ' + (g.isComplete || g.done ? 'COMPLETED' : 'NOT completed') : 'none today');\nconst userMessage = [\n  'Date: ' + dref.toFormat('cccc, dd LLLL yyyy'),\n  '',\n  '== Routine analytics ==',\n  line('Stimuli D (Discipline)', dkg && dkg.D), line('Stimuli K (Kinetics)', dkg && dkg.K), line('Stimuli G (Geniuses)', dkg && dkg.G),\n  'Routines ticked IN time: ' + (inTime.map(r => r.name + ' @' + r.time).join(', ') || 'none'),\n  'Routines ticked OUT of time: ' + (outTime.map(r => r.name + ' @' + r.time).join(', ') || 'none'),\n  'Routines not ticked: ' + (missed.map(r => r.name + ' @' + r.time).join(', ') || 'none'),\n  'Day tasks done IN their routine window: ' + (tasksInTime.map(t => t.body + ' (' + t.routine + ', ' + t.at + ')').join('; ') || 'none'),\n  'Day tasks done OUT of their routine window: ' + (tasksOutTime.map(t => t.body + ' (' + t.routine + ', done ' + t.at + (t.sameDay ? '' : ' next day') + ')').join('; ') || 'none'),\n  '',\n  '== COO ==',\n  goalLine('Define goal (morning insight)', cooDefine),\n  cooDefine && cooDefine.contribution ? 'Define insight: ' + clip(cooDefine.contribution, 500) : '',\n  goalLine('Plan goal', cooPlan),\n  cooPlan ? 'Plan subtasks ticked: ' + cooPlan.subs.filter(s => s.done).length + '/' + cooPlan.subs.length : '',\n  'Execute day tasks completed: ' + coo.exec.done + '/' + coo.exec.total + ' (subtasks ' + subsDone + '/' + subsTotal + ')',\n  coo.exec.items.map(t => ' - [' + (t.done ? 'x' : ' ') + '] ' + t.body).join('\\n'),\n  '',\n  '== CTO ==',\n  'Jira tickets completed today: ' + (tickets.done.map(t => t.key || t.body).join(', ') || 'none') +\n    (tickets.open.length ? ' | still open: ' + tickets.open.map(t => t.key || t.body).join(', ') : ''),\n  '',\n  '== CEO ==',\n  goalLine('Mind', ceo.mind), goalLine('Body', ceo.body), goalLine('Soul', ceo.soul),\n  chess && chess.today ? 'Chess today: ' + chess.today.games + ' games (' + chess.today.wins + 'W/' + chess.today.losses + 'L/' + chess.today.draws + 'D), rapid ' + (chess.rapid || '?') : '',\n  nutrition ? 'Nutrition (MyFitnessPal): ' + (nutrition.calories || 0) + '/' + (nutrition.caloriesGoal || '?') + ' kcal, protein ' + (nutrition.protein || 0) + '/' + (nutrition.proteinGoal || '?') + 'g' : '',\n  '',\n  '== Other desks ==',\n  'CIO leverage: ' + (Object.keys(lev).map(k => k + '=' + lev[k].value).join(', ') || 'no report today'),\n  line('CFO stage', cfoStage),\n  goalLine('CXO', cxo.goal), goalLine('CMO', cmo.goal),\n  cmo.goal ? 'CMO channels shipped: ' + chDone + '/' + chTotal : '',\n].filter(Boolean).join('\\n');\n\nreturn [{ json: { systemPrompt, userMessage,\n  day: { today, goalId, dkg, week, inTime, outTime, missed, tasksInTime, tasksOutTime, xp, chess, nutrition, ceo, coo, cto, cio, cfo, cxo, cmo } } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        880
+      ],
+      "id": "reflect-collect",
+      "name": "Reflect: Collect Day"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "COO Reflect Dashboard"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models: ['~google/gemini-flash-latest'], messages: [{ role: 'system', content: $json.systemPrompt }, { role: 'user', content: $json.userMessage } ], temperature: 0.4, max_tokens: 3000, reasoning: { enabled: false }, response_format: { type: 'json_object' } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        880
+      ],
+      "id": "reflect-generate",
+      "name": "Reflect: Generate",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Reflect — turn code-computed day data + the model's judgement into the 8-row dashboard,\n// store it on the trigger goal's REWARD, and pass the HTML on to the responder.\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst gql = async (query, variables) => {\n  const resp = await helpers.httpRequest({\n    method: 'POST', url: MCP,\n    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + RN },\n    body: { jsonrpc: '2.0', method: 'tools/call', id: 1, params: { name: 'graphql_query', arguments: { query, variables } } },\n    json: true,\n  });\n  return JSON.parse(resp.result.content[0].text);\n};\n\nconst day = $('Reflect: Collect Day').first().json.day;\n\n// ---- model JSON (same defensive parse as the execute wrap) ----\nconst raw = $input.first().json;\nlet content = '{}';\ntry { content = raw.choices[0].message.content; } catch (e) {}\nconst tryParse = (s) => { try { return JSON.parse(s); } catch (e) { return null; } };\nlet ai = tryParse(content);\nif (!ai) { const m = content && content.match(/\\{[\\s\\S]*\\}/); if (m) ai = tryParse(m[0]); }\nif (!ai && content && content.indexOf('{') >= 0) {\n  // models sometimes drop the last closing brace(s): rebalance outside of strings and retry\n  let s = content.slice(content.indexOf('{'));\n  const stack = []; let inStr = false, escp = false;\n  for (const c of s) {\n    if (escp) { escp = false; continue; }\n    if (inStr) { if (c === '\\\\') escp = true; else if (c === '\"') inStr = false; continue; }\n    if (c === '\"') inStr = true;\n    else if (c === '{') stack.push('}');\n    else if (c === '[') stack.push(']');\n    else if (c === '}' || c === ']') stack.pop();\n  }\n  if (inStr) s += '\"';\n  while (stack.length) s += stack.pop();\n  ai = tryParse(s);\n}\nif (!ai) ai = {};\nconst aiCoo = ai.coo || {};\nconst score = (o) => { const n = Number((o || {}).score); return isFinite(n) ? Math.max(0, Math.min(10, n)) : null; };\n// mcq belongs at the top level, but the model sometimes nests it under soul/coo\nlet mcqRaw = ai.mcq;\nif (!Array.isArray(mcqRaw)) for (const k of ['soul', 'coo', 'reflect']) {\n  if (ai[k] && Array.isArray(ai[k].mcq)) { mcqRaw = ai[k].mcq; break; }\n}\nconst mcq = (Array.isArray(mcqRaw) ? mcqRaw : []).slice(0, 4)\n  .filter(q => q && q.question && Array.isArray(q.options) && q.options.length >= 2);\n\n// ---- shared styles (same shell as the execute wrap; single accent hue for meters,\n// status colors only beside their icon+label, ink tokens for all text) ----\nconst esc = (s) => String(s == null ? '' : s)\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst FONT = '-apple-system,Segoe UI,Roboto,sans-serif';\nconst S = {\n  card: 'border:1px solid #d7dce3;border-radius:10px;margin:0 0 18px;overflow:hidden;background:#fff',\n  head: 'background:#f4f6f9;border-bottom:1px solid #d7dce3;padding:10px 14px;font:600 14px/1.4 ' + FONT + ';color:#1b2430',\n  hint: 'font:400 12px/1.4 ' + FONT + ';color:#5b6673;margin:2px 0 0',\n  body: 'padding:14px',\n  row:  'display:flex;flex-wrap:wrap;gap:12px',\n  tile: 'flex:1 1 150px;min-width:150px;border:1px solid #e3e7ee;border-radius:8px;padding:10px 12px;background:#fbfcfe',\n  tbd:  'flex:1 1 150px;min-width:150px;border:1px dashed #c4ccd6;border-radius:8px;padding:10px 12px;background:#fafbfc',\n  kLabel: 'font:600 11px/1.4 ' + FONT + ';color:#5b6673;text-transform:uppercase;letter-spacing:.04em',\n  kValue: 'font:700 22px/1.3 ' + FONT + ';color:#0f172a;margin:2px 0 6px',\n  small: 'font:13px/1.55 ' + FONT + ';color:#26303c',\n  muted: 'font:12px/1.5 ' + FONT + ';color:#5b6673',\n  track: 'height:8px;border-radius:4px;background:#e6eaf0;overflow:hidden',\n};\nObject.keys(S).forEach(k => { if (!/;\\s*$/.test(S[k])) S[k] += ';'; });\nconst card = (title, hint, inner) =>\n  '<section style=\"' + S.card + '\"><div style=\"' + S.head + '\">' + esc(title) +\n  (hint ? '<div style=\"' + S.hint + '\">' + esc(hint) + '</div>' : '') + '</div>' +\n  '<div style=\"' + S.body + '\">' + inner + '</div></section>';\nconst meter = (pct) =>\n  '<div style=\"' + S.track + '\"><div style=\"height:8px;border-radius:4px;background:#2f6fed;width:' +\n  Math.max(0, Math.min(100, Number(pct) || 0)) + '%\"></div></div>';\n// donut ring (inline SVG, self-contained): track circle + progress arc from 12 o'clock, value centered\nconst donut = (pct, valueText) => {\n  const p = Math.max(0, Math.min(100, Number(pct) || 0));\n  const r = 30, c = 2 * Math.PI * r;\n  return '<svg width=\"76\" height=\"76\" viewBox=\"0 0 76 76\" role=\"img\" aria-label=\"' + p + ' of 100\">' +\n    '<circle cx=\"38\" cy=\"38\" r=\"' + r + '\" fill=\"none\" stroke=\"#e6eaf0\" stroke-width=\"8\"></circle>' +\n    (p > 0 ? '<circle cx=\"38\" cy=\"38\" r=\"' + r + '\" fill=\"none\" stroke=\"#2f6fed\" stroke-width=\"8\" stroke-linecap=\"round\"' +\n      ' stroke-dasharray=\"' + ((p / 100) * c).toFixed(1) + ' ' + c.toFixed(1) + '\" transform=\"rotate(-90 38 38)\"></circle>' : '') +\n    '<text x=\"38\" y=\"44\" text-anchor=\"middle\" style=\"font:700 18px ' + FONT + ';fill:#0f172a\">' + valueText + '</text></svg>';\n};\nconst donutTile = (label, v) =>\n  '<div style=\"' + S.tile + 'display:flex;flex-direction:column;align-items:center;text-align:center\">' +\n  '<div style=\"' + S.kLabel + '\">' + esc(label) + '</div>' +\n  '<div style=\"margin-top:6px\">' + donut(v, (v === null || v === undefined ? '&mdash;' : Math.round(Number(v)))) + '</div></div>';\nconst tile = (label, value, sub, meterPct) =>\n  '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">' + esc(label) + '</div>' +\n  '<div style=\"' + S.kValue + '\">' + value + '</div>' +\n  (meterPct === undefined ? '' : meter(meterPct)) +\n  (sub ? '<div style=\"' + S.muted + 'margin-top:6px\">' + sub + '</div>' : '') + '</div>';\nconst tbd = (label, hint) =>\n  '<div style=\"' + S.tbd + '\"><div style=\"' + S.kLabel + '\">' + esc(label) + '</div>' +\n  '<div style=\"font:700 16px/1.4 ' + FONT + ';color:#8a94a1;margin:4px 0 2px\">TBD</div>' +\n  '<div style=\"' + S.muted + '\">' + esc(hint) + '</div></div>';\nconst doneMark = (d) => d\n  ? '<span style=\"color:#1a7f37;font-weight:600\">&#10003; done</span>'\n  : '<span style=\"color:#b45309;font-weight:600\">&#9675; open</span>';\nconst list = (items) => items.length\n  ? '<ul style=\"margin:4px 0 0;padding-left:18px;' + S.small + '\">' + items.join('') + '</ul>'\n  : '<div style=\"' + S.muted + '\">none</div>';\n\n// ---- Row 1 · Routine Notes analytics ----\nconst dkg = day.dkg || {};\nconst rLine = (r) => '<li>' + esc(r.name) + ' <span style=\"' + S.muted + '\">@' + esc(r.time) + '</span></li>';\nconst tmLine = (t) => '<li>' + esc(t.body) + ' <span style=\"' + S.muted + '\">' + esc(t.routine) +\n  ' &middot; done ' + esc(t.at) + (t.sameDay ? '' : ' (next day)') + '</span></li>';\nconst row1 =\n  '<div style=\"' + S.row + '\">' +\n  donutTile('D · Discipline', dkg.D) +\n  donutTile('K · Kinetics', dkg.K) +\n  donutTile('G · Geniuses', dkg.G) +\n  '</div><div style=\"' + S.row + 'margin-top:12px\">' +\n  '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">&#10003; In time (' + day.inTime.length + ')</div>' + list(day.inTime.map(rLine)) + '</div>' +\n  '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">&#9200; Out of time (' + day.outTime.length + ')</div>' + list(day.outTime.map(rLine)) + '</div>' +\n  '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">&#9675; Not ticked (' + day.missed.length + ')</div>' + list(day.missed.map(rLine)) + '</div>' +\n  '</div>' +\n  '<div style=\"font:600 13px/1.5 ' + FONT + ';color:#1b2430;margin-top:12px\">Task time management</div>' +\n  '<div style=\"' + S.row + 'margin-top:8px\">' +\n  '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">&#10003; Tasks in window (' + day.tasksInTime.length + ')</div>' +\n    list(day.tasksInTime.map(tmLine)) + '</div>' +\n  '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">&#9200; Tasks out of window (' + day.tasksOutTime.length + ')</div>' +\n    list(day.tasksOutTime.map(tmLine)) + '</div>' +\n  '</div>' +\n  (day.xp ? '<div style=\"' + S.muted + 'margin-top:10px\">XP: ' + esc(day.xp.pendingToday) + ' pending today &middot; ' +\n    esc(Math.round(day.xp.available)) + ' available</div>' : '');\n\n// ---- Row 2 · CEO ----\nconst ch = day.chess;\nconst goalSub = (g) => g ? esc(g.body) + ' &middot; ' + doneMark(g.isComplete) : 'no goal today';\nconst chessVal = ch ? (ch.today ? ch.today.games + ' games' : '&mdash;') : '&mdash;';\nconst chessSub = ch\n  ? (ch.today && ch.today.games ? ch.today.wins + 'W / ' + ch.today.losses + 'L / ' + ch.today.draws + 'D &middot; ' : '') +\n    'rapid ' + (ch.rapid || '&mdash;') + ' &middot; blitz ' + (ch.blitz || '&mdash;')\n  : 'chess.com unreachable';\nconst nu = day.nutrition;\nconst nutritionTile = (nu && (nu.calories != null || nu.protein != null))\n  ? tile('Nutrition',\n         (nu.calories == null ? '&mdash;' : nu.calories) +\n         '<span style=\"font:600 12px ' + FONT + ';color:#5b6673\">' + (nu.caloriesGoal ? '/' + nu.caloriesGoal : '') + ' kcal</span>',\n         'protein ' + (nu.protein == null ? '&mdash;' : nu.protein + 'g') + (nu.proteinGoal ? ' / ' + nu.proteinGoal + 'g' : '') +\n         (nu.carbs != null ? ' &middot; carbs ' + nu.carbs + 'g' : '') + (nu.fat != null ? ' &middot; fat ' + nu.fat + 'g' : ''),\n         nu.caloriesGoal ? (nu.calories / nu.caloriesGoal) * 100 : undefined)\n  : tbd('Nutrition', 'MyFitnessPal (no data / cookies expired)');\nconst row2 =\n  '<div style=\"' + S.row + '\">' +\n  '<div style=\"' + S.tile + 'flex:1 1 220px\"><div style=\"' + S.kLabel + '\">Mind</div>' +\n    '<div style=\"' + S.small + 'margin-top:4px\">' + goalSub(day.ceo.mind) + '</div>' +\n    '<div style=\"' + S.kValue + 'margin-top:8px\">' + chessVal + '</div>' +\n    '<div style=\"' + S.muted + '\">Alertness &middot; chess.com &middot; ' + chessSub + '</div></div>' +\n  '<div style=\"' + S.tile + 'flex:1 1 220px\"><div style=\"' + S.kLabel + '\">Body</div>' +\n    '<div style=\"' + S.small + 'margin-top:4px\">' + goalSub(day.ceo.body) + '</div>' +\n    '<div style=\"' + S.row + 'margin-top:8px\">' +\n      tbd('Sleep', 'Apple Health') + nutritionTile + tbd('Steps', 'Strava') +\n    '</div></div>' +\n  '<div style=\"' + S.tile + 'flex:1 1 220px\"><div style=\"' + S.kLabel + '\">Soul</div>' +\n    '<div style=\"' + S.small + 'margin-top:4px\">' + goalSub(day.ceo.soul) + '</div>' +\n    ((ai.soul && ai.soul.thought) ? '<div style=\"' + S.small + 'margin-top:8px;padding:8px 10px;border-left:3px solid #2f6fed;background:#f4f7ff\">&ldquo;' +\n      esc(ai.soul.thought) + '&rdquo;</div>' : '') + '</div>' +\n  '</div>';\n\n// ---- Row 3 · COO feedback ----\nconst fb = (label, o) => {\n  const sc = score(o);\n  return '<div style=\"' + S.tile + '\"><div style=\"' + S.kLabel + '\">' + esc(label) + '</div>' +\n    '<div style=\"' + S.kValue + '\">' + (sc === null ? '&mdash;' : sc + '<span style=\"font:600 13px ' + FONT + ';color:#5b6673\">/10</span>') + '</div>' +\n    meter(sc === null ? 0 : sc * 10) +\n    ((o && o.note) ? '<div style=\"' + S.muted + 'margin-top:6px\">' + esc(o.note) + '</div>' : '') + '</div>';\n};\nconst ex = day.coo.exec;\nconst mcqHtml = mcq.length ? mcq.map((q, i) =>\n  '<div style=\"margin:12px 0 0;padding:10px 12px;border:1px solid #e3e7ee;border-radius:8px;background:#fbfcfe\">' +\n  '<div style=\"font:600 13px/1.5 ' + FONT + ';color:#1b2430\">Q' + (i + 1) + ' &middot; ' + esc(q.question) + '</div>' +\n  q.options.map((o, j) =>\n    '<label style=\"display:block;margin:6px 0 0;' + S.small + '\"><input type=\"radio\" name=\"mcq' + i + '\" style=\"margin-right:7px\">' +\n    esc(String.fromCharCode(65 + j)) + '. ' + esc(o) + '</label>').join('') +\n  '<details style=\"margin-top:8px\"><summary style=\"' + S.muted + 'cursor:pointer\">Suggested answer</summary>' +\n  '<div style=\"' + S.small + 'margin-top:4px\"><strong>' + esc(String.fromCharCode(65 + (Number(q.answer) || 0))) + '.</strong> ' +\n  esc(q.why || '') + '</div></details></div>').join('')\n  : '<div style=\"' + S.muted + '\">No reflection questions generated.</div>';\nconst row3 =\n  '<div style=\"' + S.row + '\">' +\n  fb('Define & attire relation', aiCoo.defineAlignment) +\n  fb('Plan relevance', aiCoo.planRelevance) +\n  fb('Execution efficiency', aiCoo.executionEfficiency) +\n  '</div>' +\n  '<div style=\"' + S.muted + 'margin-top:10px\">Execute: ' + ex.done + '/' + ex.total + ' day tasks done &middot; subtasks ' +\n    ex.subsDone + '/' + ex.subsTotal + '</div>' +\n  '<div style=\"font:600 13px/1.5 ' + FONT + ';color:#1b2430;margin-top:12px\">Reflect &mdash; how did you manage today?</div>' + mcqHtml;\n\n// ---- Row 4 · CTO ----\nconst tk = day.cto.tickets;\nconst tLine = (t) => '<li>' + (t.key ? '<strong>' + esc(t.key) + '</strong> &middot; ' : '') + esc(t.body) + '</li>';\nconst row4 =\n  '<div style=\"' + S.row + '\">' +\n  '<div style=\"' + S.tile + 'flex:2 1 300px\"><div style=\"' + S.kLabel + '\">Tickets completed</div>' +\n    '<div style=\"' + S.kValue + '\">' + tk.done.length + '</div>' + list(tk.done.map(tLine)) +\n    (tk.open.length ? '<div style=\"' + S.muted + 'margin-top:8px\">Still open: ' +\n      esc(tk.open.map(t => t.key || t.body).join(', ')) + '</div>' : '') + '</div>' +\n  tbd('Claude sessions efficiency', 'session info collected during day') +\n  '</div>';\n\n// ---- Row 5 · CIO ----\nconst lev = day.cio.lev || {};\nconst levTile = (k, label) => lev[k]\n  ? tile(label, esc(lev[k].value || '&mdash;'), esc(lev[k].entity))\n  : tbd(label, 'no leverage report today');\nconst row5 =\n  '<div style=\"' + S.row + '\">' +\n  levTile('tech', 'Tech') + levTile('labor', 'Labor') + levTile('capital', 'Capital') + levTile('media', 'Media') +\n  '</div>' +\n  (day.cio.goal ? '<div style=\"' + S.muted + 'margin-top:10px\">From: ' + esc(day.cio.goal.body) + ' &middot; ' +\n    doneMark(day.cio.goal.done) + '</div>' : '');\n\n// ---- Row 6 · CFO ----\nconst row6 =\n  '<div style=\"' + S.row + '\">' +\n  (day.cfo.stage ? tile('Stage', esc(day.cfo.stage), day.cfo.goal ? esc(day.cfo.goal.body) : null)\n                 : tbd('Stage', 'no CFO stage recorded today')) +\n  '</div>' +\n  (day.cfo.iframe ? '<iframe src=\"' + esc(day.cfo.iframe) + '\" style=\"display:block;width:100%;height:220px;border:1px solid #e3e7ee;border-radius:8px;margin-top:12px\" loading=\"lazy\"></iframe>' : '');\n\n// ---- Rows 7 & 8 ----\nconst row7 =\n  '<div style=\"' + S.row + '\">' +\n  tbd('Events', 'calendar / family events') + tbd('Mood', 'self-report or wearable') + tbd('Emotional intelligence', 'reflection scoring') +\n  '</div>' +\n  (day.cxo.goal ? '<div style=\"' + S.muted + 'margin-top:10px\">Today: ' + esc(day.cxo.goal.body) + ' &middot; ' +\n    doneMark(day.cxo.goal.isComplete) + '</div>' : '');\nconst row8 =\n  '<div style=\"' + S.row + '\">' +\n  (day.cmo.chTotal ? tile('Channels shipped', day.cmo.chDone + '<span style=\"font:600 13px ' + FONT + ';color:#5b6673\">/' + day.cmo.chTotal + '</span>',\n                          day.cmo.goal ? esc(day.cmo.goal.body) : null, day.cmo.chTotal ? (day.cmo.chDone / day.cmo.chTotal) * 100 : 0)\n                   : tbd('Channels shipped', 'no campaign today')) +\n  tbd('Marketing strength', 'reach / engagement rollup') + tbd('Brand perception', 'sentiment tracking') +\n  '</div>';\n\n// ---- assemble ----\nconst html =\n  '<div style=\"max-width:920px;margin:0 auto;padding:16px;background:#eef1f5\">' +\n  '<div style=\"' + S.card + 'padding:14px 16px\">' +\n  '<div style=\"font:700 18px/1.3 ' + FONT + ';color:#0f172a\">Reflect dashboard &mdash; ' + esc(day.today) + '</div>' +\n  (ai.headline ? '<div style=\"' + S.hint + '\">' + esc(ai.headline) + '</div>' : '') + '</div>' +\n  card('1 · Routine analytics', 'Stimuli scores and whether routines were ticked in their window.', row1) +\n  card('2 · CEO — Mind · Body · Soul', 'Alertness from chess.com; body metrics pending integrations.', row2) +\n  card('3 · COO feedback', 'Scored against the define insight, the plan, and what actually got executed.', row3) +\n  card('4 · CTO', 'Tickets completed today, read off the Jira execution goal.', row4) +\n  card('5 · CIO — Leverage', 'Scores from today’s Leverage Report (area:cio goal).', row5) +\n  card('6 · CFO', 'Financial stage from today’s CFO goal.', row6) +\n  card('7 · CXO', 'Relationship & experience metrics — integrations pending.', row7) +\n  card('8 · Marketing analytics', 'Campaign output today; strength & perception pending.', row8) +\n  '</div>';\n\n// ---- store on REWARD; body/contribution untouched ----\nconst errors = [];\ntry {\n  const res = await gql('mutation($id:ID!,$reward:String){ updateGoalItemReward(id:$id,reward:$reward){ id } }',\n                        { id: day.goalId, reward: html });\n  if (res.errors) errors.push(res.errors[0].message);\n} catch (e) { errors.push(String(e)); }\n\nreturn [{ json: { ok: errors.length === 0, date: day.today, goalId: day.goalId,\n  mcqCount: mcq.length, errors, html } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        880
+      ],
+      "id": "reflect-build",
+      "name": "Reflect: Build Dashboard"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        880
+      ],
+      "id": "reflect-respond",
+      "name": "Reflect: Respond"
+    },
+    {
+      "parameters": {
+        "content": "## area:coo:check / :reflect — Reflect Dashboard\nFires from the **Night Routine** (22:30) endEvent -> coo-end.\n\nCollect (code): weekStimuli D/K/G, routineDate in/out-of-time, dailyGoals by area, chess.com, xpBalance. LLM only judges: headline, 3 COO feedback scores, soul thought, 4 reflection MCQs.\n\nDashboard HTML -> goal **reward** + webhook response.",
+        "height": 300,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        368,
+        1200
+      ],
+      "id": "reflect-sticky",
+      "name": "Sticky Note Reflect"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "is-define",
+              "leftValue": "={{ $json.goalItemById.tags }}",
+              "rightValue": "area:coo:define",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1400,
+        1200
+      ],
+      "id": "define-guard",
+      "name": "Define Guard"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.telegram.org/bot<<REPLACE_ME>>/getUpdates?limit=100&timeout=0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1624,
+        1200
+      ],
+      "id": "define-get-updates",
+      "name": "Define: Get Updates",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst nowE = $now.setZone('America/New_York');\nconst today = nowE.toFormat('yyyy-MM-dd');\nconst updates = ($json && $json.result) ? $json.result : [];\nconst KW = ['fit','attire','ootd','outfit'];\nlet best = null;\nfor (const u of updates){\n  const m = u.message || u.edited_message;\n  if (!m || !Array.isArray(m.photo) || !m.photo.length) continue;\n  const cap = (m.caption || '').toLowerCase();\n  if (!KW.some(k => cap.includes(k))) continue;\n  if (!best || (m.date || 0) > (best.date || 0)) best = m;\n}\nconst goalId = $('Webhook').first().json.query.goal_id;\nif (!best){ return [{ json: { found: false, goalId, today, chatId: 7082833271 } }]; }\nconst photo = best.photo[best.photo.length - 1];\nreturn [{ json: { found: true, goalId, today, fileId: photo.file_id,\n  chatId: (best.chat && best.chat.id) || (best.from && best.from.id) || 7082833271, caption: best.caption || '' } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1848,
+        1200
+      ],
+      "id": "define-pick-attire",
+      "name": "Define: Pick Attire"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "found",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2072,
+        1200
+      ],
+      "id": "define-has-attire",
+      "name": "Define: Has Attire"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.fileId }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2296,
+        1200
+      ],
+      "id": "define-get-photo",
+      "name": "Define: Get Photo",
+      "credentials": {
+        "telegramApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Telegram account)"
+        }
+      },
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst helpers = this.helpers;\nconst pick = $('Define: Pick Attire').first().json;\nconst buff = await helpers.getBinaryDataBuffer(0, 'data');\nlet mime = 'image/jpeg';\ntry { mime = ($input.first().binary.data.mimeType) || mime; } catch (e) {}\nconst dataUrl = 'data:' + mime + ';base64,' + buff.toString('base64');\nconst angles = [\n  'walking at a three-quarter angle toward the camera, striding with purpose',\n  'walking across the frame in near-profile, a dynamic side tracking shot',\n  'walking toward the camera from a slightly low hero angle',\n  'walking away down the street then glancing back over his shoulder',\n  'walking diagonally toward the camera from his side',\n  'a wide cinematic shot of him striding past tall buildings, front-side angle',\n  'walking down city steps toward the camera, elevated framing',\n  'walking toward the camera with a slight turn of the torso, gaze off to the side',\n  'a low-angle front view as he walks past with a powerful confident stride',\n  'walking through a crosswalk, caught candidly from across the street'\n];\nconst angle = angles[Math.floor(Math.random() * angles.length)];\nconst modelPrompt = \"You are given one or more close-up FACE reference photos FIRST, then a full-body OUTFIT reference LAST. Create an ultra-realistic cinematic full-body photograph of THIS EXACT person. Reproduce his face, facial hair, hairstyle and identity from the FACE reference precisely - unmistakably the same man, do NOT beautify. CRITICAL - keep his REAL body build, height, weight and proportions EXACTLY as in the full-body reference: do NOT make him more muscular, leaner, taller or athletic, do not slim, bulk or idealize his physique, he is NOT a bodybuilder. CRITICAL - dress him in the EXACT outfit and every accessory he is wearing in the full-body reference photo - whatever they are: the same garments, colors, patterns, fit, footwear, and any bag, badge, lanyard, watch or band, copied faithfully from the reference. Do NOT change, remove, add, restyle or recolor any clothing or accessory.\"\n  + ' He is confidently WALKING, caught mid-stride with a natural arm swing, upright and self-assured.'\n  + ' Camera angle and composition: ' + angle + '.'\n  + ' Full body head-to-toe in frame, attractive and confident, ULTRA-REALISTIC CINEMATIC photograph,'\n  + ' shallow depth of field with beautiful bokeh, filmic color grade, soft natural light, real photographic'\n  + ' skin texture and fabric detail. Output a single photorealistic image.';\nreturn [{ json: { dataUrl, chatId: pick.chatId, goalId: pick.goalId, today: pick.today, modelPrompt } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2520,
+        1200
+      ],
+      "id": "define-prepare-image",
+      "name": "Define: Prepare Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "COO Define Blog"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models: ['~google/gemini-flash-latest'], messages: [ { role: 'system', content: \"You are a genre-bending essayist who fuses philosophy, science and lived experience into short, striking blog essays that make the reader feel they are meeting an idea for the FIRST time. Given a day's guiding principle and an existing reflection on it, produce a genuinely ORIGINAL angle - a perspective, metaphor or synthesis the reader has never heard - NOT a summary or restatement of the source. Avoid cliche and platitude; be vivid, specific and intellectually surprising. 550-850 words. First output a single line EXACTLY of the form 'CATEGORY: X' where X is ONE of Essays, Principles or Practice, choosing the best fit for this piece: Principles = a timeless philosophical doctrine or principle (Stoic, Gita, Arthashastra, Vedanta) explored for its own sake; Practice = an actionable discipline, routine, method or how-to for mind or body; Essays = a broader reflective piece that is neither a single doctrine nor a how-to. Then a blank line. Then output ONLY clean semantic HTML: a single <h1> containing a punchy, non-generic headline, then the body using <p>, <h2> and <blockquote>. Do NOT use markdown, code fences, JSON, or <html>/<head>/<body> tags.\" }, { role: 'user', content: 'Day principle: ' + ($('Parse Goal').first().json.goalItemById.body || '') + '\\n\\nExisting reflection to transcend (do not merely restate it):\\n' + ($('Parse Goal').first().json.goalItemById.contribution || '') + '\\n\\nWrite the original-perspective essay as JSON.' } ], temperature: 0.9, max_tokens: 2600 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2744,
+        1200
+      ],
+      "id": "define-generate-essay",
+      "name": "Define: Generate Essay",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 4000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'google/gemini-2.5-flash-image', modalities: ['image','text'], messages: [ { role: 'user', content: [ { type: 'text', text: \"Using the person in this reference photo, create a clean flat-lay knolling arrangement of the exact outfit they are wearing - the top, the PANTS NEATLY FOLDED into a tidy rectangle, the shoes, and every visible accessory (watch, glasses, bag, lanyard, belt) - evenly spaced on a minimal light studio background, high-end menswear catalog product photography. Compose it as a perfect 1:1 SQUARE image. Match colors, materials and details to the reference. Output a square image.\" },  { type: 'image_url', image_url: { url: $('Define: Prepare Image').first().json.dataUrl } } ] } ] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2968,
+        1200
+      ],
+      "id": "define-attire-image",
+      "name": "Define: Attire Image",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 4000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'google/gemini-2.5-flash-image', modalities: ['image','text'], messages: [ { role: 'user', content: [ { type: 'text', text: $('Define: Prepare Image').first().json.modelPrompt }, { type: 'image_url', image_url: { url: 'https://lh3.googleusercontent.com/d/<<REPLACE_ME>>=w1024' } },  { type: 'image_url', image_url: { url: $('Define: Prepare Image').first().json.dataUrl } } ] } ] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3192,
+        1200
+      ],
+      "id": "define-model-image",
+      "name": "Define: Model Image",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 4000
+    },
+    {
+      "parameters": {
+        "jsCode": "const resp = $('Define: Model Image').first().json;\nlet b64='', mime='image/png', hasImage=false;\nconst msg = resp && resp.choices && resp.choices[0] && resp.choices[0].message;\nif (msg && Array.isArray(msg.images) && msg.images.length){\n  const u = (msg.images[0].image_url && msg.images[0].image_url.url) || msg.images[0].url || '';\n  const m = u.match(/^data:(image\\/[a-zA-Z+]+);base64,(.+)$/);\n  if (m){ mime=m[1]; b64=m[2]; hasImage=true; }\n}\nconst o = { json: { hasImage, mime }, pairedItem: 0 };\nif (hasImage){ const buf = Buffer.from(b64,'base64'); o.binary = { data: await this.helpers.prepareBinaryData(buf, 'img.png', mime) }; }\nreturn [o];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3416,
+        1200
+      ],
+      "id": "define-prep-model",
+      "name": "Define: Prep Model"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "=define-model.png",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "<<REPLACE_ME>>"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3640,
+        1200
+      ],
+      "id": "define-upload-model",
+      "name": "Define: Upload Model",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchalus Drive)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/permissions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ role: 'reader', type: 'anyone' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3864,
+        1200
+      ],
+      "id": "define-public-model",
+      "name": "Define: Public Model",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchalus Drive)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const resp = $('Define: Attire Image').first().json;\nlet b64='', mime='image/png', hasImage=false;\nconst msg = resp && resp.choices && resp.choices[0] && resp.choices[0].message;\nif (msg && Array.isArray(msg.images) && msg.images.length){\n  const u = (msg.images[0].image_url && msg.images[0].image_url.url) || msg.images[0].url || '';\n  const m = u.match(/^data:(image\\/[a-zA-Z+]+);base64,(.+)$/);\n  if (m){ mime=m[1]; b64=m[2]; hasImage=true; }\n}\nconst o = { json: { hasImage, mime }, pairedItem: 0 };\nif (hasImage){ const buf = Buffer.from(b64,'base64'); o.binary = { data: await this.helpers.prepareBinaryData(buf, 'img.png', mime) }; }\nreturn [o];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4088,
+        1200
+      ],
+      "id": "define-prep-attire",
+      "name": "Define: Prep Attire"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "=define-attire.png",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "<<REPLACE_ME>>"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4312,
+        1200
+      ],
+      "id": "define-upload-attire",
+      "name": "Define: Upload Attire",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchalus Drive)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/permissions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ role: 'reader', type: 'anyone' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4536,
+        1200
+      ],
+      "id": "define-public-attire",
+      "name": "Define: Public Attire",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchalus Drive)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nlet essayHtml = '';\ntry { essayHtml = $('Define: Generate Essay').first().json.choices[0].message.content || ''; } catch(e){}\nessayHtml = String(essayHtml).replace(/```html/gi,'').replace(/```/g,'').trim();\nlet category = 'Essays';\nconst cm = essayHtml.match(/^\\s*CATEGORY:\\s*(Essays|Principles|Practice)\\b/i);\nif (cm) {\n  category = cm[1][0].toUpperCase() + cm[1].slice(1).toLowerCase();\n  essayHtml = essayHtml.replace(/^\\s*CATEGORY:[^\\n]*\\r?\\n/i, '').trim();\n}\nconst goal = $('Parse Goal').first().json.goalItemById || {};\nconst prep = $('Define: Prepare Image').first().json;\nconst h1m = essayHtml.match(/<h1[^>]*>([\\s\\S]*?)<\\/h1>/i);\nconst title = (h1m ? h1m[1].replace(/<[^>]+>/g,'') : ('Reflections on: ' + (goal.body || 'Today'))).trim().slice(0, 140);\nconst bodyHtml = (essayHtml.replace(/<h1[\\s\\S]*?<\\/h1>/i,'').trim()) || ('<p>' + (goal.contribution || '') + '</p>');\nconst subtitle = '';\nfunction driveUrl(node, sz){ try { const id = $(node).first().json.id; return id ? ('https://lh3.googleusercontent.com/d/' + id + sz) : ''; } catch(e){ return ''; } }\nconst modelImg = driveUrl('Define: Upload Model', '=w1600');\nconst attireImg = driveUrl('Define: Upload Attire', '=w1024-h1024-c');\n\nlet html = '';\nif (modelImg) html += '<figure style=\"margin:0 0 20px\"><img src=\"' + modelImg + '\" alt=\"The look\" style=\"width:100%;border-radius:14px;display:block\"/></figure>';\nif (subtitle) html += '<p style=\"font-size:1.15em;color:#555;font-style:italic;margin:0 0 18px\">' + subtitle + '</p>';\nhtml += bodyHtml;\nif (attireImg) html += '<hr style=\"margin:28px 0;border:none;border-top:1px solid #eee\"/>'\n  + '<h2>Today\\'s Set</h2>'\n  + '<figure style=\"margin:0\"><img src=\"' + attireImg + '\" alt=\"The set\" style=\"width:100%;border-radius:14px;display:block\"/>'\n  + '<figcaption style=\"color:#888;font-size:.9em;margin-top:6px\">The attire - clothes, shoes, accessories.</figcaption></figure>';\nhtml += '<p style=\"color:#aaa;font-size:.85em;margin-top:24px\">Composed on ' + (prep.today || '') + ' from the day\\'s principle and my morning fit.</p>';\n\nreturn [{ json: { title, html, category } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4760,
+        1200
+      ],
+      "id": "define-build-post",
+      "name": "Define: Build Post"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/blogger/v3/blogs/3304801773088284721/posts/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ kind: 'blogger#post', title: $('Define: Build Post').first().json.title, content: $('Define: Build Post').first().json.html, labels: [ $('Define: Build Post').first().json.category ] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4984,
+        1200
+      ],
+      "id": "define-post-blog",
+      "name": "Define: Post Blog",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Blogger)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst helpers = this.helpers;\nconst RN_KEY = '<<REPLACE_ME>>';\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nasync function gql(query, variables){\n  const resp = await helpers.httpRequest({ method:'POST', url:MCP,\n    headers:{'Content-Type':'application/json','X-API-Key':RN_KEY},\n    body:{ jsonrpc:'2.0', method:'tools/call', params:{ name:'graphql_query', arguments:{ query, variables } }, id:1 },\n    json:true });\n  return JSON.parse(resp.result.content[0].text);\n}\nconst post = $('Define: Post Blog').first().json || {};\nconst build = $('Define: Build Post').first().json || {};\nconst pick = $('Define: Pick Attire').first().json || {};\nfunction driveUrl(node, sz){ try { const id = $(node).first().json.id; return id ? ('https://lh3.googleusercontent.com/d/' + id + sz) : ''; } catch(e){ return ''; } }\nconst modelImg = driveUrl('Define: Upload Model', '=w1600');\nconst attireImg = driveUrl('Define: Upload Attire', '=w1024-h1024-c');\nconst url = post.url || '';\nconst title = build.title || 'Today';\nconst category = build.category || 'Essays';\n\nlet html = '<div style=\"font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:640px;margin:0 auto;color:#1a1a1a\">';\nhtml += '<!--define:' + (pick.today || '') + '-->';\nhtml += '<div style=\"font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a6d3b\">Athlantean &middot; ' + category + ' &middot; ' + (pick.today || '') + '</div>';\nhtml += '<h2 style=\"margin:6px 0 12px;font-size:22px;line-height:1.25\">' + title + '</h2>';\nif (modelImg)  html += '<img src=\"' + modelImg + '\" alt=\"The look\" style=\"width:100%;border-radius:12px;display:block;margin-bottom:10px\"/>';\nif (attireImg) html += '<img src=\"' + attireImg + '\" alt=\"The set\" style=\"width:100%;border-radius:12px;display:block;margin-bottom:12px\"/>';\nif (url) html += '<a href=\"' + url + '\" style=\"display:inline-block;background:#111;color:#fff;text-decoration:none;padding:10px 20px;border-radius:999px;font-weight:600\">Read the post &rarr;</a>';\nelse html += '<p style=\"color:#c0392b\">Blog post did not return a URL - check the Post Blog node.</p>';\nhtml += '</div>';\n\nconst errors = [];\ntry {\n  const r = await gql('mutation($id:ID!,$reward:String){ updateGoalItemReward(id:$id,reward:$reward){ id } }',\n                      { id: pick.goalId, reward: html });\n  if (r.errors) errors.push(r.errors[0].message);\n} catch (e) { errors.push(String(e)); }\nreturn [{ json: { ok: errors.length === 0, url, goalId: pick.goalId, errors, html } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5208,
+        1200
+      ],
+      "id": "define-build-reward",
+      "name": "Define: Build Reward"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        5432,
+        1200
+      ],
+      "id": "define-respond",
+      "name": "Define: Respond"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Define: Pick Attire').first().json.chatId }}",
+        "text": "={{ '📝 Your Athlantean post is live:\\n' + $('Define: Post Blog').first().json.url }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5656,
+        1200
+      ],
+      "id": "define-notify",
+      "name": "Define: Notify",
+      "credentials": {
+        "telegramApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Telegram account)"
+        }
+      },
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Define: Pick Attire').first().json.chatId }}",
+        "text": "=👕 To publish today's principles blog, send me a full-height selfie of your fit captioned \"fit\" and re-tick Breakfast & Get Ready.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2296,
+        1400
+      ],
+      "id": "define-send-no-attire",
+      "name": "Define: Send No Attire",
+      "credentials": {
+        "telegramApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Telegram account)"
+        }
+      },
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<div style=\"font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:560px;margin:40px auto;text-align:center;color:#1a1a1a\"><div style=\"font-size:40px\">👕</div><h2>No fit selfie found</h2><p style=\"color:#555\">Send a full-height selfie of today's outfit to the bot captioned <b>fit</b>, then re-tick <b>Breakfast &amp; Get Ready</b> to publish your principles blog.</p></div>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2520,
+        1400
+      ],
+      "id": "define-respond-noattire",
+      "name": "Define: Respond No Attire"
+    },
+    {
+      "parameters": {
+        "content": "## area:coo:define - Morning Principles Blog + Fit\nTrigger = Breakfast & Get Ready endEvent (webhook goal_id). Turns the day's resolved principle into a unique-perspective essay, generates an attire flat-lay + a model-look image from your morning 'fit' selfie (nano-banana), publishes to the Athlantean blog, and DMs the link.",
+        "height": 560,
+        "width": 4512,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1304,
+        980
+      ],
+      "id": "define-sticky",
+      "name": "Sticky Note Define"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "Route Subrole",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Subrole": {
+      "main": [
+        [
+          {
+            "node": "Define Guard",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Plan: Materialise",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute: Collect Activity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reflect: Collect Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan: Materialise": {
+      "main": [
+        [
+          {
+            "node": "Plan: Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute: Collect Activity": {
+      "main": [
+        [
+          {
+            "node": "Execute: Generate Wrap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute: Generate Wrap": {
+      "main": [
+        [
+          {
+            "node": "Execute: Build Wrap HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute: Build Wrap HTML": {
+      "main": [
+        [
+          {
+            "node": "Execute: Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reflect: Collect Day": {
+      "main": [
+        [
+          {
+            "node": "Reflect: Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reflect: Generate": {
+      "main": [
+        [
+          {
+            "node": "Reflect: Build Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reflect: Build Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Reflect: Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Guard": {
+      "main": [
+        [
+          {
+            "node": "Define: Get Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Get Updates": {
+      "main": [
+        [
+          {
+            "node": "Define: Pick Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Pick Attire": {
+      "main": [
+        [
+          {
+            "node": "Define: Has Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Has Attire": {
+      "main": [
+        [
+          {
+            "node": "Define: Get Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Define: Send No Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Get Photo": {
+      "main": [
+        [
+          {
+            "node": "Define: Prepare Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Prepare Image": {
+      "main": [
+        [
+          {
+            "node": "Define: Generate Essay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Generate Essay": {
+      "main": [
+        [
+          {
+            "node": "Define: Attire Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Attire Image": {
+      "main": [
+        [
+          {
+            "node": "Define: Model Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Model Image": {
+      "main": [
+        [
+          {
+            "node": "Define: Prep Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Prep Model": {
+      "main": [
+        [
+          {
+            "node": "Define: Upload Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Upload Model": {
+      "main": [
+        [
+          {
+            "node": "Define: Public Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Public Model": {
+      "main": [
+        [
+          {
+            "node": "Define: Prep Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Prep Attire": {
+      "main": [
+        [
+          {
+            "node": "Define: Upload Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Upload Attire": {
+      "main": [
+        [
+          {
+            "node": "Define: Public Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Public Attire": {
+      "main": [
+        [
+          {
+            "node": "Define: Build Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Build Post": {
+      "main": [
+        [
+          {
+            "node": "Define: Post Blog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Post Blog": {
+      "main": [
+        [
+          {
+            "node": "Define: Build Reward",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Build Reward": {
+      "main": [
+        [
+          {
+            "node": "Define: Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Respond": {
+      "main": [
+        [
+          {
+            "node": "Define: Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define: Send No Attire": {
+      "main": [
+        [
+          {
+            "node": "Define: Respond No Attire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:56.178Z",
+      "createdAt": "2026-05-31T13:28:56.178Z",
+      "id": "IofmhhthZu2GhqMz",
+      "name": "pillar:coo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.950Z",
+      "createdAt": "2026-05-31T13:28:52.950Z",
+      "id": "vkEv2UGPNBfyH74Y",
+      "name": "phase:end"
+    }
+  ]
+}

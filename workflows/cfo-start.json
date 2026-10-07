@@ -1,0 +1,679 @@
+{
+  "name": "CFO Start — Financial Guardrails",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cfo-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "67de803c-44e2-444e-8696-6c4041feb86b",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        120
+      ],
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "const apiKey = \"<<REPLACE_ME>>\";\nreturn { apiKey };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        96
+      ],
+      "id": "api-key",
+      "name": "API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward date period taskRef goalRef subTasks { id body isComplete } } }\",\n      \"variables\": { \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\" }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "id": "07ceb0ef-2945-431f-b076-4b9d4e202b94",
+      "name": "Get Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unwrap the MCP JSON-RPC envelope into the goal object.\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nreturn { json: data.data ? data.data : data };"
+      },
+      "id": "6c11f795-5e66-4d27-be55-28b41907b206",
+      "name": "Parse Goal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "<<REPLACE_ME>>",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1131190746,
+          "mode": "list",
+          "cachedResultName": "CAS"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        680,
+        240
+      ],
+      "id": "read-cas",
+      "name": "Read CAS",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Sheets account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "<<REPLACE_ME>>",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1431097187,
+          "mode": "list",
+          "cachedResultName": "Last3Months"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        680,
+        420
+      ],
+      "id": "read-last3months",
+      "name": "Read Last3Months",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Sheets account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        900,
+        330
+      ],
+      "id": "merge-sheets",
+      "name": "Merge Sheets"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nfunction casRecFrom(row){\n  try { return typeof row.record === 'string' ? JSON.parse(row.record) : (row.record || row); }\n  catch(e){ return row || {}; }\n}\nfunction casUnitIndex(rec){\n  // aggregate MF units + nav by ISIN across folios (folios migrate; ISIN is stable)\n  var u = {}, nav = {};\n  var schemes = (rec && rec.mutualFundSchemes) || [];\n  for (var i=0;i<schemes.length;i++){\n    var s = schemes[i], isin = s.isin || '';\n    if (!isin) continue;\n    u[isin] = (u[isin]||0) + (Number(s.units)||0);\n    if (Number(s.nav)) nav[isin] = Number(s.nav);\n  }\n  return { u: u, nav: nav };\n}\nfunction casTotalValue(rec){\n  var ps = (rec && rec.portfolioSummary) || rec || {};\n  return Number(ps.totalPortfolioValue != null ? ps.totalPortfolioValue : (rec||{}).totalPortfolioValue) || 0;\n}\n// Returns INR figures + USD passive for the transition prevRec -> curRec.\nfunction casPassive(prevRec, curRec, usdinr){\n  usdinr = usdinr || 83;\n  var p = casUnitIndex(prevRec), c = casUnitIndex(curRec);\n  var isins = {};\n  Object.keys(p.nav).forEach(function(k){ isins[k]=1; });\n  Object.keys(c.nav).forEach(function(k){ isins[k]=1; });\n  var netContribINR = 0;\n  Object.keys(isins).forEach(function(k){\n    var du = (c.u[k]||0) - (p.u[k]||0);\n    var navNow = c.nav[k] || p.nav[k] || 0;\n    netContribINR += du * navNow;\n  });\n  var dTotalINR = casTotalValue(curRec) - casTotalValue(prevRec);\n  var apprecINR = dTotalINR - netContribINR;              // = Delta-gain (market appreciation only)\n  var passiveUSD = Math.round(Math.max(0, apprecINR / usdinr) * 100) / 100;\n  return {\n    deltaTotalINR: Math.round(dTotalINR),\n    netContribINR: Math.round(netContribINR),\n    apprecINR: Math.round(apprecINR),\n    passiveUSD: passiveUSD\n  };\n}\n\nfunction computeFinancials(casRows, tx, trainingRxSrc, targets, usdinr){\n  usdinr = usdinr || 83;\n  const TRAINING_RX = new RegExp(trainingRxSrc, 'i');\n\n  // passive series from CAS transitions (Delta total value - net SIP contributions)\n  const casSorted = (casRows||[]).slice().filter(r=>r&&r.monthKey).sort((a,b)=> a.monthKey<b.monthKey?-1:1);\n  const passiveByKey = {}; const passiveSeries = [];\n  for (let i=1;i<casSorted.length;i++){\n    const r = casPassive(casRecFrom(casSorted[i-1]), casRecFrom(casSorted[i]), usdinr);\n    passiveByKey[casSorted[i].monthKey] = r.passiveUSD;\n    passiveSeries.push(Object.assign({ monthKey: casSorted[i].monthKey }, r));\n  }\n  let passiveMonthlyUSD = 0, passiveNote = 'no CAS/portfolio data available';\n  if (passiveSeries.length){\n    const last = passiveSeries[passiveSeries.length-1];\n    passiveMonthlyUSD = last.passiveUSD;\n    passiveNote = 'CAS ' + last.monthKey + ': dTotal INR ' + last.deltaTotalINR + ' - contrib INR ' +\n      last.netContribINR + ' = passive INR ' + last.apprecINR + ' = USD ' + last.passiveUSD.toFixed(2);\n  } else if (casSorted.length === 1){ passiveNote = 'only one CAS month; passive growth unknown'; }\n\n  const rowsAll = (tx||[]).map(t => {\n    const m = String(t.Date).match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/);\n    return { d: m ? { y:+m[3], mo:+m[1], day:+m[2], key: m[3]+'-'+String(m[1]).padStart(2,'0') } : null,\n      desc: String(t['Full Description'] || t.Description || ''),\n      hint: String(t['Category Hint'] || ''), amount: Number(t.Amount) || 0 };\n  }).filter(r => r.d);\n\n  const daysInMonth = (y,mo) => new Date(y, mo, 0).getDate();\n  let minV=null, maxV=null, minD=null, maxD=null;\n  for (const r of rowsAll){ const v = r.d.y*10000 + r.d.mo*100 + r.d.day;\n    if (minV==null||v<minV){minV=v;minD=r.d;} if (maxV==null||v>maxV){maxV=v;maxD=r.d;} }\n  const completeKeys = new Set();\n  if (minD && maxD){\n    let cy=minD.y, cmo=minD.mo;\n    while (cy<maxD.y || (cy===maxD.y && cmo<=maxD.mo)){\n      const last = daysInMonth(cy,cmo);\n      const startCovered = (minD.y<cy)||(minD.y===cy&&minD.mo<cmo)||(minD.y===cy&&minD.mo===cmo&&minD.day<=1);\n      const endCovered   = (maxD.y>cy)||(maxD.y===cy&&maxD.mo>cmo)||(maxD.y===cy&&maxD.mo===cmo&&maxD.day>=last);\n      if (startCovered && endCovered) completeKeys.add(cy+'-'+String(cmo).padStart(2,'0'));\n      cmo++; if (cmo>12){cmo=1;cy++;}\n    }\n  }\n  const distinctMonths = new Set(rowsAll.map(r=>r.d.key)).size;\n  const useComplete = completeKeys.size > 0;\n  const rows = useComplete ? rowsAll.filter(r => completeKeys.has(r.d.key)) : rowsAll;\n  const divisor = Math.max(1, useComplete ? completeKeys.size : distinctMonths);\n  const basisNote = useComplete\n    ? (completeKeys.size + ' complete month(s): ' + [...completeKeys].sort().join(', '))\n    : (distinctMonths + ' month(s) of partial data (no full month available)');\n\n  const RX_PAYROLL = /payroll|direct dep|\\bsalary\\b|paycheck|dir dep/i;\n  const RX_SAVINGS = /transfer to\\b[^]*\\bsav|to sav\\b|vanguard|fidelity|robinhood|schwab|\\broth\\b|401k|\\bira\\b|acorns|betterment|brokerage|wealthfront/i;\n  const RX_DEBT    = /card payment|card online payment|citi card|credit card|autopay|amex e?payment|chase credit|discover.*payment|mortgage|\\brent\\b|auto ?loan|car ?loan|student loan|\\bloan\\b|\\bemi\\b/i;\n  const RX_INTERNAL= /online transfer to chk|online transfer from|transfer from sav|transfer from chk|real ?time transfer|zelle payment to /i;\n  const titleize = s => s.toLowerCase().replace(/_/g,' ').replace(/\\b\\w/g, c=>c.toUpperCase());\n  function classify(r){\n    const a = r.amount, hint = r.hint.toUpperCase();\n    const primary = hint.split(':')[0].trim(), detailed = (hint.split(':')[1]||'').trim();\n    if (primary){\n      if (primary === 'INCOME'){ if (a>0 && !/INTEREST|DIVIDEND/.test(detailed)) return { t: TRAINING_RX.test(r.desc)?'training':'payroll', v:a }; return { t:'skip' }; }\n      if (primary === 'TRANSFER_IN') return { t:'skip' };\n      const abs = a < 0 ? -a : 0;\n      if (primary === 'LOAN_PAYMENTS') return { t:'liabilities', v:abs };\n      if (detailed === 'RENT_AND_UTILITIES_RENT') return { t:'liabilities', v:abs };\n      if (/SAVINGS|INVESTMENT_AND_RETIREMENT/.test(detailed)) return { t:'savings', v:abs };\n      if (primary === 'TRANSFER_OUT') return { t:'skip' };\n      if (a < 0) return { t:'expenses', v:abs, cat: titleize(primary)||'Other' };\n      return { t:'skip' };\n    }\n    if (a > 0){ if (RX_PAYROLL.test(r.desc)) return { t: TRAINING_RX.test(r.desc)?'training':'payroll', v:a }; return { t:'skip' }; }\n    const abs = -a;\n    if (RX_SAVINGS.test(r.desc)) return { t:'savings', v:abs };\n    if (RX_DEBT.test(r.desc)) return { t:'liabilities', v:abs };\n    if (RX_INTERNAL.test(r.desc)) return { t:'skip' };\n    return { t:'expenses', v:abs, cat:'Other' };\n  }\n\n  const monthAgg = {};\n  const bucket = k => monthAgg[k] || (monthAgg[k] = { payroll:0, training:0, expenses:0, liabilities:0, savings:0 });\n  for (const r of rowsAll){ const c = classify(r); if (c.t==='skip') continue; bucket(r.d.key)[c.t] += c.v; }\n\n  let lastPassive = 0;\n  const monthLabelOf = k => { const p=k.split('-'); return new Date(+p[0],+p[1]-1,1).toLocaleString('en-US',{month:'short',year:'2-digit'}); };\n  const byMonth = Object.keys(monthAgg).sort().map(k => {\n    const b = monthAgg[k]; const active = b.payroll + b.training;\n    if (passiveByKey[k] != null) lastPassive = passiveByKey[k];\n    const passive = lastPassive; const income = active + passive;\n    const savingsRate = income > 0 ? Math.round(b.savings / income * 100) : 0;\n    return { monthKey:k, monthLabel: monthLabelOf(k),\n      payroll:Math.round(b.payroll), training:Math.round(b.training), active:Math.round(active),\n      passive:Math.round(passive), expenses:Math.round(b.expenses), liabilities:Math.round(b.liabilities),\n      savings:Math.round(b.savings), savingsRate,\n      trainingTarget: targets.trainingMonthlyUSD, savingsTarget: Math.round(income * targets.savingsRatePct / 100),\n      passiveTarget: Math.round(b.expenses) };  // security stage = passive income covers essential expenses\n  });\n  const trajComplete = byMonth.filter(m => completeKeys.has(m.monthKey));\n  const trajectory = (trajComplete.length ? trajComplete : byMonth).slice(-3);\n\n  let payrollSum=0, trainingSum=0, expenseSum=0, liabilitySum=0, savingsSum=0; const catMap={};\n  for (const r of rows){ const c = classify(r);\n    if (c.t==='payroll') payrollSum += c.v; else if (c.t==='training') trainingSum += c.v;\n    else if (c.t==='liabilities') liabilitySum += c.v; else if (c.t==='savings') savingsSum += c.v;\n    else if (c.t==='expenses'){ expenseSum += c.v; const k=c.cat||'Other'; catMap[k]=(catMap[k]||0)+c.v; } }\n  const per = x => Math.round(x / divisor);\n  const computed = {\n    payroll: per(payrollSum), training: per(trainingSum), activeIncome: per(payrollSum+trainingSum),\n    expenses: per(expenseSum), liabilities: per(liabilitySum), savings: per(savingsSum),\n    passiveIncome: Math.round(passiveMonthlyUSD),\n    categories: Object.keys(catMap).map(k => ({ name:k, amountUSD: per(catMap[k]) })).sort((a,b)=>b.amountUSD-a.amountUSD).slice(0,6),\n    basisNote, hasTx: rows.length > 0 };\n\n  // ---- Category x month x merchant matrix (for answering arbitrary financial queries).\n  // Everything is CODE-summed here so the query LLM never re-adds transactions. ----\n  function merchOf(desc){\n    let s = String(desc||'').toUpperCase().replace(/^APLPAY\\s+/,'').replace(/^BT\\*/,'').trim();\n    const brands = [[/WAL-?MART|WALMART/,'Walmart'],[/AMAZON/,'Amazon'],[/7-?ELEVEN/,'7-Eleven'],[/WAWA/,'Wawa'],\n      [/SHEIN/,'SHEIN'],[/TEMU/,'Temu'],[/H&M|HM\\.COM/,'H&M'],[/MACY/,\"Macy's\"],[/COSTCO/,'Costco'],[/TARGET/,'Target'],\n      [/DOLLAR ?TREE|DOLLAR ?GENERA/,'Dollar Store'],[/UBER/,'Uber'],[/LYFT/,'Lyft'],[/NETFLIX/,'Netflix'],\n      [/SPOTIFY/,'Spotify'],[/STARBUCKS/,'Starbucks'],[/GIFTCARD/,'Giftcards Group'],[/MICRO ?CENTER/,'Micro Center'],\n      [/SWAROVSKI/,'Swarovski'],[/CVS/,'CVS'],[/WALGREEN/,'Walgreens'],[/SHELL|EXXON|BP |FUEL/,'Fuel']];\n    for (const [rx,name] of brands) if (rx.test(s)) return name;\n    return titleize(s.replace(/\\s+#?\\d{2,}.*$/,'').split(/\\s{2,}|\\s/).slice(0,3).join(' ')).slice(0,26) || 'Other';\n  }\n  function labelOf(r, c){\n    if (c.t==='payroll') return 'Payroll (income)';\n    if (c.t==='training') return 'Training (income)';\n    if (c.t==='savings') return 'Savings & Investments';\n    if (c.t==='expenses') return c.cat || 'Other';\n    if (c.t==='liabilities'){\n      const det = (r.hint.toUpperCase().split(':')[1]||'').trim();\n      if (det==='RENT_AND_UTILITIES_RENT' || /\\bRENT\\b/i.test(r.desc)) return 'Rent';\n      if (/CREDIT_CARD/.test(det) || /card payment|credit card/i.test(r.desc)) return 'Credit Card Payments';\n      if (/MORTGAGE/.test(det) || /mortgage/i.test(r.desc)) return 'Mortgage';\n      if (/CAR|AUTO/.test(det) || /auto ?loan|car ?loan/i.test(r.desc)) return 'Car Loan';\n      if (/STUDENT/.test(det) || /student loan/i.test(r.desc)) return 'Student Loan';\n      return 'Loan / Debt Payments';\n    }\n    return 'Other';\n  }\n  const catAgg = {};\n  for (const r of rows){\n    const c = classify(r); if (c.t==='skip') continue;\n    const label = labelOf(r, c); const amt = c.v;\n    const e = catAgg[label] || (catAgg[label] = { type:c.t, total:0, count:0, months:{}, merch:{}, largest:null });\n    e.total += amt; e.count++; e.months[r.d.key] = (e.months[r.d.key]||0) + amt;\n    const m = merchOf(r.desc); e.merch[m] = e.merch[m] || { t:0, c:0 };\n    e.merch[m].t += amt; e.merch[m].c++;\n    if (!e.largest || amt > e.largest.amount) e.largest = { date:r.d.key, merchant:m, amount:Math.round(amt) };\n  }\n  const categoryMatrix = Object.keys(catAgg).map(label => {\n    const e = catAgg[label];\n    const merchants = Object.keys(e.merch).map(m => ({ merchant:m, total:Math.round(e.merch[m].t), count:e.merch[m].c }))\n      .sort((a,b)=>b.total-a.total).slice(0,6);\n    const months = {}; Object.keys(e.months).sort().forEach(k => { months[k] = Math.round(e.months[k]); });\n    return { label, type:e.type, monthlyAvg: per(e.total), count:e.count, months, merchants, largest:e.largest };\n  }).sort((a,b)=> b.monthlyAvg - a.monthlyAvg);\n\n  return { byMonth, trajectory, computed, passiveSeries, passiveByKey, passiveMonthlyUSD, passiveNote, basisNote, categoryMatrix };\n}\n\nconst goal = $('Parse Goal').first().json.goalItemById || {};\nlet casRows = [], tx = [];\ntry { casRows = $('Read CAS').all().map(i=>i.json); } catch(e) {}\ntry { tx = $('Read Last3Months').all().map(i=>i.json); } catch(e) {}\nconst F = computeFinancials(casRows, tx, \"training|course|coaching|workshop|cohort|mentor|tutor|webinar|masterclass|topmate|gumroad|teachable|udemy|thinkific|kajabi|podia|stripe|razorpay|payoneer|paypal|wise \", {\"trainingMonthlyUSD\": 500, \"savingsRatePct\": 25}, 83);\nconst computed = F.computed, trajectory = F.trajectory;\n\nconst base = (computed.activeIncome + computed.passiveIncome) ||\n             Math.max(1, computed.expenses + computed.liabilities + computed.savings);\nconst pctOf = x => Math.round(x/base*100);\nconst t0 = trajectory[0]||{}, tN = trajectory[trajectory.length-1]||{};\nconst arrow = (a,b)=> b>a?'up':(b<a?'down':'flat');\nconst trend = trajectory.length>=2\n  ? ('Trajectory (' + trajectory[0].monthLabel + '->' + tN.monthLabel + '): savings ' + arrow(t0.savings,tN.savings) +\n     ', payroll ' + arrow(t0.payroll,tN.payroll) + ', training ' + arrow(t0.training,tN.training) +\n     ', passive ' + arrow(t0.passive,tN.passive) + '.')\n  : 'Trajectory: not enough complete months yet.';\n\nconst metricsLine =\n  'MONTHLY METRICS (already computed - use as-is):\\n' +\n  '- Active income: $' + computed.activeIncome + ' (payroll $' + computed.payroll + ' + training $' + computed.training + ')\\n' +\n  '- Passive income: $' + computed.passiveIncome + ' (portfolio appreciation net of new SIP; ' + F.passiveNote + ')\\n' +\n  '- Expenses: $' + computed.expenses + ' (' + pctOf(computed.expenses) + '% of income)\\n' +\n  '- Liabilities/debt service: $' + computed.liabilities + ' (' + pctOf(computed.liabilities) + '% of income)\\n' +\n  '- Savings: $' + computed.savings + ' (' + pctOf(computed.savings) + '% of income)\\n' +\n  '- Basis: ' + F.basisNote + '\\n' + '- ' + trend + '\\n' +\n  (computed.categories.length ? '- Top expense categories: ' +\n     computed.categories.map(c=>c.name+' $'+c.amountUSD).join(', ') + '\\n' : '');\n\nconst systemPrompt = \"## Overview\\n\\nYou are an expert financial coach and daily task facilitator designed to guide users through the Five Levels of Financial Freedom Framework. Your role is to create personalized, actionable daily tasks that progressively move users toward financial independence and absolute financial freedom.\\n\\n## The Five Levels of Financial Freedom Framework\\n\\n### Core Metrics\\n- **L** = Liability (% of income/assets)\\n- **E** = Expense (% of income)\\n- **PI** = Passive Income (% of income)\\n- **S** = Savings (% of income)\\n- **AI** = Active Income (primary income source)\\n- **A** = Assets (net worth)\\n\\n### Stage 0: Financial Resolution\\n**Target Metrics:** 70% L, 30% E, 0% S\\n**Objective:** Clear high-priority debt to reduce liability to 40% or increase income to reduce debt ratio\\n\\n**Key Actions:**\\n- Start Emergency Fund (3-6 months of expenses)\\n- Implement Snowball or Avalanche debt repayment technique\\n- Motivate user around \\\"paying yourself first\\\" concept\\n- Focus on psychological wins with quick debt payoffs\\n\\n**Recommended Resources:**\\n- *Total Money Makeover* - Dave Ramsey\\n- *Think and Grow Rich* - Napoleon Hill\\n- Snowball/Avalanche debt methodology\\n\\n---\\n\\n### Stage 1: Financial Security\\n**Target Metrics:** 40% L, 50% E, 10% S\\n**Condition:** Liabilities still exceed assets (L > A), but expenses equal active income (E = AI)\\n\\n**Key Actions:**\\n- Save 10% of active income consistently (\\\"pay yourself first\\\")\\n- Explain the \\\"soul purchasing\\\" concept (why saving is about personal freedom)\\n- Begin passive income planning\\n- Build emergency fund to 6 months of expenses\\n- Develop a comprehensive financial plan\\n\\n**Daily Focus Areas:**\\n- Track spending and optimize expenses\\n- Allocate 10% of income to savings automatically\\n- Research passive income opportunities aligned with skills\\n- Build financial literacy through reading and learning\\n\\n**Recommended Resources:**\\n- *The Richest Man in Babylon* - George S. Clason\\n- *The 10X Rule* - Grant Cardone\\n- Personal finance fundamentals courses\\n\\n---\\n\\n### Stage 2: Financial Vitality\\n**Target Metrics:** 33% L, 40% E (\\u00b17%), 20% S\\n**Condition:** Liabilities still exceed assets (L > A), but expenses now less than active income (E < AI), passive income begins\\n\\n**Key Actions:**\\n- Build synergistic compound asset income streams\\n- Understand that money can be created through leverage and systems\\n- Develop multiple passive income sources (investments, royalties, businesses)\\n- Optimize debt repayment through RDPD (Revised Debt Payment Discipline)\\n- Increase savings rate to 20%\\n- Begin outsourcing non-core activities\\n\\n**Daily Focus Areas:**\\n- Invest surplus income (20% savings rate)\\n- Build first passive income stream\\n- Master one investment vehicle (stocks, real estate, digital products, etc.)\\n- Develop business/side income concepts\\n- Study wealth multiplication strategies\\n\\n**Recommended Resources:**\\n- *Rich Dad Poor Dad* - Robert Kiyosaki\\n- *The Four-Hour Work Week* - Tim Ferriss\\n- *Cashflow Quadrant* - Robert Kiyosaki\\n- *MONEY Master the Game* - Tony Robbins\\n- Passive income course specializing in your interest area\\n\\n---\\n\\n### Stage 3: Financial Independence\\n**Target Metrics:** 33% L, 33% E (\\u00b14%), 30% S\\n**Condition:** Assets now exceed liabilities (L < A), passive income covers expenses (E = PI), passive income is stable\\n\\n**Key Actions:**\\n- Transition mindset from wealth accumulation to wealth optimization\\n- Ensure passive income is sustainable and stable\\n- Increase savings rate to 30% for accelerated asset growth\\n- Build diversified asset portfolio\\n- Plan for lifestyle optimization (not limitation)\\n\\n**Daily Focus Areas:**\\n- Monitor and optimize existing passive income streams\\n- Build new complementary income sources\\n- Invest aggressively in assets (30% savings rate)\\n- Study market trends and investment strategies\\n- Plan transition strategies for career flexibility\\n\\n**Recommended Resources:**\\n- *The Unshakeable* - Tony Robbins & Peter Mallouk\\n- *The Millionaire Fastlane* - MJ DeMarco\\n- Advanced investment and portfolio management courses\\n\\n---\\n\\n### Stage 4: Financial Freedom\\n**Target Metrics:** 20% L, 20% E (\\u00b15%), 55% S\\n**Condition:** Passive income exceeds expenses (E < PI), passive income supports investment growth\\n\\n**Key Actions:**\\n- Passive income now covers all lifestyle expenses\\n- Reinvest 55% of total income into assets\\n- Work becomes optional (continue for growth/purpose, not survival)\\n- Leverage passive income to accelerate wealth building\\n- Design ideal lifestyle and optimize for fulfillment\\n\\n**Daily Focus Areas:**\\n- Optimize investment portfolio returns\\n- Build or expand business ventures (discretionary)\\n- Mentor others (compound your impact)\\n- Plan philanthropic and legacy goals\\n- Develop business/creative projects aligned with passion\\n\\n**Recommended Resources:**\\n- Lifestyle design books and courses\\n- Advanced business strategy and scaling\\n- Wealth preservation and tax optimization resources\\n\\n---\\n\\n### Stage 5: Absolute Financial Freedom\\n**Target Metrics:** 0% L, 5% E, 95% S\\n**Condition:** No debt, minimal expenses relative to assets, maximum autonomy and choice\\n\\n**Key Actions:**\\n- Achieve complete financial autonomy\\n- Work becomes purely optional and passion-driven\\n- Design life around purpose and impact (not financial necessity)\\n- Focus on legacy and systemic change\\n- Explore new frontiers (as framework creator noted: \\\"rocketship for spreading new life forms\\\")\\n\\n**Daily Focus Areas:**\\n- Execute on life's mission and purpose\\n- Build transformative projects with no ROI requirement\\n- Mentor and guide others toward their freedom\\n- Create lasting impact and legacy\\n- Continuous learning and exploration\\n\\n**Recommended Resources:**\\n- Philosophy and meaning-making literature\\n- Advanced entrepreneurship and impact investing\\n- Leadership and organizational design courses\\n\\n---\\n\\n## AI Task Generation Framework\\n\\n### When generating daily tasks, use this hierarchy:\\n\\n1. **Assess Current Stage**\\n   - Ask user their current liability %, expense %, and savings %\\n   - Identify exact stage: Resolution \\u2192 Security \\u2192 Vitality \\u2192 Independence \\u2192 Freedom \\u2192 Absolute\\n\\n2. **Generate Stage-Appropriate Tasks**\\n   - Focus on 3-5 daily actionable tasks\\n   - Mix tactical (immediate actions) with strategic (long-term positioning)\\n   - Ensure tasks compound over time\\n\\n3. **Task Categories by Stage**\\n\\n   **Financial Resolution & Security:**\\n   - Expense tracking and optimization\\n   - Debt payoff progress (snowball/avalanche)\\n   - Emergency fund building\\n   - Financial literacy (reading/courses)\\n   - Income optimization\\n\\n   **Vitality & Independence:**\\n   - Passive income building/optimization\\n   - Investment research and allocation\\n   - Side income development\\n   - Asset portfolio monitoring\\n   - Leverage and scaling strategies\\n\\n   **Freedom & Absolute:**\\n   - Portfolio optimization and rebalancing\\n   - Business and venture development\\n   - Mentor and guide activities\\n   - Impact and legacy planning\\n   - Lifestyle design and execution\\n\\n4. **Task Customization**\\n   - Incorporate user's profession and skills\\n   - Consider their available time commitment\\n   - Respect their risk tolerance and values\\n   - Account for existing income sources\\n   - Build on past successes and learnings\\n\\n5. **Motivation and Accountability**\\n   - Connect tasks to larger vision (why matters)\\n   - Celebrate milestone achievements\\n   - Use psychological principles (momentum, commitment, identity)\\n   - Encourage peer accountability and community\\n   - Adjust difficulty as user progresses\\n\\n---\\n\\n## Daily Task Template\\n\\nFor each task, provide:\\n\\n```\\n**Task:** [Clear, actionable task]\\n**Stage:** [Which stage this task belongs to]\\n**Time Required:** [15 min / 30 min / 1 hour / ongoing]\\n**Category:** [Expense Management / Debt Payoff / Income Building / Investing / Learning]\\n**Action Steps:**\\n1. [Specific action]\\n2. [Specific action]\\n3. [Specific action]\\n\\n**Why This Matters:** [Connect to stage progression and financial freedom goal]\\n**Success Indicator:** [How to measure completion/success]\\n**Resources:** [Specific tools, articles, courses, or templates needed]\\n```\\n\\n---\\n\\n## Conversation Approach\\n\\n### Initial Conversation\\n1. Welcome user and explain the framework\\n2. Ask diagnostic questions to identify their current stage\\n3. Share what stage represents and what they're working toward\\n4. Celebrate progress to date\\n5. Set 30-day and 90-day milestones\\n\\n### Regular Interaction\\n1. Check in on previous day's tasks and learnings\\n2. Address blockers or challenges\\n3. Adjust tasks based on feedback and circumstances\\n4. Introduce new concepts aligned with next stage\\n5. Share stories and examples of others at similar stages\\n\\n### When User Struggles\\n1. Validate the difficulty\\n2. Break tasks into even smaller micro-habits\\n3. Reconnect to emotional \\\"why\\\"\\n4. Offer alternative approaches\\n5. Provide extra resources or accountability structures\\n\\n### Stage Progression\\n1. Acknowledge when user data indicates stage advancement\\n2. Celebrate the milestone\\n3. Explain next stage in detail\\n4. Introduce new task categories\\n5. Share new recommended resources\\n\\n---\\n\\n## Key Philosophical Principles\\n\\n1. **Progress Over Perfection** - Consistency beats optimization; imperfect action beats perfect planning\\n\\n2. **Compound Effect** - Small daily actions compound over months and years into transformation\\n\\n3. **Mindset Evolution** - Financial freedom is as much psychological as mathematical\\n\\n4. **Systems Not Goals** - Build systems and habits that naturally produce financial results\\n\\n5. **Purpose Integration** - Tie financial decisions to personal values and life purpose\\n\\n6. **Automation and Leverage** - Use technology and systems to reduce friction and increase consistency\\n\\n7. **Continuous Learning** - Financial mastery requires ongoing education and skill development\\n\\n8. **Community and Accountability** - Share journey with others, mentor and be mentored\\n\\n9. **Celebrate Wins** - Acknowledge progress to maintain motivation and momentum\\n\\n10. **Adaptability** - Adjust strategies based on life changes, market conditions, and new opportunities\\n\\n---\\n\\n## Example Daily Tasks by Stage\\n\\n### Financial Security Stage - Day 1\\n- **Task 1:** Log all expenses from yesterday (5 min) - Build awareness\\n- **Task 2:** Calculate your current L%, E%, S% based on last month's data (15 min) - Know your baseline\\n- **Task 3:** Set up automatic 10% transfer to savings account (10 min) - Start \\\"paying yourself first\\\"\\n- **Task 4:** Read Chapter 1 of *The Richest Man in Babylon* (20 min) - Build passive income mindset\\n- **Task 5:** Identify one expense you could cut this month (10 min) - Increase savings rate\\n\\n### Vitality Stage - Day 1\\n- **Task 1:** Research 3 passive income opportunities in your field (30 min) - Explore options\\n- **Task 2:** Model out compound returns on your current 20% savings rate over 10 years (20 min) - Visualize potential\\n- **Task 3:** Set up investment account and research your first index fund (30 min) - Take action\\n- **Task 4:** Listen to podcast on real estate or stock investing (30 min) - Build knowledge\\n- **Task 5:** Calculate your \\\"financial vitality number\\\" (monthly expenses for E=PI goal) (15 min) - Set target\\n\\n### Independence Stage - Day 1\\n- **Task 1:** Review passive income streams and measure YTD returns (30 min) - Monitor performance\\n- **Task 2:** Model next investment opportunity through 30-year projection (20 min) - Think long-term\\n- **Task 3:** Work on second passive income stream development for 1 hour (60 min) - Diversify\\n- **Task 4:** Update net worth and celebrate progress (15 min) - Acknowledge wins\\n- **Task 5:** Plan one business idea or side project for exploration (30 min) - Prepare for freedom stage\\n\\n---\\n\\n## Success Metrics to Track\\n\\n- **Monthly:** Liability %, Expense %, Savings %, Net Worth, Passive Income Generated\\n- **Quarterly:** Stage progression, New income streams created, Habits established\\n- **Annually:** Total wealth accumulated, Financial independence score, Impact created\\n\\n---\\n\\n## Creator's Note\\n\\nThis framework reflects a philosophy that financial freedom is not just about numbers, but about reclaiming autonomy, creating options, and eventually having the capacity to spread positive life in the universe. Progress through these stages is progress toward personal liberation and the ability to contribute meaningfully to the world.\\n\\nYour role is to be a consistent, empathetic guide helping users progress through this journey one daily task at a time.\\n\\n\\n\\n---\\n\\n## OUTPUT CONTRACT (STRICT)\\n\\nThe system has ALREADY computed the user's monthly financials (shown below in MONTHLY METRICS). Do NOT recompute, restate, or invent any numbers. Using those metrics, return ONLY a single minified JSON object, nothing else:\\n{\\\"stage\\\":\\\"resolution|security|vitality|independence|freedom|absolute\\\",\\\"stageLabel\\\":\\\"short human label\\\",\\\"recommendation\\\":\\\"one inspiring sentence tied to the numbers and the month-over-month trajectory\\\",\\\"actions\\\":[{\\\"body\\\":\\\"a concrete task to do today\\\",\\\"why\\\":\\\"why it matters\\\"}]}\\n\\nRULES:\\n- Choose \\\"stage\\\" from the six lowercase keys using the provided metrics (compare liability%, expense%, savings%, passive% against the Five-Levels stage targets).\\n- 2-3 short, concrete actions targeting the biggest gap (usually the largest liability, lowest savings, or growing the training-income stream toward its target).\\n- If the metrics are all zero (no data), say so honestly in the recommendation. No prose outside the JSON.\";\nconst userMessage =\n  'A user is starting their daily CFO routine. Today\\'s focus / goal:\\n\"\"\"\\n' + (goal.body||'') + '\\n\"\"\"\\n\\n' +\n  (computed.hasTx ? metricsLine : 'No transaction data available this period; treat all spending metrics as 0.\\n') +\n  '\\nPick the Five-Levels stage from these metrics, write one inspirational recommendation that references the ' +\n  'month-over-month trajectory, and propose 2-3 concrete tasks for today. Return ONLY the JSON object from the output contract.';\n\n// ---- Data pack for answering ANY financial query (all figures precomputed) ----\nconst cm = F.categoryMatrix || [];\nconst fmtCat = c => {\n  const months = Object.keys(c.months).map(k => k + ' $' + c.months[k]).join(', ');\n  const merch = (c.merchants||[]).map(m => m.merchant + ' $' + m.total + (m.count>1 ? (' x'+m.count) : '')).join('; ');\n  const lg = c.largest ? (' | largest: ' + c.largest.merchant + ' $' + c.largest.amount + ' (' + c.largest.date + ')') : '';\n  return '- ' + c.label + ' [' + c.type + ']: $' + c.monthlyAvg + '/mo, ' + c.count + ' txns; by month: ' + months +\n         ' | top merchants: ' + merch + lg;\n};\nconst dataPack =\n  metricsLine + '\\n' +\n  'TRAJECTORY (complete months): ' + (trajectory.map(m=>m.monthLabel+' sav$'+m.savings+'/train$'+m.training+'/pass$'+m.passive).join(' | ') || 'n/a') + '\\n\\n' +\n  'INCOME & SPENDING BY CATEGORY (monthly avg over ' + F.basisNote + '; amounts are magnitudes, income vs outflow given by [type]):\\n' +\n  (cm.length ? cm.map(fmtCat).join('\\n') : '(no categorized data)');\nconst querySystemPrompt =\n  'You are the user\\'s personal CFO analyst. Answer their financial question using ONLY the precomputed figures ' +\n  'provided - never invent, estimate, or re-sum transactions; every number you cite must appear in the data. ' +\n  'Be concise and specific: lead with the direct answer, use a small markdown table when it helps, call out the ' +\n  'single biggest driver or any one-off that distorts a category, and end with one actionable takeaway. ' +\n  'If the data cannot answer the question, say exactly what is missing. Output GitHub-flavored markdown only (no JSON, no preamble).';\nconst queryUserMessage =\n  'QUESTION (the user\\'s goal for today):\\n\"\"\"\\n' + (goal.body||'(no goal text)') + '\\n\"\"\"\\n\\n' +\n  'FINANCIAL DATA (all figures precomputed - use as-is):\\n' + dataPack;\n\nreturn [{ json: { systemPrompt, userMessage, querySystemPrompt, queryUserMessage, _goal: goal,\n  _cas: { passiveMonthlyUSD: F.passiveMonthlyUSD, passiveNote: F.passiveNote, passiveSeries: F.passiveSeries },\n  _computed: computed, _byMonth: F.byMonth, _trajectory: trajectory, _categoryMatrix: cm } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        330
+      ],
+      "id": "build-context",
+      "name": "Build Context"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "CFO Financial Coach"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models: ['~google/gemini-flash-latest'], messages: [ { role: 'system', content: $json.systemPrompt }, { role: 'user', content: $json.userMessage } ], temperature: 0.4, max_tokens: 2500, top_p: 0.9, reasoning: { enabled: false }, response_format: { type: 'json_object' } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        330
+      ],
+      "id": "cfo-agent",
+      "name": "CFO Agent",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const resp = $('CFO Agent').first().json;\nconst raw = (resp && resp.choices && resp.choices[0] && resp.choices[0].message && resp.choices[0].message.content) || '';\nfunction extractJson(text){\n  if (text && typeof text === 'object') return text;\n  let s = String(text).replace(/```json/gi,'```').replace(/```/g,'').trim();\n  try { return JSON.parse(s); } catch(e){}\n  let best=null;\n  for (let i=0;i<s.length;i++){ if (s[i] !== '{') continue; let depth=0;\n    for (let j=i;j<s.length;j++){ if (s[j]==='{') depth++; else if (s[j]==='}'){ depth--; if(depth===0){\n      try { const o=JSON.parse(s.slice(i,j+1)); if(o && (o.metrics||o.actions||o.stage)) best=o; } catch(e){} break; }}}}\n  return best;\n}\nlet data = extractJson(raw);\nif (!data) data = { stage:'security', stageLabel:'Review needed', recommendation:String(raw).slice(0,400)||'Could not parse coach output.', actions:[] };\nconst bc = $('Build Context').first().json;\nconst c = bc._computed || {};\nconst goal = bc._goal || {};\n\nconst num = x => Math.max(0, Math.round((Number(x)||0)));\nconst payroll = num(c.payroll);\nconst training = num(c.training);\nconst activeIncome = num(c.activeIncome);\nconst passiveIncome = num(c.passiveIncome);\nconst expenses = num(c.expenses);\nconst liabilities = num(c.liabilities);\nconst savings = num(c.savings);\nconst totalIncome = activeIncome + passiveIncome;\nconst base = totalIncome > 0 ? totalIncome : Math.max(1, expenses + liabilities + savings);\nconst pct = x => Math.round((x / base) * 100);\n\nconst metrics = {\n  income: 100, active: pct(activeIncome), payroll: pct(payroll), training: pct(training), passive: pct(passiveIncome),\n  expense: pct(expenses), liabilities: pct(liabilities), savings: pct(savings),\n};\nconst usdAmounts = { payroll, training, activeIncome, passiveIncome, expenses, liabilities, savings, totalIncome };\nconst categories = (Array.isArray(c.categories)?c.categories:[]).map(x => ({\n  name: String(x.name||'Other'), amountUSD: num(x.amountUSD), pctOfIncome: pct(num(x.amountUSD))\n})).slice(0,6);\nconst actions = Array.isArray(data.actions) ? data.actions.slice(0,3) : [];\n\nreturn [{ json: {\n  stage: data.stage, stageLabel: data.stageLabel, recommendation: data.recommendation,\n  metrics, usdAmounts, categories, actions,\n  _basis: c.basisNote, _passiveNote: bc._cas ? bc._cas.passiveNote : '',\n  _trajectory: bc._trajectory || [], _byMonth: bc._byMonth || [],\n  _goal: goal, _goalId: $('Webhook').first().json.query.goal_id\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        330
+      ],
+      "id": "parse-agent",
+      "name": "Parse Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "CFO Financial Coach"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models: ['~google/gemini-flash-latest'], messages: [ { role: 'system', content: $('Build Context').first().json.querySystemPrompt }, { role: 'user', content: $('Build Context').first().json.queryUserMessage } ], temperature: 0.3, max_tokens: 1200, top_p: 0.9, reasoning: { enabled: false } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        520
+      ],
+      "id": "query-agent",
+      "name": "Query Agent",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let answer = '';\ntry {\n  const resp = $('Query Agent').first().json;\n  answer = (resp && resp.choices && resp.choices[0] && resp.choices[0].message && resp.choices[0].message.content) || '';\n  answer = String(answer).replace(/```(?:markdown)?/gi,'').trim();\n} catch(e) {}\nconst goal = $('Build Context').first().json._goal || {};\nreturn [{ json: { answer, question: goal.body || '' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        520
+      ],
+      "id": "parse-query",
+      "name": "Parse Query"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Parse Agent').first().json;\nconst m = d.metrics || {};\nconst u = d.usdAmounts || {};\nconst goal = d._goal || {};\nconst today = $now.setZone('America/New_York').toFormat('dd-MM-yyyy');\nconst date = goal.date || today;\nconst period = goal.period || 'day';\nconst stage = String(d.stage||'security').toLowerCase();\nconst enc = encodeURIComponent;\nconst clamp = (x)=>Math.max(0,Math.min(100,Math.round(Number(x)||0)));\nconst inc = clamp(m.income!=null?m.income:100), exp = clamp(m.expense), lia = clamp(m.liabilities);\nconst iframe = `https://calculator.familywealth.in/embed.html?stage=${enc(stage)}&income=${inc}&expense=${exp}&liabilities=${lia}`;\nconst label = d.stageLabel || stage;\nconst usd = (x)=>`$${Math.round(Number(x)||0).toLocaleString('en-US')}`;\nconst rows = [\n  ['Active income', usd(u.activeIncome), clamp(m.active)+'%'],\n  ['- Payroll', usd(u.payroll), clamp(m.payroll)+'%'],\n  ['- Training', usd(u.training), clamp(m.training)+'%'],\n  ['Passive income', usd(u.passiveIncome), clamp(m.passive)+'%'],\n  ['Expenses', usd(u.expenses), clamp(m.expense)+'%'],\n  ['Liabilities (rent/mortgage/loans)', usd(u.liabilities), clamp(m.liabilities)+'%'],\n  ['Savings', usd(u.savings), clamp(m.savings)+'%'],\n].map(r=>`| ${r[0]} | ${r[1]} | ${r[2]} |`).join('\\n');\nconst cats = (d.categories||[]).map(c=>`| ${c.name} | ${usd(c.amountUSD)} | ${clamp(c.pctOfIncome)}% |`).join('\\n');\nconst acts = (d.actions||[]).map(a=>`- **${a.body||a}**${a&&a.why?` — ${a.why}`:''}`).join('\\n');\n// the CFO's direct answer to today's financial question (goal body), from the Query Agent\nlet answer = '', question = goal.body || '';\ntry { const q = $('Parse Query').first().json; answer = (q && q.answer) || ''; } catch(e) {}\nconst answerBlock = answer\n  ? `## CFO Answer — \"${question}\"\\n\\n${answer}`\n  : '';\nconst md = [\n  answerBlock,\n  `# Your Financial Stage: ${label}`,\n  `<iframe src=\"${iframe}\" style=\"display:block;width:100%;height:420px;border:0;background:transparent\" loading=\"lazy\"></iframe>`,\n  `Total monthly income ${usd(u.totalIncome)} (active ${usd(u.activeIncome)} + passive ${usd(u.passiveIncome)}).`,\n  `## Monthly Breakdown\\n| Metric | USD | % of income |\\n|---|---:|---:|\\n${rows}`,\n  `## Recommendation\\n${d.recommendation||''}`,\n  cats ? `## Top Expense Categories\\n| Category | USD | % income |\\n|---|---:|---:|\\n${cats}` : '',\n  acts ? `## Today's Actions\\n${acts}` : '',\n  d._basis ? `_Monthly figures normalized over ${d._basis}._` : ''\n].filter(Boolean).join('\\n\\n');\nreturn [{ json: { markdown: md, date, period } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        200
+      ],
+      "id": "build-markdown",
+      "name": "Build Markdown"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"mutation SetC($id: ID!, $contribution: String) { updateGoalItemContribution(id: $id, contribution: $contribution) { id } }\",\n    \"variables\":{ \"id\":\"{{ $('Webhook').item.json.query.goal_id }}\", \"contribution\": {{ JSON.stringify($('Build Markdown').first().json.markdown) }} }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        200
+      ],
+      "id": "set-contribution",
+      "name": "Set Contribution"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Parse Agent').first().json;\nconst goal = d._goal || {};\nconst taskId = d._goalId;\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst gql = async (query) => {\n  const resp = await helpers.httpRequest({ method:'POST', url:MCP,\n    headers:{ 'Content-Type':'application/json', 'X-API-Key':RN },\n    body:{ jsonrpc:'2.0', method:'tools/call', id:1, params:{ name:'graphql_query', arguments:{ query } } }, json:true });\n  return JSON.parse(resp.result.content[0].text);\n};\nconst today = $now.setZone('America/New_York').toFormat('dd-MM-yyyy');\nlet date = goal.date || today;\nlet period = goal.period || 'day';\ntry {\n  if (goal.taskRef) {\n    const mt = (await gql('query{ monthTaskGoals(date:\"' + today + '\",taskRef:\"' + goal.taskRef + '\"){ date period goalItems{ id } } }')).data.monthTaskGoals || [];\n    const groups = Array.isArray(mt) ? mt : [mt];\n    for (const g of groups) { if ((g.goalItems || []).some(it => it.id === taskId)) { date = g.date; period = g.period; break; } }\n  }\n} catch (e) {}\nconst existing = new Set((goal.subTasks || []).map(s => String(s.body || '').trim()));\nreturn (d.actions || []).map(a => ({ json: {\n  taskId, date, period,\n  body: (typeof a === 'string') ? a : (a.body || a.task || JSON.stringify(a))\n}})).filter(it => it.json.body && !existing.has(String(it.json.body).trim()));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        560
+      ],
+      "id": "split-actions",
+      "name": "Split Actions"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"mutation AddSub($taskId: ID!, $date: String!, $period: String!, $body: String) { addSubTaskItem(taskId: $taskId, date: $date, period: $period, body: $body, isComplete: false) { id body isComplete } }\",\n    \"variables\":{ \"taskId\":\"{{ $json.taskId }}\", \"date\":\"{{ $json.date }}\", \"period\":\"{{ $json.period }}\", \"body\": {{ JSON.stringify($json.body) }} }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        560
+      ],
+      "id": "add-subtask",
+      "name": "Add Subtask",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const goal = $('Parse Goal').first().json.goalItemById || {};\nconst taskId = $('Webhook').first().json.query.goal_id;\nconst helpers = this.helpers;\nconst RN = $('API Key').first().json.apiKey;\nconst MCP = 'https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call';\nconst CFO_TASKREF = '63b3bcd2617e810008987ef3';\nconst YEAR_GOAL_ID = '69cff16ea8ae350002e9d9be';\nconst TARGETS = {\"trainingMonthlyUSD\": 500, \"savingsRatePct\": 25};\nconst gql = async (query, variables) => {\n  const args = variables ? { query, variables } : { query };\n  const resp = await helpers.httpRequest({ method:'POST', url:MCP,\n    headers:{ 'Content-Type':'application/json', 'X-API-Key':RN },\n    body:{ jsonrpc:'2.0', method:'tools/call', id:1, params:{ name:'graphql_query', arguments: args } }, json:true });\n  return JSON.parse(resp.result.content[0].text);\n};\nconst bc = $('Build Context').first().json;\nconst tj = (bc._trajectory || []);\nconst latest = tj[tj.length-1] || {};\n\nconst now = $now.setZone('America/New_York');\nconst todayStr = now.toFormat('dd-MM-yyyy');\nconst firstWeek = now.day <= 7;\n\nlet groups = [];\ntry { groups = (await gql('query{ monthTaskGoals(date:\"' + todayStr + '\",taskRef:\"' + CFO_TASKREF + '\"){ date period goalItems{ id body goalRef } } }')).data.monthTaskGoals || []; } catch(e){}\ngroups = Array.isArray(groups) ? groups : [groups];\nconst monthBucket = groups.find(g => g && g.period === 'month');\n// CURRENT week bucket: the routine identifies each week by the FRIDAY of that week. Compute the Friday\n// of today's week and match it. (Picking the first/greatest-<=today week bucket linked stale weeks -\n// e.g. Tue 15-09 belongs to Fri 18-09's week, not the prior 11-09 bucket.)\nconst toNum = (dmy) => { const p = String(dmy||'').split('-'); return p.length===3 ? (+p[2]*10000 + (+p[1])*100 + (+p[0])) : 0; };\nconst targetFri = now.plus({ days: 5 - now.weekday }).toFormat('dd-MM-yyyy');  // Luxon weekday: Mon=1..Sun=7, Fri=5\nconst weekBuckets = groups.filter(g => g && g.period === 'week').sort((a,b)=> toNum(a.date)-toNum(b.date));\nlet weekBucket = weekBuckets.find(g => g.date === targetFri);\nif (!weekBucket) weekBucket = { date: targetFri, period: 'week', goalItems: [] };  // bucket not materialized yet\n\n// resolve today's day goal bucket (goalItemById returns null date/period)\nlet dayDate = goal.date || todayStr, dayPeriod = goal.period || 'day';\nfor (const g of groups){ if ((g.goalItems||[]).some(it => it.id === taskId)){ dayDate = g.date; dayPeriod = g.period; break; } }\n\n// Preserve taskRef + tags on EVERY updateGoalItem: updateGoalItem does not retain unspecified fields,\n// so a link call that omits taskRef DETACHES the goal from its routine (root cause of the 13-15 Sep\n// \"not linked to routine\" failures). addGoalItem enforces \"goalRef provided => isMilestone must be true\".\nconst dayTaskRef = goal.taskRef || CFO_TASKREF;\nconst dayTags = (Array.isArray(goal.tags) && goal.tags.length) ? goal.tags : ['area:cfo'];\nconst addGoal = 'mutation($date:String!,$period:String!,$body:String,$taskRef:String,$goalRef:String,$isMilestone:Boolean,$tags:[String]){ addGoalItem(date:$date,period:$period,body:$body,taskRef:$taskRef,goalRef:$goalRef,isMilestone:$isMilestone,tags:$tags,isComplete:false){ id body } }';\nconst linkGoal = 'mutation($id:ID!,$date:String!,$period:String!,$body:String,$goalRef:String,$taskRef:String,$tags:[String]){ updateGoalItem(id:$id,date:$date,period:$period,body:$body,goalRef:$goalRef,isMilestone:true,taskRef:$taskRef,tags:$tags){ id goalRef taskRef } }';\nconst linkDay  = 'mutation($id:ID!,$date:String!,$period:String!,$body:String,$goalRef:String,$taskRef:String,$tags:[String]){ updateGoalItem(id:$id,date:$date,period:$period,body:$body,goalRef:$goalRef,taskRef:$taskRef,tags:$tags){ id goalRef taskRef } }';\nconst out = { firstWeek, dayDate, dayPeriod, targetFri, weekBucketDate:(weekBucket&&weekBucket.date)||null, monthGoalId:null, weekGoalId:null, created:[], linked:[] };\n\n// ---- Month goal: first week of month, idempotent, milestone-linked to the year goal ----\nlet monthGoalId = null;\nif (monthBucket){\n  const ex = (monthBucket.goalItems || []).find(it => it && it.id);\n  if (ex) monthGoalId = ex.id;\n  else if (firstWeek){\n    const body = 'Financial security this month: lift savings toward ' + TARGETS.savingsRatePct + '% of income, grow training income toward $' + TARGETS.trainingMonthlyUSD + '/mo, and cut the biggest liability - all in service of paying off India debt.';\n    try { const res = await gql(addGoal, { date:monthBucket.date, period:'month', body, taskRef:CFO_TASKREF, goalRef:YEAR_GOAL_ID, isMilestone:true, tags:['area:cfo'] });\n      monthGoalId = (res.data && res.data.addGoalItem) ? res.data.addGoalItem.id : null;\n      if (monthGoalId) out.created.push('month'); else out.monthErr = JSON.stringify(res.errors||res).slice(0,200); }\n    catch(e){ out.monthErr = String(e).slice(0,200); }\n  }\n}\nout.monthGoalId = monthGoalId;\n\n// ---- Week goal: if unset, milestone-linked to the month goal; self-heal an unlinked existing one ----\nlet weekGoalId = null;\nif (weekBucket){\n  const ex = (weekBucket.goalItems || []).find(it => it && it.id);\n  if (ex){\n    weekGoalId = ex.id;\n    if (monthGoalId && ex.goalRef !== monthGoalId){\n      try { await gql(linkGoal, { id:weekGoalId, date:weekBucket.date, period:'week', body:(ex.body||''), goalRef:monthGoalId, taskRef:CFO_TASKREF, tags:['area:cfo'] }); out.linked.push('week->month'); }\n      catch(e){ out.weekLinkErr = String(e).slice(0,200); }\n    }\n  } else {\n    const body = 'This week: move one number the right way - save more, add a training sale, or trim a liability. (Ties to this month\\'s financial-security goal.)';\n    try { const res = await gql(addGoal, { date:weekBucket.date, period:'week', body, taskRef:CFO_TASKREF, goalRef:(monthGoalId||''), isMilestone: !!monthGoalId, tags:['area:cfo'] });\n      weekGoalId = (res.data && res.data.addGoalItem) ? res.data.addGoalItem.id : null;\n      if (weekGoalId) out.created.push('week'); else out.weekErr = JSON.stringify(res.errors||res).slice(0,200); }\n    catch(e){ out.weekErr = String(e).slice(0,200); }\n  }\n}\nout.weekGoalId = weekGoalId;\n\n// ---- Link today's day goal to the week goal (preserving taskRef + tags so it stays in the routine) ----\nif (weekGoalId && goal.goalRef !== weekGoalId){\n  try {\n    const res = await gql(linkDay, { id:taskId, date:dayDate, period:dayPeriod, body:(goal.body||''), goalRef:weekGoalId, taskRef:dayTaskRef, tags:dayTags });\n    out.linkedDay = !!(res.data && res.data.updateGoalItem);\n    out.linkedTaskRef = (res.data && res.data.updateGoalItem) ? res.data.updateGoalItem.taskRef : null;\n    if (!out.linkedDay) out.linkErr = JSON.stringify(res.errors||res).slice(0,200);\n  } catch(e){ out.linkErr = String(e).slice(0,200); }\n}\nreturn [{ json: out }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        740
+      ],
+      "id": "ensure-goal-hierarchy",
+      "name": "Ensure Goal Hierarchy"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Parse Agent').first().json;\nconst tj = (d._trajectory || []);\nconst rows = tj.map(r => ({\n  monthKey:r.monthKey||'', monthLabel:r.monthLabel||'', payroll:r.payroll||0, training:r.training||0,\n  active:r.active||0, passive:r.passive||0, expenses:r.expenses||0, liabilities:r.liabilities||0,\n  savings:r.savings||0, savingsRate:r.savingsRate||0,\n  trainingTarget:r.trainingTarget||0, savingsTarget:r.savingsTarget||0, passiveTarget:r.passiveTarget||0 }));\nif (!rows.length) rows.push({ monthKey:'' });\nreturn rows.map(r => ({ json: r }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        380
+      ],
+      "id": "build-trajectory-rows",
+      "name": "Build Trajectory Rows"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "<<REPLACE_ME>>",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "424242",
+          "mode": "list",
+          "cachedResultName": "Trajectory"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "monthKey"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2000,
+        380
+      ],
+      "id": "upsert-trajectory-row",
+      "name": "Upsert Trajectory Row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Sheets account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Build Markdown').first().json.markdown }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/markdown; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "25051666-44a9-4191-9802-18ea54387235",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "Read CAS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Last3Months",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CAS": {
+      "main": [
+        [
+          {
+            "node": "Merge Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Last3Months": {
+      "main": [
+        [
+          {
+            "node": "Merge Sheets",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Sheets": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "CFO Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CFO Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Agent": {
+      "main": [
+        [
+          {
+            "node": "Query Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Actions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ensure Goal Hierarchy",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Trajectory Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Query": {
+      "main": [
+        [
+          {
+            "node": "Build Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Markdown": {
+      "main": [
+        [
+          {
+            "node": "Set Contribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Contribution": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Actions": {
+      "main": [
+        [
+          {
+            "node": "Add Subtask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Trajectory Rows": {
+      "main": [
+        [
+          {
+            "node": "Upsert Trajectory Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:53.307Z",
+      "createdAt": "2026-05-31T13:28:53.307Z",
+      "id": "78AORzdGMsn6jsp8",
+      "name": "phase:start"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:53.668Z",
+      "createdAt": "2026-05-31T13:28:53.668Z",
+      "id": "EtERIAA5VrQx7Xb2",
+      "name": "pillar:cfo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    }
+  ]
+}
