@@ -1,0 +1,814 @@
+{
+  "name": "CIO Start - Leverage Building",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "cio-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1400,
+        300
+      ],
+      "id": "cio-webhook",
+      "name": "Webhook",
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Routine Notes MCP key\nconst apiKey = '<<REPLACE_ME>>';\nreturn { apiKey };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        300
+      ],
+      "id": "cio-api-key",
+      "name": "API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward } }\",\n      \"variables\": { \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\" }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1000,
+        300
+      ],
+      "id": "cio-get-goal",
+      "name": "Get Goal"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unwrap the MCP JSON-RPC envelope into the goal object.\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nreturn { json: data.data ? data.data : data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        300
+      ],
+      "id": "cio-parse-goal",
+      "name": "Parse Goal"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.upload-post.com/api/analytics/grvpanchal?platforms=instagram,youtube,x",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -600,
+        300
+      ],
+      "id": "cio-get-social-analytics",
+      "name": "Get Social Analytics",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.connectsafely.ai/linkedin/analytics/followers?accountId=6a874e8a312c9fe6a06ff574&resultType=GROWTH&timeRange=past_30_days&lineChartType=daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "<<REPLACE_ME>>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        300
+      ],
+      "id": "cio-get-linkedin-analytics",
+      "name": "Get LinkedIn Analytics",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.connectsafely.ai/linkedin/profile",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "<<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"profileId\": \"grvpanchal\",\n  \"includeSkills\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -200,
+        300
+      ],
+      "id": "cio-get-linkedin-profile",
+      "name": "Get LinkedIn Profile",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://analyticsdata.googleapis.com/v1beta/properties/542147960:runReport",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAnalyticsOAuth2",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"dateRanges\": [{ \"startDate\": \"28daysAgo\", \"endDate\": \"today\" }],\n  \"metrics\": [{\"name\":\"totalUsers\"},{\"name\":\"newUsers\"},{\"name\":\"sessions\"},{\"name\":\"screenPageViews\"},{\"name\":\"engagementRate\"}]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        300
+      ],
+      "id": "cio-get-ga-blog",
+      "name": "Get GA Blog",
+      "credentials": {
+        "googleAnalyticsOAuth2": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Analytics account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://analyticsdata.googleapis.com/v1beta/properties/542152411:runReport",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAnalyticsOAuth2",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"dateRanges\": [{ \"startDate\": \"28daysAgo\", \"endDate\": \"today\" }],\n  \"metrics\": [{\"name\":\"totalUsers\"},{\"name\":\"newUsers\"},{\"name\":\"sessions\"},{\"name\":\"screenPageViews\"},{\"name\":\"engagementRate\"}]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        300
+      ],
+      "id": "cio-get-ga-site",
+      "name": "Get GA Site",
+      "credentials": {
+        "googleAnalyticsOAuth2": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Analytics account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/<<REPLACE_ME>>/values/Applications",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        300
+      ],
+      "id": "cio-get-job-applications",
+      "name": "Get Job Applications",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Google Sheets)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/<<REPLACE_ME>>/values/Collaboration",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        300
+      ],
+      "id": "cio-get-collaboration",
+      "name": "Get Collaboration",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Google Sheets)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/<<REPLACE_ME>>/values/Certifications",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        300
+      ],
+      "id": "cio-get-certifications",
+      "name": "Get Certifications",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Google Sheets)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst goal = $('Parse Goal').first().json.goalItemById || {};\nconst grab = (n) => { try { const j = $(n).first().json; return (j && !j.error) ? j : {}; } catch (e) { return {}; } };\nconst rows = (n) => { const v = grab(n).values || []; if (v.length < 2) return [];\n  const hdr = v[0].map(h => String(h).toLowerCase().trim());\n  return v.slice(1).filter(r => r && r.some(c => String(c||'').trim() !== '')).map(r => { const o = {}; hdr.forEach((h,i) => o[h] = r[i]); return o; }); };\nconst pick = (o, names) => { for (const n of names) { const k = Object.keys(o).find(k => k.replace(/[^a-z]/g,'').includes(n)); if (k && o[k] != null && o[k] !== '') return o[k]; } return ''; };\nconst num = (c) => { const m = String(c).replace(/[,\\s]/g,'').match(/(\\d+(?:\\.\\d+)?)/); return m ? parseFloat(m[1]) : null; };\n\n// ---- MEDIA: followers per platform + total ----\nconst social = grab('Get Social Analytics');\nconst order = ['instagram','x','youtube','tiktok','facebook','threads'];\nconst platKeys = Object.keys(social).filter(k => social[k] && typeof social[k] === 'object' && ('followers' in social[k]));\nplatKeys.sort((a,b) => ((order.indexOf(a)+1)||99) - ((order.indexOf(b)+1)||99));\nconst lines = [];\nlet totalFollowers = 0;\nfor (const p of platKeys) { const m = social[p];\n  const f = num(m.followers); if (f != null) totalFollowers += f;\n  lines.push('- ' + p + ': ' + (m.followers ?? '?') + ' followers; reach ' + (m.reach ?? 0) + ', views ' + (m.views ?? m.impressions ?? 0) + ', likes ' + (m.likes ?? 0) + ', comments ' + (m.comments ?? 0) + ', shares ' + (m.shares ?? 0)); }\nconst li = grab('Get LinkedIn Analytics');\nconst prof = (grab('Get LinkedIn Profile')).profile || {};\nconst liGrowth = (li.data || {}).followerGrowth || {};\nconst liFollowers = num(liGrowth.totalFollowers);\nif (liFollowers != null) { totalFollowers += liFollowers;\n  lines.push('- linkedin: ' + liFollowers + ' followers' + (liGrowth.changePercent != null ? (' (' + (liGrowth.changePercent >= 0 ? '+' : '') + liGrowth.changePercent + ' pct)') : '')); }\nconst conn = grab('Get LinkedIn Connections');\nconst connCount = (conn && conn.connectionCount != null) ? num(conn.connectionCount) : null;\nlines.push('- linkedin connections: ' + (connCount != null ? connCount : 'unavailable (ConnectSafely returned no data - reconnect the LinkedIn account in the ConnectSafely dashboard)'));\nconst gaLine = (label, resp) => { try {\n  const headers = (resp.metricHeaders || []).map(h => h.name);\n  const r = (resp.rows && resp.rows[0]) ? resp.rows[0].metricValues.map(v => v.value) : null;\n  if (!r) return '- GA ' + label + ' (28d): 0 users';\n  const m = {}; headers.forEach((h,i) => m[h] = r[i]);\n  return '- GA ' + label + ' (28d): ' + (m.totalUsers||0) + ' users, ' + (m.sessions||0) + ' sessions, ' + (m.screenPageViews||0) + ' pageviews';\n} catch (e) { return '- GA ' + label + ': unavailable'; } };\nconst gaB = grab('Get GA Blog'), gaS = grab('Get GA Site');\nif (gaB.metricHeaders || gaB.rows) lines.push(gaLine('blog.grvpanchal.me', gaB));\nif (gaS.metricHeaders || gaS.rows) lines.push(gaLine('grvpanchal.me', gaS));\nconst analyticsText = lines.length ? ('Real cross-platform analytics:\\n' + lines.join('\\n')) : 'No live analytics available.';\n\n// ---- LABOUR: Collaboration tab = developers working / collaborating / trained under me ----\nconst collab = rows('Get Collaboration');\nconst devLines = collab.map(r => '- ' + pick(r,['name']) + (pick(r,['domain']) ? (' [' + pick(r,['domain']) + ']') : '')\n  + (pick(r,['status']) ? (' - ' + pick(r,['status'])) : '') + (pick(r,['comment','note']) ? (': ' + String(pick(r,['comment','note'])).slice(0,120)) : ''));\nconst devCount = collab.length;\nconst labourText = devCount\n  ? ('Real labour roster (developers working, collaborating or trained under me - ' + devCount + '):\\n' + devLines.join('\\n'))\n  : 'No developers recorded yet in the Collaboration sheet tab.';\n\n// ---- TECH: ConnectSafely LinkedIn certifications PRIMARY (user has API plan, 2026-07-12);\n// Certifications sheet tab is the fallback if the CS plan ever lapses again ----\nconst liCerts = prof.certifications || [];\nconst certRows = rows('Get Certifications');\nconst useLi = liCerts.length > 0;\nconst certCount = useLi ? liCerts.length : certRows.length;\nconst certLines = useLi\n  ? liCerts.map(c => '- ' + (c.name||'') + (c.authority ? (' (' + c.authority + ')') : '') + (c.issueDate ? (', ' + c.issueDate) : ''))\n  : certRows.map(c => '- ' + pick(c,['certification','name','title']) + (pick(c,['authority','issuer']) ? (' (' + pick(c,['authority','issuer']) + ')') : '') + (pick(c,['status']) ? (' - ' + pick(c,['status'])) : ''));\nconst certSource = useLi ? 'LinkedIn via ConnectSafely' : (certRows.length ? 'Certifications sheet tab' : 'none');\nconst techText = certCount\n  ? ('Real certifications from ' + certSource + ' (' + certCount + '):\\n' + certLines.join('\\n'))\n  : 'No certifications found (LinkedIn profile empty and Certifications sheet tab unfilled).';\n\n// ---- CAPITAL: Applications tab -> income offered ----\nconst appRows = rows('Get Job Applications');\nconst apps = appRows.map(r => ({ company: pick(r,['company','employer','organi']), role: pick(r,['role','position','title','job','designation']),\n  stage: String(pick(r,['stage','status','round','progress'])).toLowerCase(), comp: pick(r,['compensation','salary','ctc','offer','package','pay','lpa']) })).filter(a => a.company || a.role);\nconst offers = apps.filter(a => /offer|final|accept|select|hired|negoti|work/.test(a.stage));\nconst offerComps = offers.map(a => num(a.comp)).filter(v => v != null);\nconst allComps = apps.map(a => num(a.comp)).filter(v => v != null);\nconst incomeOffered = offerComps.length ? offerComps.reduce((s,v) => s+v, 0) : (allComps.length ? Math.max(...allComps) : 0);\nconst incomeLabel = offerComps.length ? (incomeOffered + ' (sum of ' + offerComps.length + ' offer/working-stage)') : (allComps.length ? (incomeOffered + ' (best in pipeline, no offers yet)') : 'n/a');\nconst capitalText = apps.length\n  ? ('Real capital signal (job applications; money the market commits to my skills):\\n'\n     + '- Companies in pipeline: ' + apps.length + '\\n'\n     + '- Offer/working stage: ' + offers.length + (offers.length ? ('\\n' + offers.map(a => '  - ' + a.company + (a.role ? (' (' + a.role + ')') : '') + (a.comp ? (' - ' + a.comp) : '')).join('\\n')) : '')\n     + '\\n- Income offered: ' + incomeLabel)\n  : 'Job-application data empty.';\n\n// ---- MEASURABLE ENTITY TABLE ----\nconst entityTable = ['| Leverage | Measurable Entity | Value |', '|---|---|---|',\n  '| Media | Total followers (' + (platKeys.join(' + ') || 'no platforms') + (liFollowers != null ? ' + linkedin' : '') + ') | ' + totalFollowers + ' |',\n  '| Tech | Certifications (' + certSource + ') | ' + certCount + ' |',\n  '| Labour | Developers working / collaborating / trained | ' + devCount + ' |',\n  '| Capital | Income offered | ' + incomeLabel + ' |'].join('\\n');\n\nreturn { json: { goalItemById: goal, analyticsText, labourText, techText, capitalText, entityTable,\n  entities: { totalFollowers, certifications: certCount, developers: devCount, incomeOffered: incomeLabel } } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        300
+      ],
+      "id": "cio-build-context",
+      "name": "Build Context"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CIO media agent in a Personal Operating System. You are given REAL cross-platform social analytics and the measurable entity table. Ground every recommendation in those actual numbers: identify the strongest platform, the biggest gap, give a media-leverage score out of 10 and a concrete short content roadmap to grow TOTAL FOLLOWERS this week. Be concise and actionable.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.goalItemById.body + '\\n\\n' + $json.entityTable + '\\n\\n' + $json.analyticsText) }} }\n  ]\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1250,
+        60
+      ],
+      "id": "cio-media-agent",
+      "name": "media agent",
+      "credentials": {
+        "perplexityApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Perplexity account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CIO labour agent in a Personal Operating System. LABOUR LEVERAGE = other people's time and skills working toward my goals. You are given the REAL roster of developers working, collaborating or trained under me (from my tracking sheet) plus the measurable entity table. Assess the roster (who is active, stalled, needs follow-up), give a labour-leverage score out of 10, and recommend concrete moves to grow and activate this roster today (delegation candidates, follow-ups by name, training). Reference the actual people. Be concise and actionable.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.goalItemById.body + '\\n\\n' + $json.entityTable + '\\n\\n' + $json.labourText) }} }\n  ]\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1250,
+        220
+      ],
+      "id": "cio-labour-agent",
+      "name": "labour agent",
+      "credentials": {
+        "perplexityApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Perplexity account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CIO capital agent in a Personal Operating System. CAPITAL = other people's money the market is prepared to commit toward me - companies willing to pay for my skills and projects. You are given my REAL job-application pipeline (companies, roles, stages, compensation) and the measurable entity table. Treat INCOME OFFERED as the capital metric: assess how much external money converges on my skills, which skills attract the most, give a capital-leverage score out of 10, and recommend concrete moves to raise the income the market offers (targets, positioning, negotiation). Reference the actual data. Be concise.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.goalItemById.body + '\\n\\n' + $json.entityTable + '\\n\\n' + $json.capitalText) }} }\n  ]\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1250,
+        380
+      ],
+      "id": "cio-capital-agent",
+      "name": "capital agent",
+      "credentials": {
+        "perplexityApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Perplexity account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CIO tech agent in a Personal Operating System. TECH LEVERAGE is measured by TOTAL CERTIFICATIONS (from my tracked certification list; LinkedIn credentials as fallback) plus the measurable entity table. Assess current technical credibility, give a tech-leverage score out of 10, recommend the highest-leverage certifications to pursue next (name specific certs with rough effort/cost), and how to convert them into authority and opportunities. Be concrete and concise.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.goalItemById.body + '\\n\\n' + $json.entityTable + '\\n\\n' + $json.techText) }} }\n  ]\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1250,
+        540
+      ],
+      "id": "cio-tech-agent",
+      "name": "tech agent",
+      "credentials": {
+        "perplexityApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Perplexity account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1500,
+        300
+      ],
+      "id": "cio-merge",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst C = $('Build Context').first().json;\nconst sec = (n) => { try { const j = $(n).first().json;\n  if (j && j.choices && j.choices[0]) return String(j.choices[0].message.content || '').trim();\n  if (j && j.error) return '(agent error: ' + String(j.error.message || j.error).slice(0,120) + ')';\n  return '(no output)'; } catch (e) { return '(did not run)'; } };\nconst report = ['# Leverage Report', '', C.entityTable, '',\n  '## Media', sec('media agent'), '',\n  '## Labour', sec('labour agent'), '',\n  '## Capital', sec('capital agent'), '',\n  '## Tech', sec('tech agent')].join('\\n');\nreturn [{ json: { goalId: $('Webhook').first().json.query.goal_id, newContribution: report, entities: C.entities } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1700,
+        300
+      ],
+      "id": "cio-build-report",
+      "name": "Build Report"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"mutation UpdateGoalItemContribution($id: ID!, $contribution: String!) { updateGoalItemContribution(id: $id, contribution: $contribution) { id } }\",\n      \"variables\": {\n        \"id\": \"{{ $json.goalId }}\",\n        \"contribution\": {{ JSON.stringify($json.newContribution) }}\n      }\n    }\n  },\n  \"id\": 2\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        300
+      ],
+      "id": "cio-update-goal",
+      "name": "Update Goal",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, goal_id: $('Build Report').first().json.goalId, ...$('Build Report').first().json.entities } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2100,
+        300
+      ],
+      "id": "cio-respond",
+      "name": "Respond to Webhook"
+    },
+    {
+      "id": "getLiConnections01",
+      "name": "Get LinkedIn Connections",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        460
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.connectsafely.ai/linkedin/analytics/connections/count?accountId=6a874e8a312c9fe6a06ff574",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "<<REPLACE_ME>>"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "Get Social Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Social Analytics": {
+      "main": [
+        [
+          {
+            "node": "Get LinkedIn Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn Analytics": {
+      "main": [
+        [
+          {
+            "node": "Get LinkedIn Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn Profile": {
+      "main": [
+        [
+          {
+            "node": "Get LinkedIn Connections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get GA Blog": {
+      "main": [
+        [
+          {
+            "node": "Get GA Site",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get GA Site": {
+      "main": [
+        [
+          {
+            "node": "Get Job Applications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Applications": {
+      "main": [
+        [
+          {
+            "node": "Get Collaboration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Collaboration": {
+      "main": [
+        [
+          {
+            "node": "Get Certifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Certifications": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "media agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "labour agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "capital agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "tech agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "media agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "labour agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "capital agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "tech agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Build Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Report": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Goal": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn Connections": {
+      "main": [
+        [
+          {
+            "node": "Get GA Blog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "executionTimeout": 600
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:54.456Z",
+      "createdAt": "2026-05-31T13:28:54.456Z",
+      "id": "2gVss5MoTu0GE7Lf",
+      "name": "pillar:cio"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:53.307Z",
+      "createdAt": "2026-05-31T13:28:53.307Z",
+      "id": "78AORzdGMsn6jsp8",
+      "name": "phase:start"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    }
+  ]
+}

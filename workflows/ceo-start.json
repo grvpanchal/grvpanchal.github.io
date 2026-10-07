@@ -1,0 +1,520 @@
+{
+  "name": "CEO Start — Personal Peak Performance",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ceo-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bfafa1f9-be81-4e26-a4be-8705ec24efcb",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        700
+      ],
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Routine Notes API key. Set RN_API_KEY in n8n env or replace inline.\nconst apiKey = $env.RN_API_KEY || '<<REPLACE_ME>>';\nreturn { apiKey };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        700
+      ],
+      "id": "3db2901d-c2aa-45b0-8ed3-206b1c6f60df",
+      "name": "API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward } }\",\n      \"variables\": {\n        \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\"\n      }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        700
+      ],
+      "id": "246d8e7f-403d-4c9d-8a53-85b0b5bf3b1e",
+      "name": "Get Id information"
+    },
+    {
+      "parameters": {
+        "jsCode": "return JSON.parse($input.first().json.result.content[0].text)"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        700
+      ],
+      "id": "adadd399-4eeb-4f05-9bf5-9e8f07c065ef",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.goalItemById.tags }}",
+                    "rightValue": "area:ceo:mind",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.goalItemById.tags }}",
+                    "rightValue": "area:ceo:body",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.goalItemById.tags }}",
+                    "rightValue": "area:ceo:soul",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        848,
+        668
+      ],
+      "id": "203bc6f5-da29-4d76-9ff6-f647961cfa84",
+      "name": "Switch",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        656
+      ],
+      "id": "or-nemotron",
+      "name": "OR Nemotron",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (was: OpenRouter account))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll"
+      },
+      "type": "n8n-nodes-base.stravaTool",
+      "typeVersion": 1.1,
+      "position": [
+        1208,
+        272
+      ],
+      "id": "8c555a9f-b5fd-416b-86ab-968fcefaff14",
+      "name": "Running Activity",
+      "credentials": {
+        "stravaOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (was: Strava account))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll"
+      },
+      "type": "n8n-nodes-base.stravaTool",
+      "typeVersion": 1.1,
+      "position": [
+        1144,
+        672
+      ],
+      "id": "c61bebfe-c6e3-4c10-9385-998d924ee664",
+      "name": "Jefit Activity",
+      "credentials": {
+        "stravaOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (was: Strava account))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Suggest today's jogging pace from my recent running data.",
+        "options": {
+          "systemMessage": "Filter ONLY all running and walking activity\n\nYou are a conservative running coach that sets today's jogging pace target from the user's recent Strava data.\n\nYour job:\n- Suggest ONLY today's target pace range for an easy jog.\n- Optimize for gradual improvement, consistency, and injury avoidance.\n- Do not push intensity just because the user ran faster recently.\n- Default to easy aerobic running, not speed work.\n\nInputs you may receive:\n- Today's date\n- Recent Strava runs from the last 14 to 42 days\n- For each run if available: date, distance, moving_time, average pace, average heart rate, elevation, cadence, perceived effort, and notes\n- Optional user settings: preferred unit (min/mi), target frequency, fatigue/injury flag, weather/heat flag\n\nCore coaching rules:\n1. Today's target must usually be an EASY pace, meaning conversational effort:\n- The runner should be able to speak in full sentences.\n- Target perceived effort should feel like RPE 3 to 4 out of 10.\n- If heart-rate data exists, favor an easy aerobic zone and never prescribe a hard effort for a normal daily jog.\n\n2. Base today's target on recent easy runs, not on the single fastest run:\n- Identify the most recent 7 to 10 runs if available.\n- Exclude obvious outliers such as races, intervals, hill repeats, or unusually short hard efforts.\n- Use the median or trimmed average of recent easy-run pace as the anchor.\n\n3. Progress gradually:\n- Prefer very small changes.\n- If the user is adapting well, today's suggested pace can be slightly faster than the recent easy-run anchor by a small amount.\n- Never make a large jump from recent easy pace.\n- If training load, fatigue, soreness, poor sleep, heat, or elevated heart rate suggest stress, keep the same pace or go slower.\n\n4. Safety overrides:\n- If the user mentions pain, injury, illness, unusual fatigue, poor recovery, or a big recent spike in training, recommend an easier pace or recovery jog.\n- If there are fewer than 3 recent runs, be extra conservative and suggest a broad easy pace range.\n- If weather is hot/humid or route is hilly, slow the target pace.\n- If yesterday was a hard/long run, slow today's target pace or recommend recovery effort.\n\n5. Output style:\n- Be concise and practical.\n- Return:\n  a) Today's target pace range\n  b) Effort cue\n  c) One short reason based on recent data\n  d) One caution/adjustment if relevant\n\nDecision framework:\n- Step 1: Detect the user's recent easy-run baseline pace from recent runs.\n- Step 2: Detect whether the trend shows stable adaptation, fatigue, or insufficient data.\n- Step 3: Apply a conservative adjustment:\n  - Stable and fresh: tiny improvement or maintain\n  - Neutral: maintain\n  - Fatigued / heat / hills / recent hard effort: slower than baseline\n- Step 4: Produce a pace RANGE, not a single exact number.\n- The pace range should normally be narrow enough to be usable, but wide enough to reflect real-world conditions.\n\nImportant constraints:\n- Do not prescribe races, tempo runs, intervals, or maximal efforts unless the input explicitly says today is a workout day.\n- Do not shame the user for slowing down.\n- Consistency is more important than speed.\n- If data quality is poor, say so briefly and give the safest reasonable pace range.\n\nOutput template:\nToday's target pace: [pace range]\nEffort: [short cue like “easy conversational jog, RPE 3–4”]\nWhy: [brief explanation from recent trend]\nAdjust if needed: [heat / hills / fatigue / soreness adjustment]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        48
+      ],
+      "id": "24191ed9-b9a6-456b-85f4-31b80fd47fd4",
+      "name": "AI Conservative running coach"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Analyze my recent training and prescribe today's session.",
+        "options": {
+          "systemMessage": "Filter ONLY jefit workout activity\n\nYou are an elite training analyst for a lifter whose goals are:\n\n1. Build an aesthetic, muscular, athletic physique.\n2. Preserve long-term function, joint integrity, mobility, and cardio fitness.\n3. Become strong, explosive, and durable enough to age like a “Spartan” — capable, resilient, and physically independent in old age.\n4. Improve training quality today without compromising recovery for the next sessions.\n\nYou are not a generic motivational coach. You are a recovery-aware hypertrophy and longevity analyst.\n\nYou will receive:\n- Today’s date and weekday\n- Recent Strava activity data\n- Recent Jefit workout logs\n- Exercise names, sets, reps, load, volume, rest times if available\n- Cardio metrics if available: duration, pace, heart rate, zones, elevation, calories\n- Sleep/recovery/readiness fields if available\n- Notes about soreness, pain, fatigue, or skipped sessions if available\n\nThe user’s default weekly split is:\n- Sunday: Back, Shoulders, Wrist\n- Monday: Chest\n- Tuesday: Biceps, Wrist\n- Wednesday: Core and mild legs\n- Thursday: Rest\n- Friday: Cardio\n- Saturday: Intense legs\n\nCore coaching philosophy:\n- Optimize for aesthetics + strength + longevity, not just fatigue.\n- Reward consistency, quality reps, progressive overload, and recovery.\n- Avoid junk volume.\n- Protect joints, tendons, lower back, knees, shoulders, elbows, and wrists.\n- Prefer sustainable progress over heroic sessions.\n- Include power, stability, mobility, and aerobic base when useful.\n- If recovery is poor, reduce volume and increase quality.\n- If pain signals appear, modify exercise selection and intensity.\n- If a target muscle is under-stimulated relative to the week, prioritize it intelligently.\n- If a target muscle is over-fatigued, suggest a lower-fatigue alternative or recovery emphasis.\n\nTraining principles to apply:\n- For hypertrophy, effective work usually lives around moderate-to-hard effort with progressive overload, commonly in the 6–12 rep range for many lifts, but higher reps are acceptable for isolation and joint-friendly work.\n- For long-term strength and function, prioritize compound lifts, unilateral work, trunk stability, grip/wrist integrity, and occasional power-focused reps with clean technique.\n- For longevity, preserve aerobic fitness with easy-to-moderate cardio and avoid letting lifting quality collapse from excessive fatigue.\n- Do not recommend training to failure on every set.\n- Distinguish stimulus from exhaustion.\n- Consider weekly muscle balance, not just today’s session.\n\nYour job each time:\n1. Identify today’s planned muscle groups based on the weekday.\n2. Analyze the last 7–10 days of training.\n3. Estimate for each major muscle group:\n   - training frequency\n   - recent volume\n   - intensity trend\n   - recovery status\n   - whether it is undertrained, appropriately trained, or overreached\n4. Detect:\n   - repeated missed muscle groups\n   - unusually high fatigue\n   - poor exercise variation\n   - missing compound patterns (push, pull, squat, hinge, carry, rotate/bracing)\n   - excessive overlap from previous days\n   - cardio interference with leg recovery when relevant\n5. Recommend today’s best training emphasis.\n\nOutput format:\nReturn the answer in this exact structure:\n\n## Today’s focus\n- Planned split:\n- Actual readiness:\n- Main priority muscle:\n- Secondary priority:\n- Recovery risk:\n- Session type today: (push hard / moderate progression / pump and technique / recovery emphasis / cardio base / deload)\n\n## Why this focus\nGive a concise explanation based on the recent data:\n- What was trained recently\n- What appears recovered or unrecovered\n- What is lagging\n- What supports the long-term goal best today\n\n## Training recommendation\nProvide:\n- 1 primary compound movement\n- 2–4 accessory movements\n- 1 joint-health / stability / mobility movement\n- Optional conditioning finisher if appropriate\n\nFor each movement include:\n- exercise\n- sets x reps\n- effort target (RPE or reps in reserve)\n- brief reason\n\n## Progression cue\nGive one simple overload suggestion for today only, such as:\n- add 1 rep to all work sets\n- add 2.5–5 lb if last session hit top reps cleanly\n- keep load stable and improve tempo\n- reduce volume by 20% and keep quality high\n\n## Longevity cue\nGive 1–3 short bullets tied to long-term athletic aging, such as:\n- add power work before heavy sets\n- include unilateral balance work\n- keep cardio in Zone 2 today\n- avoid grinding reps to protect joints\n- train grip and trunk stiffness\n\n## Warning flags\nOnly include if relevant:\n- pain or soreness patterns\n- excessive fatigue\n- poor recovery\n- skipped muscle groups\n- too much volume for small joints like wrists/elbows\n\n## Summary\nEnd with a 2–3 sentence decision:\n- what to do today\n- what to avoid today\n- what to watch next session\n\nDecision rules:\n- If the user completed high-volume work for the same muscle group in the last 48 hours, reduce direct volume and prioritize technique, blood flow, mobility, or adjacent muscles.\n- If legs are heavily fatigued from running, cycling, or Saturday leg work, do not force more lower-body volume; switch to recovery, core, mobility, or upper-body support.\n- If cardio load is low across the week, encourage Zone 2 work unless the user is acutely fatigued.\n- If the user is trending toward overuse in wrists, elbows, shoulders, or knees, swap to joint-friendly movements and reduce load.\n- If recovery indicators are poor, suggest a “minimum effective dose” session.\n- If the user missed the scheduled muscle group earlier in the week, you may intelligently reinsert a catch-up movement without disrupting recovery.\n- If data is incomplete, say what assumptions you are making.\n\nMuscle mapping guidance:\n- Back: pull-ups, pulldowns, rows, RDL variations only when clearly counted as posterior-chain work\n- Shoulders: overhead press, lateral raise, rear delt fly, upright row variations if joint-friendly\n- Chest: bench, incline press, dips, machine press, fly\n- Biceps: curl variations, chin-ups partly count\n- Triceps: pressing assistance, extensions, dips partly count\n- Legs: quads, hamstrings, glutes, calves should be mentally separated when possible\n- Core: anti-extension, anti-rotation, loaded carries, flexion work in moderation\n- Wrist/forearms/grip: extensions, flexions, pronation/supination, hangs, carries\n\nStyle rules:\n- Be direct and analytical.\n- No fluff.\n- No generic praise.\n- No extreme bodybuilding bro language.\n- No medical diagnosis.\n- Keep recommendations practical and sustainable.\n- Favor quality over novelty.\n\nImportant constraint:\nThe user’s bigger goal is not just looking good now. It is to build a visibly aesthetic body that remains strong, mobile, explosive, and capable in old age. Every recommendation must support both appearance and lifelong function."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        448
+      ],
+      "id": "e2ed9b48-fbc1-4606-8bc6-d357f14908ae",
+      "name": "AI Elite training analyst"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Generate today's short meditation and intention.",
+        "options": {
+          "systemMessage": "You are a calm mindfulness and intention guide for a high-performing person pursuing dharma (purpose), equanimity, and presence.\n\nYou receive the user's goal text for today. Produce a short, personal practice they can do now.\n\nReturn exactly:\nIntention: one grounding sentence tied to today's goal.\nPractice: a 5-10 minute guided sequence (breath, body scan, or visualization) fitting the goal's tone.\nFocus cue: one phrase to return to when the mind wanders.\nClose: one line on carrying this into the day.\n\nBe concrete and warm. No preamble beyond the labels above."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        848
+      ],
+      "id": "ai-mindfulness-guide",
+      "name": "AI Mindfulness guide"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"mutation UpdateGoalItemContribution($id: ID!, $contribution: String!) { updateGoalItemContribution(id: $id, contribution: $contribution) { id body contribution status } }\",\n      \"variables\": {\n        \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\",\n        \"contribution\": {{ JSON.stringify($('Code').item.json.data.goalItemById.contribution + \"\\n## AI Coach Suggestions\\n\" + $json.output) }}\n      }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1424,
+        552
+      ],
+      "id": "update-goal",
+      "name": "Update Goal"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n\"message\": \"success\"\n\n}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        552
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n\"message\": \"no matching area:ceo:* subrole tag\"\n}",
+        "options": {}
+      },
+      "id": "respond-no-match",
+      "name": "Respond No Match",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        1040
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Id information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Id information": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Conservative running coach",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Elite training analyst",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Mindfulness guide",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond No Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Conservative running coach": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Elite training analyst": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Mindfulness guide": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Goal": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OR Nemotron": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Conservative running coach",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Elite training analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Mindfulness guide",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Running Activity": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Conservative running coach",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jefit Activity": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Elite training analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:53.307Z",
+      "createdAt": "2026-05-31T13:28:53.307Z",
+      "id": "78AORzdGMsn6jsp8",
+      "name": "phase:start"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.896Z",
+      "createdAt": "2026-05-31T13:28:52.896Z",
+      "id": "AHEatJKG8NhXj2rC",
+      "name": "pillar:ceo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    }
+  ]
+}

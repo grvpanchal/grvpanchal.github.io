@@ -1,0 +1,497 @@
+{
+  "name": "CXO End — Contribution & Service",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cxo-end",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "34f85297-899f-4d34-93aa-5b2d14ec5e01",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        120
+      ],
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Routine Notes API key. Set RN_API_KEY in n8n env or replace inline.\nconst apiKey = $env.RN_API_KEY || '<<REPLACE_ME>>';\nreturn { apiKey };"
+      },
+      "id": "2a236f7a-aec4-4a59-a1e5-f495e424c2df",
+      "name": "API Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward } }\",\n      \"variables\": { \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\" }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "id": "fbf6eea3-1452-4595-82cc-25eef1b2d5e3",
+      "name": "Get Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unwrap the MCP JSON-RPC envelope into the goal object.\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nreturn { json: data.data ? data.data : data };"
+      },
+      "id": "4e2cd925-3ec4-4376-ac01-72f5f766cfa4",
+      "name": "Parse Goal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b12002c5-e379-4e34-a89c-17ba78430607",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:cxo:empathize",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "empathize"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e6cec808-15e4-413b-9414-19601a43fee8",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:cxo:ideate",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ideate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7941b651-038e-4b6c-8ff6-c9ea72cb14be",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:cxo:implement",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "implement"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "14f15758-36cc-4a9e-b84b-718cb7f598e3",
+      "name": "Route Subrole",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CXO empathize agent in a Personal Operating System. Focus on: the needs and emotions of the people in today's interactions. Reflect on completion and close the loop for the end of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "60b93874-8d9b-44d3-91ac-a2a6da9a0ca1",
+      "name": "empathize agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        120
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (perplexity key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CXO ideate agent in a Personal Operating System. Focus on: ways to deliver outsized value given those needs. Reflect on completion and close the loop for the end of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "6b4de7f1-ba75-42f7-b22a-e279ef69c7ee",
+      "name": "ideate agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (perplexity key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CXO implement agent in a Personal Operating System. Focus on: concrete, kind actions and a value-proposition statement. Reflect on completion and close the loop for the end of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "b7871a56-8855-4df3-bb3d-33c252f0a3d4",
+      "name": "implement agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        480
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (perplexity key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "36077b45-102e-4944-95da-b662fc037a3c",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1680,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"mutation UpdateGoalItemContribution($id: ID!, $contribution: String!) { updateGoalItemContribution(id: $id, contribution: $contribution) { id body contribution status } }\",\n      \"variables\": {\n        \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\",\n        \"contribution\": {{ JSON.stringify($json.choices ? $json.choices[0].message.content : ($json.message || '')) }}\n      }\n    }\n  },\n  \"id\": 2\n}",
+        "options": {}
+      },
+      "id": "451affa2-56cc-4468-a5aa-759df2a0de01",
+      "name": "Update Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"goal_id\": $('Webhook').item.json.query.goal_id } }}",
+        "options": {}
+      },
+      "id": "35cd8301-ebc2-41f2-a1ed-db4e84804dda",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "Route Subrole",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Subrole": {
+      "main": [
+        [
+          {
+            "node": "empathize agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ideate agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "implement agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "empathize agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ideate agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "implement agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Goal": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": null,
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:57.540Z",
+      "createdAt": "2026-05-31T13:28:57.540Z",
+      "id": "uH5ejVaKJIXVjEZT",
+      "name": "pillar:cxo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.950Z",
+      "createdAt": "2026-05-31T13:28:52.950Z",
+      "id": "vkEv2UGPNBfyH74Y",
+      "name": "phase:end"
+    }
+  ]
+}

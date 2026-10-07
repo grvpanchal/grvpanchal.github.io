@@ -1,0 +1,823 @@
+{
+  "name": "CXO Start - Response Desk",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cxo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        300
+      ],
+      "id": "cxo-webhook",
+      "name": "Webhook",
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "const apiKey = \"<<REPLACE_ME>>\";\nreturn { apiKey };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        300
+      ],
+      "id": "cxo-api-key",
+      "name": "API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"query G($id: ID!) { goalItemById(id: $id) { id body contribution tags } }\",\n    \"variables\":{ \"id\":\"{{ $('Webhook').item.json.query.goal_id }}\" }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        300
+      ],
+      "id": "cxo-get-goal",
+      "name": "Get Goal"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nconst g = (data.data ? data.data.goalItemById : data.goalItemById) || {};\nconst dryRun = String(($('Webhook').first().json.query.dryRun) || '') === '1';\nreturn [{ json: { goalId: $('Webhook').first().json.query.goal_id,\n  body: g.body || '', contribution: g.contribution || '', tags: g.tags || [], dryRun } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        300
+      ],
+      "id": "cxo-parse-goal",
+      "name": "Parse Goal"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "<<REPLACE_ME>>",
+          "mode": "list",
+          "cachedResultName": "WhatsApp Updates"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "1243183799",
+          "mode": "list",
+          "cachedResultName": "Messages"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -200,
+        100
+      ],
+      "id": "cxo-wa-read",
+      "name": "WA Read",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Sheets account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Window = last waHours (default 24). Rows arrive once per ACCOUNT: a message in a group both numbers belong\n// to is logged twice with the same WhatsApp msgId -> dedupe on msgId|chatId and remember both accounts.\nconst TZ = 'America/New_York';\nconst ACC = {\"919913296665\": \"IN\", \"18483918889\": \"US\"};\nconst hours = Math.max(1, Number(($('Webhook').first().json.query.waHours) || 24));\nconst now = Date.now(), since = now - hours * 3600e3;\n// ts may come back as an ISO string or (if Sheets auto-typed the cell) a serial day number\nconst tsOf = r => typeof r.ts === 'number' ? Math.round((r.ts - 25569) * 86400e3) : Date.parse(r.ts);\nconst rows = $input.all().map(i => i.json).filter(r => r && r.msgId && r.ts && !r.error)\n  .map(r => Object.assign({}, r, { msgId: String(r.msgId), account: String(r.account), chatId: String(r.chatId),\n    author: String(r.author == null ? '' : r.author), text: String(r.text == null ? '' : r.text), _t: tsOf(r) }))\n  .filter(r => isFinite(r._t));\nconst win = rows.filter(r => r._t >= since && r._t <= now + 3600e3).sort((a, b) => a._t - b._t);\nconst seen = {}, uniq = [];\nfor (const r of win) {\n  const k = r.msgId + '|' + r.chatId;\n  if (seen[k]) { seen[k].accounts[r.account] = 1; continue; }\n  const e = Object.assign({}, r, { accounts: { [r.account]: 1 } }); seen[k] = e; uniq.push(e);\n}\nconst hhmm = t => new Date(t).toLocaleTimeString('en-US', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false });\nconst chats = {};\nfor (const r of uniq) {\n  const isStatus = r.chatType === 'status';\n  const id = isStatus ? 'status' : r.chatId;\n  const c = chats[id] || (chats[id] = { chatId: id, chatName: isStatus ? 'Status updates' : r.chatName, chatType: r.chatType,\n    accounts: {}, messages: 0, reactions: 0, authors: {}, lines: [], lastTs: 0, lastFromMe: false, myMsgs: 0 });\n  Object.assign(c.accounts, r.accounts);\n  if (r.kind === 'reaction') { c.reactions++; continue; }\n  c.messages++; c.authors[r.author] = (c.authors[r.author] || 0) + 1;\n  if (r.fromMe === 'yes') c.myMsgs++;\n  const t = r._t;\n  if (t >= c.lastTs) { c.lastTs = t; c.lastFromMe = r.fromMe === 'yes'; }\n  if (!isStatus) c.lines.push(hhmm(t) + ' ' + r.author + ': ' + String(r.text || '').slice(0, 240) + (r.quoted ? ' (re: \"' + String(r.quoted).slice(0, 60) + '\")' : ''));\n}\nconst label = a => ACC[a] || a;\nconst order = { dm: 0, group: 1, status: 2 };\nconst list = Object.values(chats).map(c => {\n  const topAuthors = Object.entries(c.authors).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, k]) => n + ' (' + k + ')');\n  return { chatId: c.chatId, chatName: c.chatName, chatType: c.chatType,\n    accounts: Object.keys(c.accounts).map(label).sort(), messages: c.messages, reactions: c.reactions,\n    participants: Object.keys(c.authors).length, topAuthors, myMsgs: c.myMsgs, lastFromMe: c.lastFromMe,\n    lastAt: c.lastTs ? new Date(c.lastTs).toISOString() : '', lines: c.lines.slice(-60) };\n}).sort((a, b) => (order[a.chatType] - order[b.chatType]) || (b.messages - a.messages));\n// transcripts for the LLM, total budget ~26k chars\nlet budget = 26000;\nconst forLLM = [];\nfor (const c of list) {\n  if (c.chatType === 'status' || !c.lines.length) continue;\n  let tr = c.lines.join('\\n'); if (tr.length > 3500) tr = '...\\n' + tr.slice(-3500);\n  if (tr.length > budget) { tr = tr.slice(-Math.max(0, budget)); if (!tr) break; }\n  budget -= tr.length;\n  forLLM.push({ chatId: c.chatId, chatName: c.chatName, chatType: c.chatType, accounts: c.accounts,\n    messages: c.messages, lastFromMe: c.lastFromMe, transcript: tr });\n}\nconst stats = { hours, since: new Date(since).toISOString(), rawRows: win.length, unique: uniq.length,\n  duplicatesMerged: win.length - uniq.length, logRows: rows.length,\n  groups: list.filter(c => c.chatType === 'group').length, dms: list.filter(c => c.chatType === 'dm').length,\n  statusUpdates: (list.find(c => c.chatType === 'status') || {}).messages || 0 };\nreturn [{ json: { stats, chats: list.map(c => Object.assign({}, c, { lines: undefined })), forLLM } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        100
+      ],
+      "id": "cxo-wa-consolidate",
+      "name": "WA Consolidate"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.upload-post.com/api/uploadposts/dms/conversations?platform=instagram&user=grvpanchal",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        100
+      ],
+      "id": "cxo-ig-dms",
+      "name": "IG DMs",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.connectsafely.ai/linkedin/messaging/recent-messages?accountId=6a874e8a312c9fe6a06ff574&count=25",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "<<REPLACE_ME>>"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        100
+      ],
+      "id": "cxo-li-messages",
+      "name": "LI Messages",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Merge WhatsApp buckets with Instagram DM conversations (upload-post) and LinkedIn conversations\n// (ConnectSafely) into ONE uniform chat list + one LLM transcript bundle. Same `hours` window as WhatsApp.\nconst TZ = 'America/New_York', IG_SELF = 'grvpanchal';\nconst WA = $('WA Consolidate').first().json;\nconst hours = WA.stats.hours, now = Date.now(), since = Date.parse(WA.stats.since);\nconst hhmm = t => new Date(t).toLocaleTimeString('en-US', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false });\nconst iso = s => Date.parse(String(s || '').replace(/([+-]\\d{2})(\\d{2})$/, '$1:$2'));   // IG uses +0000\nconst clip = (s, n) => String(s == null ? '' : s).replace(/\\s+/g, ' ').trim().slice(0, n);\nconst errOf = j => (j && j.error) ? clip(j.error.message || j.error.description || JSON.stringify(j.error), 160) : '';\nconst grab = n => { try { return $(n).first().json || {}; } catch (e) { return {}; } };\n\n// ---- Instagram ----\nconst igJ = grab('IG DMs'); const igError = errOf(igJ) || (igJ.success === false ? clip(igJ.message || 'upload-post returned success:false', 160) : '');\nconst ig = [];\nfor (const c of (igJ.conversations || [])) {\n  const parts = ((c.participants || {}).data || []).map(p => p.username).filter(u => u && u !== IG_SELF);\n  const msgs = ((c.messages || {}).data || []).map(m => Object.assign({}, m, { _t: iso(m.created_time) })).filter(m => isFinite(m._t)).sort((a, b) => a._t - b._t);\n  if (!msgs.length) continue;\n  const recent = msgs.filter(m => m._t >= since);\n  if (!recent.length) continue;                                    // nothing new in the window\n  const text = m => clip(m.message, 240) || (m.shares && m.shares.length ? '[shared ' + (m.shares[0].link || 'post') + ']'\n    : (m.story ? '[story ' + ((m.story.mention && 'mention') || (m.story.reply_to && 'reply') || 'share') + ']' : (m.attachments ? '[attachment]' : '[media]')));\n  const authors = {}; let myMsgs = 0;\n  recent.forEach(m => { const u = (m.from || {}).username === IG_SELF ? 'Me' : ((m.from || {}).username || '?'); authors[u] = (authors[u] || 0) + 1; if (u === 'Me') myMsgs++; });\n  const last = msgs[msgs.length - 1];\n  ig.push({ channel: 'instagram', chatId: 'ig:' + c.id, chatName: parts.join(', ') || 'Instagram chat', chatType: parts.length > 1 ? 'group' : 'dm',\n    accounts: ['IG'], messages: recent.length, reactions: 0, participants: Object.keys(authors).length,\n    topAuthors: Object.entries(authors).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, k]) => n + ' (' + k + ')'),\n    myMsgs, lastFromMe: (last.from || {}).username === IG_SELF, lastAt: new Date(last._t).toISOString(),\n    lines: msgs.slice(-12).map(m => hhmm(m._t) + ' ' + ((m.from || {}).username === IG_SELF ? 'Me' : (m.from || {}).username) + ': ' + text(m)) });\n}\n\n// ---- LinkedIn ----\nconst liJ = grab('LI Messages'); const liError = errOf(liJ) || (liJ.success === false ? clip(liJ.message || liJ.error || 'ConnectSafely returned success:false', 160) : '');\nconst li = [];\nfor (const c of (liJ.conversations || [])) {\n  const t = Date.parse(c.lastActivityAt || ''); const unread = Number(c.unreadCount) || 0;\n  if (!(t >= since) && !unread) continue;                          // new activity OR still unread\n  const names = (c.participants || []).map(p => p.name).filter(Boolean);\n  const head = (c.participants || []).map(p => p.headline).filter(Boolean)[0] || '';\n  const lm = c.latestMessage || {};\n  li.push({ channel: 'linkedin', chatId: 'li:' + (c.conversationId || c.conversationUrn), chatName: names.join(', ') || 'LinkedIn chat',\n    chatType: names.length > 1 ? 'group' : 'dm', accounts: ['LI'], messages: unread || (t >= since ? 1 : 0), reactions: 0,\n    participants: names.length, topAuthors: names.slice(0, 5), myMsgs: 0, unread, headline: clip(head, 100),\n    lastFromMe: !unread && !(t >= since), lastAt: isFinite(t) ? new Date(t).toISOString() : '',\n    lines: [(isFinite(t) ? hhmm(t) + ' ' : '') + (names[0] || 'Them') + (head ? ' (' + clip(head, 80) + ')' : '') + ': ' + (clip(lm.text, 600) || '[no text / attachment]') + (unread ? '  [UNREAD x' + unread + ']' : '')] });\n}\n\n// ---- merge: WhatsApp (already consolidated) + IG + LI ----\nconst waChats = (WA.chats || []).map(c => Object.assign({ channel: 'whatsapp' }, c));\nconst chats = waChats.concat(ig, li);\nlet budget = 30000; const forLLM = [];\nfor (const c of (WA.forLLM || []).map(x => Object.assign({ channel: 'whatsapp' }, x)).concat(ig.concat(li).map(c => ({\n    channel: c.channel, chatId: c.chatId, chatName: c.chatName, chatType: c.chatType, accounts: c.accounts, messages: c.messages,\n    lastFromMe: c.lastFromMe, unread: c.unread || 0, transcript: c.lines.join('\\n') })))) {\n  let tr = String(c.transcript || ''); if (tr.length > 3500) tr = '...\\n' + tr.slice(-3500);\n  if (tr.length > budget) { tr = tr.slice(-Math.max(0, budget)); if (!tr) break; }\n  budget -= tr.length; forLLM.push(Object.assign({}, c, { transcript: tr }));\n}\nconst stats = Object.assign({}, WA.stats, { igChats: ig.length, igError, liChats: li.length, liUnread: li.reduce((s, c) => s + (c.unread || 0), 0), liError });\nreturn [{ json: { stats, chats: chats.map(c => Object.assign({}, c, { lines: undefined })), forLLM } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        100
+      ],
+      "id": "cxo-msg-consolidate",
+      "name": "Msg Consolidate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "CXO WhatsApp Digest"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models:['~google/gemini-flash-latest'], reasoning:{enabled:false}, response_format:{type:'json_object'}, messages:[ {role:'system',content:\"You are the CXO (Chief Experience Officer) desk for Gaurav Panchal, summarizing his messaging day across WhatsApp, Instagram DMs and LinkedIn messages. INPUT: { chats: [{ channel (whatsapp|instagram|linkedin), chatId, chatName, chatType (group|dm), accounts (IN/US = which of Gaurav's two WhatsApp numbers; IG; LI), messages, lastFromMe, unread, transcript }] }. 'Me' in a transcript is Gaurav. Messages may be Marathi / Hindi / Gujarati / English - always write in English. For EACH chat return: summary = 1-2 sentences of what actually happened (names, plans, decisions, asks, news; say 'mostly forwards/media' or 'shared reels' when that is the truth; for LinkedIn flag cold sales/recruiter outreach as such); highlights = 0-3 very short bullets worth remembering (dates, plans, asks, news) - none for pure forwards or greetings; actionItems = 0-2 concrete things Gaurav should do, empty if nothing; needsReply = true ONLY when a real person asked Gaurav something or awaits his answer and lastFromMe is false (LinkedIn: only if unread > 0 and it is not generic sales spam; Instagram: a shared reel with no text does NOT need a reply); reply = if needsReply, a short reply in Gaurav's voice matching the channel (WhatsApp/Instagram casual, warm, <50 words, no sign-off; LinkedIn professional, <80 words, sign-off 'Gaurav'); never invent facts - ask one sharp question if info is missing; else ''. Also overall = 1-2 sentence read of the day's relationships and where Gaurav's attention is needed. Return ONLY raw JSON (no fences): { overall, chats: [{ chatId, summary, highlights: [], actionItems: [], needsReply, reply }] }. Keep chatId exactly as given.\"}, {role:'user',content: JSON.stringify({ chats: $json.forLLM }) } ] }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        100
+      ],
+      "id": "cxo-wa-summarize",
+      "name": "WA Summarize",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst TZ = 'America/New_York';\nconst extractJson = (s) => {\n  s = String(s || '').trim().replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '');\n  try { return JSON.parse(s); } catch (e) {}\n  const i = s.indexOf('{'); if (i < 0) return null;\n  let depth = 0, inStr = false, esc = false;\n  for (let k = i; k < s.length; k++) { const ch = s[k];\n    if (esc) { esc = false; continue; }\n    if (inStr) { if (ch === '\\\\') esc = true; else if (ch === '\"') inStr = false; continue; }\n    if (ch === '\"') { inStr = true; continue; }\n    if (ch === '{') depth++; else if (ch === '}') { depth--; if (!depth) { try { return JSON.parse(s.slice(i, k + 1)); } catch (e) { return null; } } } }\n  return null;\n};\nconst C = $('Msg Consolidate').first().json;\nlet llm = null, llmError = '';\ntry { const r = $input.first().json; if (r && r.error) llmError = String(r.error.message || r.error).slice(0, 160);\n  llm = extractJson(r && r.choices ? r.choices[0].message.content : ''); } catch (e) { llmError = String(e.message || e); }\nllm = llm || { overall: '', chats: [] };\nconst byId = {}; (llm.chats || []).forEach(c => { if (c && c.chatId) byId[String(c.chatId)] = c; });\nconst arr = x => Array.isArray(x) ? x.map(s => String(s).trim()).filter(Boolean) : (x ? [String(x)] : []);\nconst chats = (C.chats || []).map(c => {\n  const s = byId[c.chatId] || {};\n  const summary = String(s.summary || '').trim() || (c.chatType === 'status'\n    ? c.messages + ' status update(s) from ' + c.topAuthors.join(', ')\n    : (!c.messages && c.reactions ? 'Only ' + c.reactions + ' reaction(s) to older messages, nothing new.'\n       : c.messages + ' message(s)' + (c.reactions ? ', ' + c.reactions + ' reaction(s)' : '') + ' - no summary available'));\n  const replyable = c.chatType === 'dm' && !c.lastFromMe && (c.channel !== 'linkedin' || (c.unread || 0) > 0);\n  return Object.assign({}, c, { summary, highlights: arr(s.highlights), actionItems: arr(s.actionItems),\n    needsReply: !!s.needsReply && replyable, reply: String(s.reply || '').trim() });\n});\nconst now = new Date(); const dayKey = now.toLocaleDateString('en-CA', { timeZone: TZ });\nconst rows = chats.map(c => ({ key: dayKey + '|' + c.chatId, dayKey, chatName: c.chatName,\n  chatType: c.channel === 'whatsapp' ? c.chatType : c.channel + ' ' + c.chatType,\n  accounts: c.accounts.join('+'), messages: c.messages, reactions: c.reactions, participants: c.participants,\n  topAuthors: c.topAuthors.join(', '), summary: c.summary, highlights: c.highlights.join(' • '),\n  actionItems: c.actionItems.join(' • '), needsReply: c.needsReply ? 'yes' : 'no', suggestedReply: c.reply,\n  updatedAt: now.toISOString() }));\nreturn [{ json: { dayKey, overall: String(llm.overall || '').trim(), llmError, stats: C.stats, chats, rows } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        100
+      ],
+      "id": "cxo-wa-parse",
+      "name": "WA Parse"
+    },
+    {
+      "parameters": {
+        "jsCode": "return ($input.first().json.rows || []).map(r => ({ json: r }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -100
+      ],
+      "id": "cxo-wa-daily-rows",
+      "name": "WA Daily Rows"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "<<REPLACE_ME>>",
+          "mode": "list",
+          "cachedResultName": "WhatsApp Updates"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "1676281074",
+          "mode": "list",
+          "cachedResultName": "Daily"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "key"
+          ],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1400,
+        -100
+      ],
+      "id": "cxo-wa-daily-upsert",
+      "name": "WA Daily Upsert",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Google Sheets account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": true,
+        "filters": {
+          "q": "is:unread in:inbox -category:promotions -category:social",
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "id": "cxo-gmail-unread",
+      "name": "Gmail Unread",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Gmail)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://workflows.grvpanchal.me"
+            },
+            {
+              "name": "X-Title",
+              "value": "CXO Response Desk"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ models:['~google/gemini-flash-latest'], reasoning:{enabled:false}, response_format:{type:'json_object'}, messages:[ {role:'system',content:\"You are the CXO (Chief Experience Officer) response desk for Gaurav Panchal. For EVERY communication apply: EMPATHIZE (what does this person actually need or feel), IDEATE (how can the reply deliver outsized value, not just an answer), IMPLEMENT (write the ready-to-send reply). INPUT: a JSON with goalBody (today's service intent, which may also contain PASTED conversations from instagram / whatsapp / linkedin) and gmailItems (unread inbox emails). RULES: 1. skip=true for newsletters, no-reply senders, automated notifications, marketing, receipts - anything where a human reply adds no value; give a 3-6 word reason. 2. For real humans: warm, direct, concise replies in Gaurav's voice, concrete next step, sign off 'Gaurav'. Never invent facts or commitments; if info is missing, the reply asks one sharp question. 3. Detect any conversations pasted in goalBody for other channels (instagram/whatsapp/linkedin, labeled or inferable) and draft platform-appropriate replies: WhatsApp = short + casual; LinkedIn = professional; Instagram = friendly, human, no corporate speak. 4. priority 1 = respond today, 2 = this week, 3 = optional. Return ONLY raw JSON (no fences): { focus: '1-2 sentence read of today's relationship priorities', gmail: [{ id, threadId, to, subject, skip, reason, priority, reply }], other: [{ channel, context, reply }] }. to = sender email extracted from the item's from field. Keep every reply under 150 words.\"}, {role:'user',content: JSON.stringify({ goalBody: $('Parse Goal').first().json.body, gmailItems: $('Gmail Unread').all().filter(i => i.json && i.json.id).map(i => ({ id: i.json.id, threadId: i.json.threadId, from: i.json.From || (i.json.from && i.json.from.text) || '', subject: i.json.Subject || i.json.subject || '', snippet: String(i.json.snippet || '').slice(0,400) })) }).slice(0,24000) } ] }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        300
+      ],
+      "id": "cxo-draft-replies",
+      "name": "Draft Replies",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// tolerant JSON extraction (same gotcha as CMO: models append garbage / fences)\nconst extractJson = (s) => {\n  s = String(s || '').trim().replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '');\n  try { return JSON.parse(s); } catch (e) {}\n  const i = s.indexOf('{');\n  if (i < 0) return null;\n  let depth = 0, inStr = false, esc = false;\n  for (let k = i; k < s.length; k++) {\n    const ch = s[k];\n    if (esc) { esc = false; continue; }\n    if (inStr) { if (ch === '\\\\') esc = true; else if (ch === '\"') inStr = false; continue; }\n    if (ch === '\"') { inStr = true; continue; }\n    if (ch === '{') depth++;\n    else if (ch === '}') { depth--; if (!depth) { try { return JSON.parse(s.slice(i, k + 1)); } catch (e) { return null; } } }\n  }\n  return null;\n};\nlet plan = null;\ntry { const c = $('Draft Replies').first().json; plan = extractJson(c && c.choices ? c.choices[0].message.content : ''); } catch (e) {}\nplan = plan || { focus: '', gmail: [], other: [] };\nconst dryRun = $('Parse Goal').first().json.dryRun;\n// fill to/subject from the real inbox item when the model omits them (Gmail node fields are From/Subject)\nconst byId = {}; try { $('Gmail Unread').all().forEach(i => { if (i.json && i.json.id) { byId[i.json.id] = i.json; byId['t:' + i.json.threadId] = i.json; } }); } catch (e) {}\n(plan.gmail || []).forEach(g => { const i = byId[g.id] || byId['t:' + g.threadId]; if (!i) return;\n  const em = String(i.From || '').match(/<([^>]+)>/); g.to = g.to || (em ? em[1] : String(i.From || '').trim()); g.subject = g.subject || i.Subject || ''; });\nconst drafts = (plan.gmail || []).filter(g => g && !g.skip && g.reply && g.threadId && g.to);\nif (dryRun || !drafts.length) return [{ json: { noDrafts: true, plan } }];\nreturn drafts.map(d => ({ json: { ...d, noDrafts: false, plan } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        300
+      ],
+      "id": "cxo-parse-drafts",
+      "name": "Parse Drafts"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ !$json.noDrafts }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        220
+      ],
+      "id": "cxo-to-draft",
+      "name": "To Draft?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.noDrafts }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        460
+      ],
+      "id": "cxo-no-drafts",
+      "name": "No Drafts?"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Re: {{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.reply }}",
+        "options": {
+          "threadId": "={{ $json.threadId }}",
+          "sendTo": "={{ $json.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        220
+      ],
+      "id": "cxo-create-draft",
+      "name": "Create Draft",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: grvpanchal Gmail)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst P = $('Parse Goal').first().json;\nconst grab = (n) => { try { return $(n).all().map(i => i.json); } catch (e) { return []; } };\nlet plan = { focus: '', gmail: [], other: [] };\ntry { plan = $('Parse Drafts').first().json.plan || plan; } catch (e) {}\nconst created = grab('Create Draft').filter(d => d && !d.error).length;\nconst gmailErr = (() => { try { const g = $('Gmail Unread').first().json; return g && g.error ? String(g.error.message || g.error).slice(0,120) : ''; } catch (e) { return ''; } })();\n\nconst L = ['# Response Desk'];\n\n// ---- Gmail: join the model's verdicts back to the real inbox items (model often omits subject/from) ----\nconst inbox = grab('Gmail Unread').filter(i => i && i.id);\nconst byMail = {}; inbox.forEach(i => { byMail[i.id] = i; if (i.threadId) byMail['t:' + i.threadId] = i; });\nconst fromOf = i => String((i && (i.From || (i.from && (i.from.text || i.from)))) || '');   // \"Name <addr>\"\nconst senderOf = i => { const f = fromOf(i); const m = f.match(/^\"?([^\"<]+?)\"?\\s*<[^>]+>/); return (m ? m[1] : f.replace(/<[^>]*>/g, '')).trim(); };\nconst gm = (plan.gmail || []).map(g => { const i = byMail[g.id] || byMail['t:' + g.threadId] || {};\n  const em = fromOf(i).match(/<([^>]+)>/);\n  return Object.assign({}, g, { subject: g.subject || i.Subject || i.subject || '(no subject)', sender: senderOf(i) || g.to || '', to: g.to || (em ? em[1] : '') }); });\nconst act = gm.filter(g => !g.skip).sort((a,b) => (a.priority||9) - (b.priority||9));\nconst skipped = gm.filter(g => g.skip);\nconst one = s => String(s || '').replace(/\\s+/g, ' ').trim();\n\nconst byCh = {};\n(plan.other || []).forEach(o => { (byCh[String(o.channel||'other').toLowerCase()] = byCh[String(o.channel||'other').toLowerCase()] || []).push(o); });\n\n// ---- WhatsApp digest (both accounts, shared groups consolidated) ----\nlet W = { dayKey: '', overall: '', llmError: '', stats: {}, chats: [], rows: [] };\ntry { W = $('WA Parse').first().json || W; } catch (e) {}\nconst S = W.stats || {};\nconst meta = c => c.accounts.join('+') + ' · ' + c.messages + ' msg' + (c.reactions ? ' · ' + c.reactions + ' react' : '') + (c.participants > 1 ? ' · ' + c.participants + ' people' : '');\nconst chatLine = c => {\n  let s = '- **' + one(c.chatName) + '** (' + meta(c) + '): ' + one(c.summary);\n  if (c.highlights.length) s += '\\n  • ' + c.highlights.map(one).join('\\n  • ');\n  if (c.actionItems.length) s += '\\n  → ' + c.actionItems.map(one).join('; ');\n  return s;\n};\n// ---- 1. Overview first ----\nconst allNeed = W.chats.filter(c => c.needsReply);\nconst ov = ['## Messages today'];\nif (W.overall) ov.push(one(W.overall));\nif (plan.focus) ov.push(one(plan.focus));\nconst needList = act.map(g => g.subject + ' · gmail').concat(allNeed.map(c => c.chatName + ' · ' + c.channel));\nov.push(needList.length ? '**' + needList.length + ' reply/replies needed:** ' + needList.join('; ') : '**No replies needed.**');\nov.push('Gmail ' + gm.length + ' unread · WhatsApp ' + (S.unique || 0) + ' events · Instagram ' + (S.igChats || 0) + ' chat(s) · LinkedIn ' + (S.liChats || 0) + ' chat(s)' + (S.liUnread ? ' (' + S.liUnread + ' unread)' : ''));\nif (W.llmError) ov.push('(summary model error: ' + W.llmError + ' - counts are exact, summaries are fallbacks)');\nL.push(ov.join('\\n'));\n\n// ---- 2. Gmail ----\nL.push('## Gmail (grvpanchal@gmail.com)');\nif (gmailErr) L.push('Inbox fetch failed: ' + gmailErr);\nif (!gm.length && !gmailErr) L.push('No unread inbox mail.');\nif (act.length) {\n  L.push('### Needs reply (' + act.length + ')');\n  act.forEach(g => L.push('- **P' + (g.priority||3) + ' · ' + one(g.subject) + '** — ' + one(g.sender) + (g.to && g.to !== g.sender ? ' <' + g.to + '>' : '')\n    + (P.dryRun ? ' · dryRun, draft NOT created' : (created ? ' · reply draft in Gmail' : ''))\n    + '\\n  Draft: ' + one(g.reply)));\n}\nif (skipped.length) {\n  L.push('### Skipped, no reply needed (' + skipped.length + ')');\n  skipped.forEach(g => L.push('- **' + one(g.subject) + '** — ' + one(g.sender) + (g.reason ? ' · ' + one(g.reason) : '')));\n}\n\nconst section = (title, chans, emptyMsg, extra) => {\n  const cs = W.chats.filter(c => chans.includes(c.channel));\n  L.push('## ' + title);\n  if (extra) L.push(extra);\n  if (!cs.length) { L.push(emptyMsg); return; }\n  const need = cs.filter(c => c.needsReply);\n  if (need.length) { L.push('### Needs reply'); need.forEach(c => L.push(chatLine(c) + '\\n  Draft: ' + one(c.reply))); }\n  const dms = cs.filter(c => c.chatType === 'dm' && !c.needsReply);\n  if (dms.length) { L.push('### Direct chats'); dms.forEach(c => L.push(chatLine(c))); }\n  const groups = cs.filter(c => c.chatType === 'group' && !c.needsReply);\n  if (groups.length) { L.push('### Groups'); groups.forEach(c => L.push(chatLine(c))); }\n  const st = cs.find(c => c.chatType === 'status');\n  if (st) L.push('### Status\\n- ' + st.messages + ' update(s): ' + st.topAuthors.join(', '));\n};\n\nsection('WhatsApp (IN +91 99132 96665 · US +1 848 391 8889)', ['whatsapp'],\n  'No WhatsApp activity in the last ' + (S.hours || 24) + 'h' + (S.logRows === 0 ? ' - log is empty, is the WA-Sync extension running on both numbers?' : '') + '.',\n  'Last ' + (S.hours || 24) + 'h: ' + (S.unique || 0) + ' events across ' + (S.groups || 0) + ' group(s), ' + (S.dms || 0) + ' direct chat(s), '\n    + (S.statusUpdates || 0) + ' status update(s)' + (S.duplicatesMerged ? ' - ' + S.duplicatesMerged + ' duplicate(s) from groups on both numbers merged' : '') + '. [Daily sheet](https://docs.google.com/spreadsheets/d/<<REPLACE_ME>>/edit#gid=1676281074)');\n(byCh.whatsapp || []).forEach(o => L.push('- Pasted: ' + (o.context||'') + '\\n  Draft: ' + String(o.reply||'').replace(/\\n/g,' ')));\n\nsection('Instagram DMs (@grvpanchal via upload-post)', ['instagram'],\n  S.igError ? 'Fetch failed: ' + S.igError : 'No new Instagram DMs in the last ' + (S.hours || 24) + 'h.');\n(byCh.instagram || []).forEach(o => L.push('- Pasted: ' + (o.context||'') + '\\n  Draft: ' + String(o.reply||'').replace(/\\n/g,' ')));\n\nsection('LinkedIn messages (via ConnectSafely)', ['linkedin'],\n  S.liError ? 'Fetch failed: ' + S.liError + (/INVALID_ACCOUNT|404/.test(S.liError) ? ' (LinkedIn reconnected? accountId changes - check GET /accounts)' : '')\n            : 'No new or unread LinkedIn messages in the last ' + (S.hours || 24) + 'h.');\n(byCh.linkedin || []).forEach(o => L.push('- Pasted: ' + (o.context||'') + '\\n  Draft: ' + String(o.reply||'').replace(/\\n/g,' ')));\n\nconst base = String(P.contribution || '').replace(/(^|\\n)# Response Desk[\\s\\S]*$/, '').trim();   // section may be at pos 0\nconst newContribution = (base ? base + '\\n\\n---\\n\\n' : '') + L.join('\\n\\n');\nreturn [{ json: { goalId: P.goalId, newContribution, summary: {\n  gmailUnread: gm.length, replyDrafts: act.length, draftsCreatedInGmail: created,\n  skipped: skipped.length, otherChannelDrafts: (plan.other||[]).length,\n  whatsapp: { events: S.unique || 0, duplicatesMerged: S.duplicatesMerged || 0, groups: S.groups || 0, dms: S.dms || 0,\n    statusUpdates: S.statusUpdates || 0, needsReply: W.chats.filter(c => c.needsReply && c.channel === 'whatsapp').length },\n  instagram: { chats: S.igChats || 0, needsReply: W.chats.filter(c => c.needsReply && c.channel === 'instagram').length, error: S.igError || '' },\n  linkedin: { chats: S.liChats || 0, unread: S.liUnread || 0, needsReply: W.chats.filter(c => c.needsReply && c.channel === 'linkedin').length, error: S.liError || '' },\n  dailyRows: (W.rows||[]).length, summaryModelError: W.llmError || '',\n  dryRun: P.dryRun } } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        340
+      ],
+      "id": "cxo-build-contribution",
+      "name": "Build Contribution"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"mutation SetC($id: ID!, $contribution: String) { updateGoalItemContribution(id: $id, contribution: $contribution) { id } }\",\n    \"variables\":{ \"id\":\"{{ $json.goalId }}\", \"contribution\": {{ JSON.stringify($json.newContribution) }} }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        340
+      ],
+      "id": "cxo-update-goal",
+      "name": "Update Goal",
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, goal_id: $('Build Contribution').first().json.goalId, ...$('Build Contribution').first().json.summary } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        340
+      ],
+      "id": "cxo-respond",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "WA Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Read": {
+      "main": [
+        [
+          {
+            "node": "WA Consolidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Consolidate": {
+      "main": [
+        [
+          {
+            "node": "IG DMs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG DMs": {
+      "main": [
+        [
+          {
+            "node": "LI Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LI Messages": {
+      "main": [
+        [
+          {
+            "node": "Msg Consolidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Consolidate": {
+      "main": [
+        [
+          {
+            "node": "WA Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Summarize": {
+      "main": [
+        [
+          {
+            "node": "WA Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Parse": {
+      "main": [
+        [
+          {
+            "node": "Gmail Unread",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WA Daily Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Unread": {
+      "main": [
+        [
+          {
+            "node": "Draft Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Replies": {
+      "main": [
+        [
+          {
+            "node": "Parse Drafts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA Daily Rows": {
+      "main": [
+        [
+          {
+            "node": "WA Daily Upsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Drafts": {
+      "main": [
+        [
+          {
+            "node": "To Draft?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "No Drafts?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "To Draft?": {
+      "main": [
+        [
+          {
+            "node": "Create Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft": {
+      "main": [
+        [
+          {
+            "node": "Build Contribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Drafts?": {
+      "main": [
+        [
+          {
+            "node": "Build Contribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Contribution": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Goal": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "executionTimeout": 600
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:53.307Z",
+      "createdAt": "2026-05-31T13:28:53.307Z",
+      "id": "78AORzdGMsn6jsp8",
+      "name": "phase:start"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:57.540Z",
+      "createdAt": "2026-05-31T13:28:57.540Z",
+      "id": "uH5ejVaKJIXVjEZT",
+      "name": "pillar:cxo"
+    }
+  ]
+}

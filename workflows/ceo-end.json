@@ -1,0 +1,845 @@
+{
+  "name": "CEO End — Personal Peak Performance",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ceo-end",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -320
+      ],
+      "id": "wh-ceo-end",
+      "name": "Webhook",
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// const apiKey = \"<<REPLACE_ME>>\";\nconst apiKey = \"<<REPLACE_ME>>\";\n\nreturn { apiKey };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -328
+      ],
+      "id": "api-key",
+      "name": "API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward date period taskRef goalRef } }\",\n      \"variables\": {\n        \"id\": \"{{ $('Webhook').item.json.query.goal_id || $('Webhook').item.json.query.goalId }}\"\n      }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -328
+      ],
+      "id": "get-id",
+      "name": "Get Id information"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = JSON.parse($input.first().json.result.content[0].text);\nconst g = (parsed.data && parsed.data.goalItemById) || {};\n\n// Real current weekday/date in the user's timezone (America/New_York)\nconst dt = DateTime.now().setZone('America/New_York');\nconst weekday = dt.toFormat('cccc');\nconst dateStr = dt.toFormat('dd LLLL yyyy');\nconst split = {\n  Sunday: 'Back, Shoulders, Wrist',\n  Monday: 'Chest',\n  Tuesday: 'Biceps, Wrist',\n  Wednesday: 'Core and mild legs',\n  Thursday: 'Rest',\n  Friday: 'Cardio',\n  Saturday: 'Intense legs'\n};\n\n// Route by the goal's CEO sub-area tag:\n//   area:ceo:body -> running coach\n//   area:ceo:soul -> meditation coach\n//   area:ceo:mind (or anything else) -> elite lifting analyst\nconst tags = g.tags || [];\nlet route = 'lift'; // default\nif (tags.includes('area:ceo:body')) {\n  route = 'run';\n} else if (tags.includes('area:ceo:soul')) {\n  route = 'meditation';\n}\n\n// Planned context based on route\nlet planned = split[weekday] || 'Rest';\nif (route === 'run') {\n  planned = g.body || 'Easy jog';\n} else if (route === 'meditation') {\n  planned = g.body || 'Chakra & Flow practice';\n}\n\nparsed.dkgDate = dt.toFormat('dd-MM-yyyy');\nparsed.weekday = weekday;\nparsed.dateStr = dateStr;\nparsed.planned = planned;\nparsed.route = route;\nreturn parsed;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        -328
+      ],
+      "id": "code-route",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "rt-run",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "run",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2736,
+        -728
+      ],
+      "id": "flt-rt-run",
+      "name": "Filter Run"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "rt-lift",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "lift",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        -320
+      ],
+      "id": "flt-rt-lift",
+      "name": "Filter Lift"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "rt-med",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "meditation",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2736,
+        72
+      ],
+      "id": "flt-rt-med",
+      "name": "Filter Meditation"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Today is {{ $json.weekday }}, {{ $json.dateStr }}. My goal for today was \"{{ $json.data.goalItemById.body }}\" and it has just been checked complete in my app. Focus: my running/walking activity. Use the activity tool to fetch my recent data and review TODAY's actual logged activity against the goal: how much was accomplished (progress 0-100), what went well (strengths), what needs work (weaknesses). Return EXACTLY this structure (plain markdown, no code fences):\nPROGRESS: <number 0-100>\nSUMMARY: <one sentence verdict>\n## Strengths\n- <bullet>\n- <bullet>\n## Weaknesses\n- <bullet>\n- <bullet>\n## Activity Review\n- <one bullet per relevant activity with key metrics>",
+        "options": {
+          "systemMessage": "Filter ONLY running and walking activity.\n\nYou are an end-of-day running reviewer. The user just completed their daily run/walk goal task. From today's (and this week's) Strava running/walking data, evaluate: distance, pace, heart rate, consistency vs their goal. PROGRESS scoring: 100 = goal fully evidenced in today's data; 50 = partial (shorter/slower than goal); 0-20 = no relevant activity logged today. Strengths: what improved vs recent runs (pace, HR, distance, consistency). Weaknesses: gaps vs the goal or recent trend (missed distance, elevated HR, low frequency). Activity Review: one bullet per relevant run/walk with date, distance, pace, HR. Be factual and data-grounded; if today has no logged run, say so plainly and score low. No fluff.\n\nReturn EXACTLY this structure (plain markdown, no code fences):\nPROGRESS: <number 0-100>\nSUMMARY: <one sentence verdict>\n## Strengths\n- <bullet>\n- <bullet>\n## Weaknesses\n- <bullet>\n- <bullet>\n## Activity Review\n- <one bullet per relevant activity with key metrics>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2960,
+        -832
+      ],
+      "id": "agent-run-rev",
+      "name": "AI Run Reviewer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Today is {{ $json.weekday }}, {{ $json.dateStr }}. My goal for today was \"{{ $json.data.goalItemById.body }}\" and it has just been checked complete in my app. Focus: my Jefit lifting for the goal's target muscles. Recent sessions with total weight lifted (tonnage): {{ JSON.stringify($json.wtDetails) }}. Use tonnage as the primary strength-flow measure. Nutrition from MyFitnessPal today � {{ $json.nutrition.summary }}. If protein is still remaining, note briefly in Weaknesses that hitting the remaining protein supports recovery from this session (the exact grams are shown separately, so speak qualitatively). If carbohydrates are OVER the daily target, note the excess qualitatively in Weaknesses (timing carbs around training; the exact grams are shown separately). Also use the activity tool to fetch my recent data and review TODAY's actual logged activity against the goal: how much was accomplished (progress 0-100), what went well (strengths), what needs work (weaknesses). Return EXACTLY this structure (plain markdown, no code fences):\nPROGRESS: <number 0-100>\nSUMMARY: <one sentence verdict>\n## Strengths\n- <bullet>\n- <bullet>\n## Weaknesses\n- <bullet>\n- <bullet>\n## Activity Review\n- <one bullet per relevant activity with key metrics>",
+        "options": {
+          "systemMessage": "Filter ONLY jefit workout activity.\n\nYou are an end-of-day lifting reviewer. The user just completed their daily lifting goal task. IMPORTANT: the goal's named target muscles (e.g. \"Chest and biceps\") define what to review - the weekly split is only a fallback when the goal names no muscles. From today's (and this week's) Jefit data, evaluate whether the TARGET muscles were trained: exercises, sets, volume, session duration. PROGRESS scoring: 100 = target muscles clearly trained today with solid volume; 50 = partial/indirect work; 0-20 = no relevant session logged today. Strengths: volume/progression/consistency wins for the target muscles. Weaknesses: missing muscle coverage, junk volume, joint-stress risks (wrists/elbows), skipped work. Activity Review: one bullet per relevant session with date, focus, duration. Be factual and data-grounded; if today has no logged lift, say so plainly and score low. No fluff.\n\nReturn EXACTLY this structure (plain markdown, no code fences):\nPROGRESS: <number 0-100>\nSUMMARY: <one sentence verdict>\n## Strengths\n- <bullet>\n- <bullet>\n## Weaknesses\n- <bullet>\n- <bullet>\n## Activity Review\n- <one bullet per relevant activity with key metrics>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2960,
+        -432
+      ],
+      "id": "agent-lift-rev",
+      "name": "AI Lift Reviewer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Today is {{ $json.weekday }}, {{ $json.dateStr }}. My goal for today was \"{{ $json.data.goalItemById.body }}\" and it has just been checked complete in my app. Focus: my meditation/yoga practice. This week's routine stimulus points (D=Discipline stability, K=Kinetics/productivity, G=Genius/growth) per day: {{ JSON.stringify($json.stimuli) }}. Meditation and yoga drive these three. Also use the activity tool to fetch my recent data and review TODAY's actual logged activity against the goal: how much was accomplished (progress 0-100), what went well (strengths), what needs work (weaknesses). Return EXACTLY this structure (plain markdown, no code fences):\nPROGRESS: <number 0-100>\nSUMMARY: <one sentence verdict>\n## Strengths\n- <bullet>\n- <bullet>\n## Weaknesses\n- <bullet>\n- <bullet>\n## Activity Review\n- <one bullet per relevant activity with key metrics>",
+        "options": {
+          "systemMessage": "Filter ONLY meditation and yoga activity.\n\nYou are an end-of-day meditation reviewer. The user just completed their daily meditation goal task. From today's (and this week's) Strava meditation/yoga data, evaluate practice: type (Chakra, Pranayama, Surya Namaskar), duration, time of day, consistency. PROGRESS scoring: 100 = practice matching the goal logged today; 50 = shorter/different practice; 0-20 = no practice logged today. Strengths: consistency, duration, balance of active/passive practice. Weaknesses: gaps in frequency, short sessions, missing grounding/breath work. Activity Review: one bullet per relevant session with date, type, duration. Be factual and data-grounded; if today has no logged practice, say so plainly and score low. No fluff.\n\nReturn EXACTLY this structure (plain markdown, no code fences):\nPROGRESS: <number 0-100>\nSUMMARY: <one sentence verdict>\n## Strengths\n- <bullet>\n- <bullet>\n## Weaknesses\n- <bullet>\n- <bullet>\n## Activity Review\n- <one bullet per relevant activity with key metrics>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2960,
+        72
+      ],
+      "id": "agent-med-rev",
+      "name": "AI Meditation Reviewer"
+    },
+    {
+      "parameters": {
+        "model": "inclusionai/ling-3.0-flash-sante:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2968,
+        -608
+      ],
+      "id": "llm-run",
+      "name": "OR Nemotron",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "inclusionai/ling-3.0-flash-sante:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2968,
+        -208
+      ],
+      "id": "llm-lift",
+      "name": "OR Nemotron1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "inclusionai/ling-3.0-flash-sante:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2968,
+        296
+      ],
+      "id": "llm-med",
+      "name": "OR Nemotron2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: OpenRouter account)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "getAll"
+      },
+      "type": "n8n-nodes-base.stravaTool",
+      "typeVersion": 1.1,
+      "position": [
+        3096,
+        -608
+      ],
+      "id": "strava-run",
+      "name": "Running Activity",
+      "credentials": {
+        "stravaOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Strava account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll"
+      },
+      "type": "n8n-nodes-base.stravaTool",
+      "typeVersion": 1.1,
+      "position": [
+        3096,
+        296
+      ],
+      "id": "strava-med",
+      "name": "Meditation Strava Data",
+      "credentials": {
+        "stravaOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Strava account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = String($json.output || '');\nconst ctx = $('Context').first().json;\nconst g = (ctx.data && ctx.data.goalItemById) || {};\nconst route = ctx.route;\nconst acts = ctx.activities || [];\nconst stimuli = ctx.stimuli || [];\n\nconst metaMap = {\n  run:        { area: 'Body', icon: '\\u{1F3C3}', color: '#e67e22' },\n  lift:       { area: 'Mind', icon: '\\u{1F3CB}\\u{FE0F}', color: '#2980b9' },\n  meditation: { area: 'Soul', icon: '\\u{1F9D8}', color: '#8e44ad' }\n};\nconst meta = metaMap[route] || { area: 'CEO', icon: '⚡', color: '#16a085' };\n\nconst esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')\n  .replace(/\\*\\*(.+?)\\*\\*/g, '<b>$1</b>');\n\nconst pm = out.match(/PROGRESS:\\s*(\\d{1,3})/i);\nconst progress = Math.max(0, Math.min(100, pm ? parseInt(pm[1], 10) : 50));\nconst summary = ((out.match(/SUMMARY:\\s*(.+)/i) || [])[1] || '').trim();\n\nfunction bullets(name) {\n  const re = new RegExp('##\\\\s*' + name + '([\\\\s\\\\S]*?)(?=\\\\n##|$)', 'i');\n  const sec = (out.match(re) || [])[1] || '';\n  return sec.split('\\n').map(l => l.trim()).filter(l => l.startsWith('-')).map(l => l.replace(/^-\\s*/, ''));\n}\nconst li = items => items.length\n  ? items.map(i => '<li style=\"margin:6px 0;padding-left:4px;\">' + esc(i) + '</li>').join('')\n  : '<li style=\"margin:6px 0;color:#95a5a6;\">Nothing logged</li>';\n\n// ---------- SVG chart helpers ----------\nconst W = 600, H = 180, PL = 46, PR = 12, PT = 14, PB = 26;\nfunction lineChart(title, labels, series, yFmt) {\n  // series: [{name, color, values:[num|null]}]\n  const all = series.flatMap(s => s.values).filter(v => v != null && isFinite(v));\n  if (!all.length) return '';\n  let ymin = Math.min(...all), ymax = Math.max(...all);\n  if (ymin === ymax) { ymin -= 1; ymax += 1; }\n  const pad = (ymax - ymin) * 0.12; ymin -= pad; ymax += pad;\n  const n = labels.length;\n  const x = i => n === 1 ? (PL + (W - PL - PR) / 2) : PL + (W - PL - PR) * i / (n - 1);\n  const y = v => PT + (H - PT - PB) * (1 - (v - ymin) / (ymax - ymin));\n  const fmt = yFmt || (v => Math.round(v * 10) / 10);\n  let el = '';\n  // gridlines + y labels\n  for (let k = 0; k <= 3; k++) {\n    const gv = ymin + (ymax - ymin) * k / 3, gy = y(gv);\n    el += '<line x1=\"' + PL + '\" y1=\"' + gy + '\" x2=\"' + (W - PR) + '\" y2=\"' + gy + '\" stroke=\"#ecf0f1\" stroke-width=\"1\"/>';\n    el += '<text x=\"' + (PL - 6) + '\" y=\"' + (gy + 4) + '\" font-size=\"10\" fill=\"#95a5a6\" text-anchor=\"end\">' + fmt(gv) + '</text>';\n  }\n  // x labels: first, middle, last\n  [0, Math.floor((n - 1) / 2), n - 1].filter((v, i, a) => a.indexOf(v) === i).forEach(i => {\n    el += '<text x=\"' + x(i) + '\" y=\"' + (H - 8) + '\" font-size=\"10\" fill=\"#95a5a6\" text-anchor=\"middle\">' + esc(labels[i] || '') + '</text>';\n  });\n  series.forEach(s => {\n    const pts = s.values.map((v, i) => v == null ? null : [x(i), y(v)]);\n    const path = pts.filter(Boolean).map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');\n    if (path) el += '<polyline points=\"' + path + '\" fill=\"none\" stroke=\"' + s.color + '\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/>';\n    pts.forEach(p => { if (p) el += '<circle cx=\"' + p[0].toFixed(1) + '\" cy=\"' + p[1].toFixed(1) + '\" r=\"3\" fill=\"' + s.color + '\"/>'; });\n  });\n  const legend = series.map(s =>\n    '<span style=\"display:inline-block;margin-right:12px;font-size:12px;color:#57606f;\">' +\n    '<span style=\"display:inline-block;width:10px;height:10px;border-radius:5px;background:' + s.color + ';margin-right:4px;\"></span>' +\n    esc(s.name) + '</span>').join('');\n  return '<div style=\"margin:14px 0;\">' +\n    '<div style=\"font-size:13px;font-weight:600;color:#2c3e50;margin-bottom:2px;\">' + esc(title) + '</div>' +\n    '<div>' + legend + '</div>' +\n    '<svg viewBox=\"0 0 ' + W + ' ' + H + '\" style=\"width:100%;height:auto;background:#fff;\">' + el + '</svg></div>';\n}\n\nconst dShort = iso => { const d = new Date(iso); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); };\nconst byDateAsc = (a, b) => new Date(a.start_date_local) - new Date(b.start_date_local);\n\nlet charts = '';\nif (route === 'run') {\n  const runs = acts.filter(a => a.sport_type === 'Run' && a.distance > 0).sort(byDateAsc).slice(-12);\n  if (runs.length) {\n    const labels = runs.map(a => dShort(a.start_date_local));\n    const pace = runs.map(a => (a.moving_time / 60) / (a.distance / 1000));\n    charts += lineChart('Pace per run (min/km — lower is better)', labels,\n      [{ name: 'Pace', color: '#e67e22', values: pace }], v => v.toFixed(1));\n    charts += lineChart('Heart rate per run (bpm)', labels, [\n      { name: 'Avg HR', color: '#e74c3c', values: runs.map(a => a.average_heartrate || null) },\n      { name: 'Max HR', color: '#c0392b', values: runs.map(a => a.max_heartrate || null) }]);\n    charts += lineChart('Distance per run (km)', labels,\n      [{ name: 'Distance', color: '#16a085', values: runs.map(a => a.distance / 1000) }], v => v.toFixed(1));\n  }\n} else if (route === 'lift') {\n  let wt = [];\n  try { wt = ($('Lift Data').first().json.wtDetails || []); } catch (e) { wt = []; }\n  const withT = wt.filter(w => w.tonnage != null);\n  if (withT.length) {\n    const unit = withT[0].unit || 'lbs';\n    const labels = withT.map(w => dShort(w.date));\n    charts += lineChart('Total weight lifted per session (' + unit + ')', labels,\n      [{ name: 'Tonnage', color: '#2980b9', values: withT.map(w => w.tonnage) }],\n      v => Math.round(v / 100) / 10 + 'k');\n    const groups = {};\n    withT.forEach(w => { (groups[w.name] = groups[w.name] || []).push(w); });\n    Object.entries(groups).sort((a, b) => b[1].length - a[1].length).slice(0, 3).forEach(([name, sess]) => {\n      if (sess.length >= 2) {\n        charts += lineChart(name + ' — weight lifted (' + unit + ')', sess.map(w => dShort(w.date)),\n          [{ name: 'Tonnage', color: '#8e44ad', values: sess.map(w => w.tonnage) }],\n          v => Math.round(v / 100) / 10 + 'k');\n      }\n    });\n    charts += lineChart('Exercises per session', labels,\n      [{ name: 'Exercises', color: '#16a085', values: withT.map(w => w.exercises) }], v => Math.round(v));\n  } else {\n    const wt2 = acts.filter(a => a.sport_type === 'WeightTraining').sort(byDateAsc).slice(-10);\n    if (wt2.length) {\n      charts += lineChart('Session volume (min) — tonnage unavailable', wt2.map(a => dShort(a.start_date_local)),\n        [{ name: 'Duration', color: '#2980b9', values: wt2.map(a => Math.round(a.moving_time / 60)) }], v => Math.round(v));\n    }\n  }\n} else if (route === 'meditation') {\n  if (stimuli.length) {\n    charts += lineChart('Routine stimulus points — D/K/G this week', stimuli.map(s => s.date.slice(0, 5)), [\n      { name: 'D — Discipline (stability)', color: '#2980b9', values: stimuli.map(s => s.D) },\n      { name: 'K — Kinetics (productivity)', color: '#e67e22', values: stimuli.map(s => s.K) },\n      { name: 'G — Genius (growth)', color: '#27ae60', values: stimuli.map(s => s.G) }], v => Math.round(v));\n    const tot = k => Math.round(stimuli.reduce((a, s) => a + (s[k] || 0), 0));\n    charts += '<div style=\"display:flex;gap:10px;margin:10px 0;\">' +\n      [['D', 'Discipline', '#2980b9'], ['K', 'Kinetics', '#e67e22'], ['G', 'Genius', '#27ae60']].map(([k, label, c]) =>\n        '<div style=\"flex:1;background:#f8f9fa;border-left:4px solid ' + c + ';border-radius:6px;padding:10px;\">' +\n        '<div style=\"font-size:22px;font-weight:800;color:' + c + ';\">' + tot(k) + '</div>' +\n        '<div style=\"font-size:11px;color:#57606f;\">' + label + ' (week total)</div></div>').join('') + '</div>';\n  }\n  const med = acts.filter(a => /yoga|meditat|breath|pranayam/i.test((a.name || '') + ' ' + (a.sport_type || ''))).sort(byDateAsc).slice(-12);\n  if (med.length) {\n    charts += lineChart('Practice duration (min)', med.map(a => dShort(a.start_date_local)),\n      [{ name: 'Session', color: '#8e44ad', values: med.map(a => Math.round(a.moving_time / 60)) }], v => Math.round(v));\n  } else {\n    charts += '<div style=\"font-size:13px;color:#95a5a6;margin:8px 0;\">No meditation/yoga sessions found in Strava yet — D/K/G stimulus points above reflect routine-task practice.</div>';\n  }\n}\n\nlet nutritionCard = '';\nif (route === 'lift') {\n  let nut = null;\n  try { nut = $('Lift Data').first().json.nutrition; } catch (e) { nut = null; }\n  if (nut && nut.proteinGoal) {\n    const pct = Math.max(0, Math.min(100, Math.round(nut.proteinConsumed / nut.proteinGoal * 100)));\n    const hit = nut.proteinLeft <= 0;\n    const c = hit ? '#27ae60' : '#2980b9';\n    nutritionCard =\n      '<div style=\"background:#f8f9fa;border-left:4px solid ' + c + ';border-radius:8px;padding:12px 14px;margin:14px 0;\">'\n      + '<div style=\"font-size:13px;font-weight:600;color:#2c3e50;\">\\u{1F969} Protein ' + (hit ? 'goal hit' : 'remaining today') + '</div>'\n      + '<div style=\"font-size:26px;font-weight:800;color:' + c + ';margin:2px 0;\">' + (hit ? '0g left \\u2014 goal met \\u2705' : nut.proteinLeft + 'g left') + '</div>'\n      + '<div style=\"font-size:12px;color:#57606f;\">' + nut.proteinConsumed + 'g of ' + nut.proteinGoal + 'g eaten (' + pct + '%)</div>'\n      + '<div style=\"margin-top:6px;background:#ecf0f1;border-radius:6px;height:10px;overflow:hidden;\"><div style=\"width:' + pct + '%;height:100%;background:' + c + ';\"></div></div>'\n      + '</div>';\n    if (nut.carbsGoal) {\n      const over = nut.carbsExcess > 0;\n      const cc = over ? '#c0392b' : '#27ae60';\n      const cpct = Math.max(0, Math.min(100, Math.round(nut.carbsConsumed / nut.carbsGoal * 100)));\n      nutritionCard +=\n        '<div style=\"background:#f8f9fa;border-left:4px solid ' + cc + ';border-radius:8px;padding:12px 14px;margin:14px 0;\">'\n        + '<div style=\"font-size:13px;font-weight:600;color:#2c3e50;\">\\u{1F35E} Carbs ' + (over ? 'over goal' : 'within goal') + '</div>'\n        + '<div style=\"font-size:26px;font-weight:800;color:' + cc + ';margin:2px 0;\">' + (over ? '+' + nut.carbsExcess + 'g excess' : (nut.carbsGoal - nut.carbsConsumed) + 'g headroom') + '</div>'\n        + '<div style=\"font-size:12px;color:#57606f;\">' + nut.carbsConsumed + 'g of ' + nut.carbsGoal + 'g goal (' + cpct + '%)</div>'\n        + '<div style=\"margin-top:6px;background:#ecf0f1;border-radius:6px;height:10px;overflow:hidden;\"><div style=\"width:' + cpct + '%;height:100%;background:' + cc + ';\"></div></div>'\n        + '</div>';\n    }\n  } else if (nut && nut.summary) {\n    nutritionCard = '<div style=\"font-size:12px;color:#95a5a6;margin:8px 0;\">' + esc(nut.summary) + '</div>';\n  }\n}\n\nconst barColor = progress >= 70 ? '#27ae60' : progress >= 40 ? '#f39c12' : '#e74c3c';\n\nconst html = '<!DOCTYPE html><html><head><meta charset=\"utf-8\">'\n + '<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">'\n + '<title>CEO ' + meta.area + ' - End of Day</title></head>'\n + '<body style=\"margin:0;padding:16px;background:#f4f6f8;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#2c3e50;\">'\n + '<div style=\"max-width:640px;margin:0 auto;\">'\n + '<div style=\"background:' + meta.color + ';color:#fff;border-radius:12px 12px 0 0;padding:18px 20px;\">'\n + '<div style=\"font-size:13px;opacity:.85;\">CEO ' + meta.area + ' &middot; End of Day &middot; ' + esc(ctx.weekday) + ', ' + esc(ctx.dateStr) + '</div>'\n + '<div style=\"font-size:20px;font-weight:700;margin-top:4px;\">' + meta.icon + ' ' + esc(g.body || 'Goal') + '</div>'\n + '</div>'\n + '<div style=\"background:#fff;border-radius:0 0 12px 12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);\">'\n + '<div style=\"display:flex;align-items:center;gap:14px;margin-bottom:6px;\">'\n + '<div style=\"font-size:34px;font-weight:800;color:' + barColor + ';\">' + progress + '%</div>'\n + '<div style=\"flex:1;background:#ecf0f1;border-radius:8px;height:14px;overflow:hidden;\">'\n + '<div style=\"width:' + progress + '%;height:100%;background:' + barColor + ';\"></div>'\n + '</div></div>'\n + (summary ? '<div style=\"font-size:14px;color:#57606f;margin-bottom:16px;\">' + esc(summary) + '</div>' : '')\n + nutritionCard + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:' + meta.color + ';\">Trends</h3>'\n + (charts || '<div style=\"font-size:13px;color:#95a5a6;\">No activity data available for charts.</div>')\n + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:#27ae60;\">Strengths</h3>'\n + '<ul style=\"margin:0;padding-left:20px;font-size:14px;\">' + li(bullets('Strengths')) + '</ul>'\n + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:#e67e22;\">Weaknesses</h3>'\n + '<ul style=\"margin:0;padding-left:20px;font-size:14px;\">' + li(bullets('Weaknesses')) + '</ul>'\n + '<h3 style=\"margin:16px 0 6px;font-size:15px;color:#2c3e50;\">Activity Review</h3>'\n + '<ul style=\"margin:0;padding-left:20px;font-size:14px;\">' + li(bullets('Activity Review')) + '</ul>'\n + '<div style=\"margin-top:18px;font-size:11px;color:#95a5a6;text-align:right;\">Generated by CEO End &middot; ' + esc(ctx.dateStr) + '</div>'\n + '</div></div></body></html>';\n\n// date/period resolution (CFO End convention): goal -> webhook query -> today/'day'\nfunction pad(n){ return String(n).padStart(2,'0'); }\nconst now = new Date();\nconst today = pad(now.getDate()) + '-' + pad(now.getMonth()+1) + '-' + now.getFullYear();\nconst q = ($('Webhook').first().json.query) || {};\nconst date = g.date || q.date || today;\nconst period = g.period || q.period || 'day';\nreturn { html, date, period, progress };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3312,
+        -328
+      ],
+      "id": "build-html",
+      "name": "Build HTML"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\n  \"params\":{\"name\":\"graphql_query\",\"arguments\":{\n    \"query\":\"mutation SetReward($id: ID!, $date: String!, $period: String!, $reward: String!, $body: String, $tags: [String], $contribution: String, $deadline: String, $taskRef: String, $goalRef: String) { updateGoalItem(id: $id, date: $date, period: $period, reward: $reward, body: $body, tags: $tags, contribution: $contribution, deadline: $deadline, taskRef: $taskRef, goalRef: $goalRef) { id reward body tags } }\",\n    \"variables\":{\n      \"id\":\"{{ $('Webhook').item.json.query.goal_id || $('Webhook').item.json.query.goalId }}\",\n      \"date\":\"{{ $('Build HTML').first().json.date }}\",\n      \"period\":\"{{ $('Build HTML').first().json.period }}\",\n      \"reward\": {{ JSON.stringify($('Build HTML').first().json.html) }},\n      \"body\": {{ JSON.stringify($('Code').first().json.data.goalItemById.body || \"\") }},\n      \"tags\": {{ JSON.stringify($('Code').first().json.data.goalItemById.tags || []) }},\n      \"contribution\": {{ JSON.stringify($('Code').first().json.data.goalItemById.contribution || \"\") }},\n      \"deadline\": {{ JSON.stringify($('Code').first().json.data.goalItemById.deadline || \"\") }},\n      \"taskRef\": {{ JSON.stringify($('Code').first().json.data.goalItemById.taskRef || \"\") }},\n      \"goalRef\": {{ JSON.stringify($('Code').first().json.data.goalItemById.goalRef || \"\") }}\n    }\n  }},\"id\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3536,
+        -328
+      ],
+      "id": "set-results",
+      "name": "Set Results"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Build HTML').first().json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        3760,
+        -328
+      ],
+      "id": "respond-html",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 60
+      },
+      "type": "n8n-nodes-base.strava",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        -328
+      ],
+      "id": "strava-raw",
+      "name": "Strava Raw",
+      "credentials": {
+        "stravaOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Strava account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Code').first().json;\nconst activities = $input.all().map(i => i.json);\nreturn { ...ctx, activities };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        -328
+      ],
+      "id": "pack-data",
+      "name": "Pack Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('API Key').item.json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\", \"method\": \"tools/call\",\n  \"params\": {\"name\": \"graphql_query\", \"arguments\": {\n    \"query\": \"query WeekStimuli($date: String!) { weekStimuli(date: $date) { date D K G } }\",\n    \"variables\": {\"date\": \"{{ $('Code').first().json.dkgDate }}\"}\n  }},\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1616,
+        -328
+      ],
+      "id": "week-stimuli",
+      "name": "Week Stimuli"
+    },
+    {
+      "parameters": {
+        "jsCode": "const packed = $('Pack Data').first().json;\nlet stimuli = [];\ntry {\n  const inner = JSON.parse($input.first().json.result.content[0].text);\n  stimuli = (inner.data && inner.data.weekStimuli) || [];\n} catch (e) { stimuli = []; }\nreturn { ...packed, stimuli };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        -320
+      ],
+      "id": "context-node",
+      "name": "Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $input.first().json;\nconst wt = (ctx.activities || []).filter(a => a.sport_type === 'WeightTraining')\n  .sort((a, b) => new Date(a.start_date_local) - new Date(b.start_date_local)).slice(-12);\nreturn wt.map(a => ({ json: { id: a.id_str || String(a.id), name: a.name,\n  start_date_local: a.start_date_local, moving_time: a.moving_time } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        -328
+      ],
+      "id": "wt-sessions",
+      "name": "WT Sessions"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "activityId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.strava",
+      "typeVersion": 1.1,
+      "position": [
+        2512,
+        -328
+      ],
+      "id": "wt-detail",
+      "name": "WT Detail",
+      "credentials": {
+        "stravaOAuth2Api": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: Strava account)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const details = $input.all().map(i => i.json);\nconst ctx = $('Context').first().json;\nconst wtDetails = details.map(d => {\n  const desc = String(d.description || '');\n  const m = desc.match(/([\\d,]+)\\s*(lbs?|kg)\\s*weight lifted/i);\n  const ex = desc.match(/(\\d+)\\s*Exercises?/i);\n  return { name: d.name, date: d.start_date_local,\n    tonnage: m ? parseInt(m[1].replace(/,/g, ''), 10) : null,\n    unit: m ? m[2] : 'lbs',\n    exercises: ex ? parseInt(ex[1], 10) : null,\n    durationMin: Math.round((d.moving_time || 0) / 60) };\n});\n\n// --- MyFitnessPal protein remaining (via mfp wrapper on the docker network) ---\n// Query the diary for TODAY in US Eastern. The wrapper defaults to server-UTC 'today',\n// but this routine fires in the evening Eastern = already past midnight UTC, so an\n// undated call pulled the NEXT day's empty diary -> 0g consumed. Pin the Eastern date.\nconst mfpDate = $now.setZone('America/New_York').toFormat('yyyy-MM-dd');\nlet nutrition;\ntry {\n  const mfp = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'http://mfp:8000/diary?date=' + mfpDate,\n    headers: { 'X-API-Key': '<<REPLACE_ME>>' },\n    json: true,\n  });\n  const consumed = Math.round((mfp.totals && mfp.totals.protein) || 0);\n  const goal = Math.round((mfp.goals && mfp.goals.protein) || 0);\n  const left = Math.max(0, goal - consumed);\n  const carbs = Math.round((mfp.totals && mfp.totals.carbohydrates) || 0);\n  const carbsGoal = Math.round((mfp.goals && mfp.goals.carbohydrates) || 0);\n  const carbsExcess = Math.max(0, carbs - carbsGoal);\n  nutrition = { proteinConsumed: consumed, proteinGoal: goal, proteinLeft: left,\n    carbsConsumed: carbs, carbsGoal: carbsGoal, carbsExcess: carbsExcess,\n    summary: (goal ? ('protein target ' + goal + 'g, ' + consumed + 'g eaten, ' + left + 'g remaining today')\n                   : 'no protein goal set in MyFitnessPal')\n             + (carbsGoal ? ('; carbs ' + carbs + 'g of ' + carbsGoal + 'g target'\n                             + (carbsExcess > 0 ? ' (' + carbsExcess + 'g OVER)' : ' (within goal)')) : '') };\n} catch (e) {\n  nutrition = { proteinConsumed: null, proteinGoal: null, proteinLeft: null,\n    carbsConsumed: null, carbsGoal: null, carbsExcess: null,\n    summary: 'protein data unavailable (MyFitnessPal fetch failed)' };\n}\n\nreturn { ...ctx, wtDetails, nutrition };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2736,
+        -328
+      ],
+      "id": "lift-data",
+      "name": "Lift Data"
+    },
+    {
+      "parameters": {
+        "name": "get_recent_lifting_sessions",
+        "description": "Returns the user's recent Jefit weight-training sessions (last 20) as JSON: date, workout name, duration in minutes. Tonnage per session is already provided in the prompt.",
+        "jsCode": "const acts = $('Context').first().json.activities || [];\nconst wt = acts.filter(a => a.sport_type === 'WeightTraining')\n  .sort((a, b) => new Date(a.start_date_local) - new Date(b.start_date_local))\n  .slice(-20)\n  .map(a => ({ date: String(a.start_date_local).slice(0, 10), name: a.name,\n    minutes: Math.round((a.moving_time || 0) / 60) }));\nreturn JSON.stringify(wt);"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        3096,
+        -208
+      ],
+      "id": "jefit-compact",
+      "name": "Jefit Compact"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Id information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Id information": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Strava Raw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Run": {
+      "main": [
+        [
+          {
+            "node": "AI Run Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Lift": {
+      "main": [
+        [
+          {
+            "node": "WT Sessions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Meditation": {
+      "main": [
+        [
+          {
+            "node": "AI Meditation Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Run Reviewer": {
+      "main": [
+        [
+          {
+            "node": "Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Lift Reviewer": {
+      "main": [
+        [
+          {
+            "node": "Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Meditation Reviewer": {
+      "main": [
+        [
+          {
+            "node": "Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML": {
+      "main": [
+        [
+          {
+            "node": "Set Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Results": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OR Nemotron": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Run Reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OR Nemotron1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Lift Reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OR Nemotron2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Meditation Reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Running Activity": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Run Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meditation Strava Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Meditation Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strava Raw": {
+      "main": [
+        [
+          {
+            "node": "Pack Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pack Data": {
+      "main": [
+        [
+          {
+            "node": "Week Stimuli",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Week Stimuli": {
+      "main": [
+        [
+          {
+            "node": "Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context": {
+      "main": [
+        [
+          {
+            "node": "Filter Run",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Lift",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Meditation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WT Sessions": {
+      "main": [
+        [
+          {
+            "node": "WT Detail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WT Detail": {
+      "main": [
+        [
+          {
+            "node": "Lift Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lift Data": {
+      "main": [
+        [
+          {
+            "node": "AI Lift Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jefit Compact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Lift Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:52.896Z",
+      "createdAt": "2026-05-31T13:28:52.896Z",
+      "id": "AHEatJKG8NhXj2rC",
+      "name": "pillar:ceo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.950Z",
+      "createdAt": "2026-05-31T13:28:52.950Z",
+      "id": "vkEv2UGPNBfyH74Y",
+      "name": "phase:end"
+    }
+  ]
+}

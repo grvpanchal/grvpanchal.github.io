@@ -30,6 +30,49 @@ const SECRET_PATTERNS = [
   /AIza[0-9A-Za-z_-]{35}/,          // Google API key
 ];
 
+// Secrets embedded inside longer strings (URLs, Code-node jsCode). These are replaced
+// in place so the surrounding URL / code stays readable.
+const INLINE_SECRET_PATTERNS = [
+  /\d{8,10}:[A-Za-z0-9_-]{35}/g,                                   // Telegram bot token (api.telegram.org/bot<token>/...)
+  /\bsk-[A-Za-z0-9_-]{20,}/g,                                      // OpenAI / Anthropic-style
+  /\b[a-z]{2,6}_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, // prefixed UUID keys (e.g. frt_...)
+  /AIza[0-9A-Za-z_-]{35}/g,                                        // Google API key
+  /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, // JWTs (Supabase / n8n API keys, etc.)
+];
+
+// Auth-scheme prefixes followed by an opaque token ("Bearer <uuid>", "Apikey <key>").
+const AUTH_SCHEME_TOKEN = /\b(Bearer|Apikey|Token|Basic)\s+(?!<<REPLACE_ME>>)[A-Za-z0-9._~+/=-]{16,}/gi;
+
+// Google Docs / Sheets / Drive IDs embedded in URLs (docs.google.com/.../d/<id>,
+// lh3.googleusercontent.com/d/<id>, sheets.googleapis.com/v4/spreadsheets/<id>, drive folders/<id>).
+const GOOGLE_DOC_URL_ID = /\/d\/[A-Za-z0-9_-]{25,}/g;
+const GOOGLE_SHEETS_API_ID = /\/spreadsheets\/(?!d\/)[A-Za-z0-9_-]{25,}/g;
+const GOOGLE_FOLDER_URL_ID = /\bfolders\/[A-Za-z0-9_-]{20,}/g;
+
+// Secret-named keys assigned a literal inside Code-node JS, e.g. headers: { 'X-API-Key': '...' }.
+const CODE_SECRET_ASSIGNMENT =
+  /(['"]?(?:x-api-key|api[_-]?key|apikey|authorization|access[_-]?token|secret|password)['"]?\s*[:=]\s*)(['"])(?!<<REPLACE_ME>>)[^'"\s]{12,}\2/gi;
+
+// n8n resource-locator params ({ __rl: true, value }) whose value identifies a private resource.
+const RESOURCE_LOCATOR_KEYS = new Set([
+  'documentid', 'spreadsheetid', 'folderid', 'driveid', 'fileid', 'calendar', 'calendarid', 'base', 'table',
+]);
+
+function scrubInline(value) {
+  return INLINE_SECRET_PATTERNS.reduce((s, re) => s.replace(re, PLACEHOLDER), value)
+    .replace(AUTH_SCHEME_TOKEN, `$1 ${PLACEHOLDER}`)
+    .replace(GOOGLE_DOC_URL_ID, `/d/${PLACEHOLDER}`)
+    .replace(GOOGLE_SHEETS_API_ID, `/spreadsheets/${PLACEHOLDER}`)
+    .replace(GOOGLE_FOLDER_URL_ID, `folders/${PLACEHOLDER}`)
+    .replace(CODE_SECRET_ASSIGNMENT, `$1$2${PLACEHOLDER}$2`);
+}
+
+function scrubResourceLocator(rl) {
+  // Keep expressions ("={{ ... }}") and well-known non-private values like Drive "root".
+  if (typeof rl.value === 'string' && !rl.value.startsWith('=') && rl.value !== 'root') rl.value = PLACEHOLDER;
+  if (typeof rl.cachedResultUrl === 'string') rl.cachedResultUrl = PLACEHOLDER;
+}
+
 // Header / body keys that frequently carry secrets.
 const SECRET_KEY_NAMES = new Set([
   'authorization', 'x-api-key', 'api-key', 'apikey', 'token',
@@ -58,6 +101,10 @@ function sanitize(workflow) {
   delete cleaned.triggerCount;
   delete cleaned.createdAt;
   delete cleaned.updatedAt;
+  // n8n 2.x: the API response embeds a full, unsanitized copy of the published version.
+  delete cleaned.activeVersion;
+  delete cleaned.activeVersionId;
+  delete cleaned.versionCounter;
 
   if (Array.isArray(cleaned.nodes)) {
     for (const node of cleaned.nodes) {
@@ -92,6 +139,8 @@ function walkAndScrub(obj) {
         walkAndScrub(obj[i]);
       } else if (isSecretValue(obj[i])) {
         obj[i] = PLACEHOLDER;
+      } else if (typeof obj[i] === 'string') {
+        obj[i] = scrubInline(obj[i]);
       }
     }
     return;
@@ -107,15 +156,22 @@ function walkAndScrub(obj) {
       continue;
     }
 
+    if (RESOURCE_LOCATOR_KEYS.has(key.toLowerCase()) && value && typeof value === 'object' && value.__rl) {
+      scrubResourceLocator(value);
+      continue;
+    }
+
     if (typeof value === 'string') {
       // URL with hardcoded query secret.
       if (/[?&](api[_-]?key|token|secret|access_token)=[^&]+/i.test(value)) {
-        obj[key] = value.replace(
+        obj[key] = scrubInline(value.replace(
           /([?&])(api[_-]?key|token|secret|access_token)=([^&]+)/gi,
           `$1$2=${PLACEHOLDER}`
-        );
+        ));
       } else if (isSecretValue(value)) {
         obj[key] = PLACEHOLDER;
+      } else {
+        obj[key] = scrubInline(value);
       }
     } else if (typeof value === 'object' && value !== null) {
       walkAndScrub(value);

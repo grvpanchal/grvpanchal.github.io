@@ -1,0 +1,417 @@
+{
+  "name": "COO Start — Daily Operating Rhythm",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "coo-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c2020e05-bf89-45ff-9459-be33c17fcff0",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        120
+      ],
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Routine Notes API key. Set RN_API_KEY in n8n env or replace inline.\nconst apiKey = $env.RN_API_KEY || '<<REPLACE_ME>>';\nreturn { apiKey };"
+      },
+      "id": "50fac44a-3a5e-44d5-a8c2-8f2da033e7f7",
+      "name": "API Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward } }\",\n      \"variables\": { \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\" }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "id": "8bf6538f-8685-4d0f-965a-5237ccc1b828",
+      "name": "Get Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unwrap the MCP JSON-RPC envelope into the goal object.\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nreturn { json: data.data ? data.data : data };"
+      },
+      "id": "aac65da9-9d15-4c78-80b4-e0b2462fd48c",
+      "name": "Parse Goal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5b0a74d8-ba09-429b-9f67-b19a0f1a9d84",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:define",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "define"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "10811ea1-de89-4770-82c5-1f665e15c26e",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:coo:plan",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "plan"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "75ab9c08-220d-43fa-b30c-befe34ac2126",
+      "name": "Route Subrole",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nvidia/nemotron-nano-9b-v2:free\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the COO define agent in a Personal Operating System. Focus on: the day's intention and the principles that should govern it. Generate the plan/output for the start of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "e9efb2c2-5757-40c2-992f-3061297d4071",
+      "name": "define agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        120
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (openrouter key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nvidia/nemotron-nano-9b-v2:free\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the COO plan agent in a Personal Operating System. Focus on: a time-blocked execution plan with focus levels and success criteria. Generate the plan/output for the start of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "3c32b442-eb9b-4c76-b8d7-5eb58f07c626",
+      "name": "plan agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (openrouter key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 2
+      },
+      "id": "354bf7ab-9ea9-4fdc-bca5-008e97e6d036",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1680,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"mutation UpdateGoalItemContribution($id: ID!, $contribution: String!) { updateGoalItemContribution(id: $id, contribution: $contribution) { id body contribution status } }\",\n      \"variables\": {\n        \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\",\n        \"contribution\": {{ JSON.stringify($json.choices ? $json.choices[0].message.content : ($json.message || '')) }}\n      }\n    }\n  },\n  \"id\": 2\n}",
+        "options": {}
+      },
+      "id": "e2f4fff6-a944-4449-86e1-621bdfb534b3",
+      "name": "Update Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"goal_id\": $('Webhook').item.json.query.goal_id } }}",
+        "options": {}
+      },
+      "id": "a3fcb00f-3122-49bc-8412-030c469ed11f",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "Route Subrole",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Subrole": {
+      "main": [
+        [
+          {
+            "node": "define agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "plan agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "define agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "plan agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Goal": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": null,
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:53.307Z",
+      "createdAt": "2026-05-31T13:28:53.307Z",
+      "id": "78AORzdGMsn6jsp8",
+      "name": "phase:start"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:56.178Z",
+      "createdAt": "2026-05-31T13:28:56.178Z",
+      "id": "IofmhhthZu2GhqMz",
+      "name": "pillar:coo"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    }
+  ]
+}

@@ -1,0 +1,497 @@
+{
+  "name": "CTO Start — Technical Quality & Delivery",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "cto-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e5d2a488-8f82-4ce9-b2fb-33ebbb5fd404",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        120
+      ],
+      "webhookId": "<<REPLACE_ME>>"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Routine Notes API key. Set RN_API_KEY in n8n env or replace inline.\nconst apiKey = $env.RN_API_KEY || '<<REPLACE_ME>>';\nreturn { apiKey };"
+      },
+      "id": "fc15ccbb-ea88-488b-b2fd-a55245d7eeab",
+      "name": "API Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"query GetGoalItemById($id: ID!) { goalItemById(id: $id) { id body contribution status tags deadline reward } }\",\n      \"variables\": { \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\" }\n    }\n  },\n  \"id\": 1\n}",
+        "options": {}
+      },
+      "id": "6566b76f-3829-4f7e-a41c-6027e5fd5cbb",
+      "name": "Get Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unwrap the MCP JSON-RPC envelope into the goal object.\nconst text = $input.first().json.result.content[0].text;\nconst data = JSON.parse(text);\nreturn { json: data.data ? data.data : data };"
+      },
+      "id": "c19b659c-033d-4cc5-941a-5fbf38d80e28",
+      "name": "Parse Goal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2e48f015-2597-4894-b08d-5c6d264c5622",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:cto:tech",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "tech"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "09b91cf1-cdf0-4f14-aa65-7bd9fabadd4d",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:cto:delivery",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "delivery"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "166d435c-d7e2-4169-8b8b-2bc0e220e25d",
+                    "leftValue": "={{ $json.goalItemById.tags }}",
+                    "rightValue": "area:cto:skills",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "skills"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "d6a54b33-2887-4040-9977-9b453ae30571",
+      "name": "Route Subrole",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CTO tech agent in a Personal Operating System. Focus on: certification/tech-stack relevance and a ranked action plan. Generate the plan/output for the start of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "c0cb0ae5-3bd6-469a-a6a0-497df42cf373",
+      "name": "tech agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        120
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (perplexity key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CTO delivery agent in a Personal Operating System. Focus on: delivery velocity, the biggest time-sink, and one quality risk. Generate the plan/output for the start of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "941fc17a-5a59-4e50-8354-dd175a2a9652",
+      "name": "delivery agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (perplexity key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <<REPLACE_ME>>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the CTO skills agent in a Personal Operating System. Focus on: the one skill whose improvement most reduces delivery time. Generate the plan/output for the start of the routine. Be concrete and concise; return plain prose the user can act on today.\" },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($('Parse Goal').item.json.goalItemById.body) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "490520ce-938b-408e-8284-6dbee6a8d07d",
+      "name": "skills agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        480
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "<<REPLACE_ME>>",
+          "name": "<<REPLACE_ME>> (was: <<REPLACE_ME>> (perplexity key))"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "98fd8e07-7dbb-44ee-b644-0cc3810ecef4",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1680,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aicivz8c3l.execute-api.ap-south-1.amazonaws.com/dev/mcp/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('API Key').first().json.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"graphql_query\",\n    \"arguments\": {\n      \"query\": \"mutation UpdateGoalItemContribution($id: ID!, $contribution: String!) { updateGoalItemContribution(id: $id, contribution: $contribution) { id body contribution status } }\",\n      \"variables\": {\n        \"id\": \"{{ $('Webhook').item.json.query.goal_id }}\",\n        \"contribution\": {{ JSON.stringify($json.choices ? $json.choices[0].message.content : ($json.message || '')) }}\n      }\n    }\n  },\n  \"id\": 2\n}",
+        "options": {}
+      },
+      "id": "77bc6ea4-1a66-49ad-9125-b4cfb0f7d92f",
+      "name": "Update Goal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"goal_id\": $('Webhook').item.json.query.goal_id } }}",
+        "options": {}
+      },
+      "id": "aeaefe77-f0e8-4ed9-84cd-df33452a8348",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Goal": {
+      "main": [
+        [
+          {
+            "node": "Parse Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Goal": {
+      "main": [
+        [
+          {
+            "node": "Route Subrole",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Subrole": {
+      "main": [
+        [
+          {
+            "node": "tech agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "delivery agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "skills agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tech agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delivery agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "skills agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update Goal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Goal": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": null,
+  "tags": [
+    {
+      "updatedAt": "2026-05-31T13:28:53.307Z",
+      "createdAt": "2026-05-31T13:28:53.307Z",
+      "id": "78AORzdGMsn6jsp8",
+      "name": "phase:start"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:56.856Z",
+      "createdAt": "2026-05-31T13:28:56.856Z",
+      "id": "B5wTB3QARoUnrLGa",
+      "name": "pillar:cto"
+    },
+    {
+      "updatedAt": "2026-05-31T13:28:52.809Z",
+      "createdAt": "2026-05-31T13:28:52.809Z",
+      "id": "kLQMuII6E7BC8apU",
+      "name": "evolution"
+    }
+  ]
+}
