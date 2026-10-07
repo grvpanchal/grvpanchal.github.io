@@ -35,17 +35,22 @@
     .map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
     .filter(Boolean);
   if (sections.length) {
+    // The hero (above the first section) maps to the first tab, matching the page's initial state,
+    // so jumping back to the top doesn't leave a lower section highlighted.
+    var hero = document.querySelector('.hero:not([id])');
     var spy = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
+        var id = entry.target === hero ? sections[0].id : entry.target.id;
         tabs.forEach(function (a) {
-          var on = a.getAttribute('href') === '#' + entry.target.id;
+          var on = a.getAttribute('href') === '#' + id;
           a.classList.toggle('active', on);
           if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
         });
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
     sections.forEach(function (s) { spy.observe(s); });
+    if (hero) spy.observe(hero);
   }
 
   // ---- Below-the-fold reveals (skipped entirely for reduced motion) ----
