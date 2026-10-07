@@ -1,7 +1,7 @@
 {%- assign wf = include.wf %}
 {%- assign phase = include.phase %}
 {%- if wf %}
-<div class="wf-card" data-active="{{ wf.active | default: true }}">
+<div class="wf-card" data-active="{% if wf.active == false %}false{% else %}true{% endif %}">
   {%- if wf.screenshot %}
   <img class="wf-screenshot" src="{{ wf.screenshot }}" alt="{{ wf.name }} screenshot" />
   {%- endif %}
