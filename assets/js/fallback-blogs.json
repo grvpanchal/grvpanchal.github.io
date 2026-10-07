@@ -1,68 +1,92 @@
 [
   {
-    "title": "Optimizing the Performance of Network Response of NextJS Proxy API",
-    "link": "https://blog.grvpanchal.me/2025/07/modern-web-applications-frequently.html",
-    "published": "2025-07-28",
-    "excerpt": "Modern web applications frequently rely on proxy APIs to handle cross-origin requests securely. Learn optimization techniques...",
+    "title": "Why Your Coding Agent Hallucinates: The Architectural Fix",
+    "link": "https://blog.grvpanchal.me/2026/10/why-your-coding-agent-hallucinates.html",
+    "published": "2026-10-06",
+    "excerpt": "Most engineering teams assume their coding agents fail because LLMs lack reasoning power, so they spend thousands upgrading models. The contrarian truth is...",
     "featuredImage": {
-      "src": "./assets/img/nextjs.jpg",
-      "alt": "NextJS optimization techniques"
+      "src": "https://lh3.googleusercontent.com/d/1geUb0tUq6Qequc5vmIwn3mCkFSL4-Htu=w600",
+      "alt": "Why Your Coding Agent Hallucinates: The Architectural Fix"
     },
-    "categories": ["nextjs", "performance", "API Optimization"]
+    "categories": [
+      "AI",
+      "CodingAgents",
+      "DevOps"
+    ]
   },
   {
-    "title": "NextJS Nested Layout for Ecommerce",
-    "link": "https://blog.grvpanchal.me/2025/07/nextjs-nested-layout-for-ecommerce.html",
-    "published": "2025-07-24",
-    "excerpt": "The Next.js App Router introduces a powerful and intuitive strategy for handling nested layouts...",
+    "title": "Why Your Vector Database Fails at 2% Accuracy (And How to Fix It)",
+    "link": "https://blog.grvpanchal.me/2026/10/why-your-vector-database-fails-at-2.html",
+    "published": "2026-10-05",
+    "excerpt": "Most engineering teams believe swapping keyword search for dense vector embeddings will instantly solve enterprise RAG retrieval. In practice, pure vector...",
     "featuredImage": {
-      "src": "./assets/img/nextjs.jpg",
-      "alt": "NextJS nested layouts"
+      "src": "https://lh3.googleusercontent.com/d/1DqhxzEozKZyZYBXt2K9XRGG6EUgvzRRb=w600",
+      "alt": "Why Your Vector Database Fails at 2% Accuracy (And How to Fix It)"
     },
-    "categories": ["nextjs", "ecommerce", "layout"]
+    "categories": [
+      "EnterpriseAI",
+      "GenerativeAI",
+      "InformationRetrieval"
+    ]
   },
   {
-    "title": "Next.js Performance Optimization Guide",
-    "link": "https://blog.grvpanchal.me/2025/07/nextjs-performance-optimization-guide.html",
-    "published": "2025-07-23",
-    "excerpt": "Complete guide to dramatically boost your Lighthouse scores using Next.js features and modern web practices...",
+    "title": "Why Your RAG Pipeline Hallucinates Old Truths (And How to Version It)",
+    "link": "https://blog.grvpanchal.me/2026/10/why-your-rag-pipeline-hallucinates-old.html",
+    "published": "2026-10-04",
+    "excerpt": "Most engineering teams obsess over chunking strategies and embedding models, assuming generation errors stem from weak semantic search. They don't. Your...",
     "featuredImage": {
-      "src": "./assets/img/javascript.png",
-      "alt": "Performance optimization guide"
+      "src": "https://lh3.googleusercontent.com/d/1EIVQxAYNbLaqNchs93TTbyS2Uvdl8aKY=w600",
+      "alt": "Why Your RAG Pipeline Hallucinates Old Truths (And How to Version It)"
     },
-    "categories": ["nextjs", "performance", "lighthouse"]
+    "categories": [
+      "DataGovernance",
+      "EnterpriseAI",
+      "LLMOps"
+    ]
   },
   {
-    "title": "How to Apply PWA for Micro Frontend (MFE) Architecture",
-    "link": "https://blog.grvpanchal.me/2025/07/how-to-apply-pwa-for-micro-frontend-mfe.html",
-    "published": "2025-07-22",
-    "excerpt": "Learn how to implement Progressive Web App features in a Micro Frontend architecture...",
+    "title": "Why Claude Routines Will Break Your Beta Testing Pipeline",
+    "link": "https://blog.grvpanchal.me/2026/09/why-claude-routines-will-break-your_0262313597.html",
+    "published": "2026-09-29",
+    "excerpt": "Most engineering teams assume Claude Code Routines are the holy grail for replacing flaky end-to-end beta runs, but deploying them into your quality pipeline...",
     "featuredImage": {
-      "src": "./assets/img/pwa.png",
-      "alt": "PWA and Micro Frontend"
+      "src": "https://lh3.googleusercontent.com/d/123JC7GrI-4GGmAoDAkK5mADH6CtUdNdl=w600",
+      "alt": "Why Claude Routines Will Break Your Beta Testing Pipeline"
     },
-    "categories": ["pwa", "microfrontend", "service worker"]
+    "categories": [
+      "AutomationEngineering",
+      "CICD",
+      "ClaudeAI"
+    ]
   },
   {
-    "title": "Effects of Next.js Image Blur on LCP",
-    "link": "https://blog.grvpanchal.me/2025/07/effects-of-nextjs-image-blur-on-lcp.html",
-    "published": "2025-07-22",
-    "excerpt": "Largest Contentful Paint (LCP) is a core web vital that measures loading performance...",
+    "title": "The Four-Cent Trap: Why Sonnet 5 Fails Your Agent Architecture",
+    "link": "https://blog.grvpanchal.me/2026/09/the-four-cent-trap-why-sonnet-5-fails_0376716234.html",
+    "published": "2026-09-28",
+    "excerpt": "Most engineering teams downgrade to Sonnet to protect their run-rate, assuming flagship reasoning models carry a 5x premium. That assumption is burning weeks...",
     "featuredImage": {
-      "src": "./assets/img/nextjs.jpg",
-      "alt": "NextJS image optimization"
+      "src": "https://lh3.googleusercontent.com/d/1E0miEWebbFZ2-BnDDPsROBIUS9y5ZwVq=w600",
+      "alt": "The Four-Cent Trap: Why Sonnet 5 Fails Your Agent Architecture"
     },
-    "categories": ["nextjs", "performance", "LCP"]
+    "categories": [
+      "AIStrategy",
+      "ArtificialIntelligence",
+      "DevOps"
+    ]
   },
   {
-    "title": "Tech Debt in the AI Age: Navigating Crisis and Opportunity",
-    "link": "https://blog.grvpanchal.me/2025/07/tech-debt-in-ai-age-navigating-crisis.html",
-    "published": "2025-07-22",
-    "excerpt": "Understanding how AI-generated code impacts technical debt and development practices...",
+    "title": "Stop Asking LLMs Who Should Work Next: The Jev Architecture for Subagent Selection",
+    "link": "https://blog.grvpanchal.me/2026/09/stop-asking-llms-who-should-work-next.html",
+    "published": "2026-09-22",
+    "excerpt": "Most teams building multi-agent harnesses burn 80% of their latency budget asking a monolithic reasoning model to orchestrate specialized workers. The...",
     "featuredImage": {
-      "src": "./assets/img/0__nJC2pUSwD__JKvi.jfif",
-      "alt": "AI and tech debt"
+      "src": "https://lh3.googleusercontent.com/d/1vD2om54dUe3ALM_5gqeVRe_6gZCfxSdm=w600",
+      "alt": "Stop Asking LLMs Who Should Work Next: The Jev Architecture for Subagent Selection"
     },
-    "categories": ["AI", "tech debt", "development"]
+    "categories": [
+      "AgenticAI",
+      "AIEngineering",
+      "LLMOps"
+    ]
   }
 ]

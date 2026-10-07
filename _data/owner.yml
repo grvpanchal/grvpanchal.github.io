@@ -28,9 +28,12 @@ social:
     url: http://github.com/grvpanchal
     icon_class: bg-github
 
-# RSS feed for the "Featured Blogs" section. Rendered client-side via blog-feed.js.
+# "Featured Blogs" section. blog-feed.js fetches featured_api_url: a JSON endpoint returning
+# [{title, link, published, excerpt, featuredImage: {src, alt}, categories}] with CORS enabled
+# (served by the n8n "Site - Featured Blogs API" workflow, which reads the Blogger feed).
+# If it is blank or unreachable, the section shows assets/js/fallback-blogs.json.
 blog:
-  feed_url: https://blog.grvpanchal.me/feeds/posts/default
+  featured_api_url: https://workflows.grvpanchal.me/webhook/featured-blogs
   more_posts_url: https://blog.grvpanchal.me
 
 # Contact form submits here. Replace with your own Lambda / form endpoint.

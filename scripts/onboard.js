@@ -55,7 +55,11 @@ async function main() {
 
   console.log('\n--- Blog feed ---');
   owner.blog = owner.blog || {};
-  owner.blog.feed_url = await input({ message: 'RSS feed URL (leave blank to disable blog section)', default: owner.blog.feed_url || '' });
+  delete owner.blog.feed_url; // replaced by featured_api_url (browsers can't fetch RSS cross-origin)
+  owner.blog.featured_api_url = await input({
+    message: 'Featured blogs JSON endpoint (blank = show assets/js/fallback-blogs.json only)',
+    default: owner.blog.featured_api_url || '',
+  });
   owner.blog.more_posts_url = await input({ message: '"More posts" URL', default: owner.blog.more_posts_url || '' });
 
   console.log('\n--- Contact form ---');
