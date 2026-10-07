@@ -6,7 +6,9 @@
   "scripts": {
     "onboard": "node scripts/onboard.js",
     "sync-workflows": "node scripts/sync-workflows.js",
-    "sanitize-workflow": "node scripts/sanitize-workflow.js"
+    "sanitize-workflow": "node scripts/sanitize-workflow.js",
+    "integrity": "node scripts/integrity-check.js",
+    "integrity:update": "node scripts/integrity-check.js --update"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.1",

@@ -48,3 +48,19 @@ The service worker is registered only from `index.html`. Other pages reference `
 - **The blog feed (`assets/js/blog-feed.js`) loads on idle after `window.load`** so its live RSS fetch + card injection never competes with the hero's LCP.
 - Below-the-fold images use `loading="lazy"`; in-page scrolling uses native `scroll-behavior: smooth` (no jQuery).
 - `_config.yml` sets `url: https://grvpanchal.me` so `jekyll-seo-tag` emits a valid absolute `rel=canonical` (do not add a second manual one).
+- **UI polish lives in `assets/css/enhance.css` + `assets/js/enhance.js`** (focus rings, glassy sticky menu + reading-progress hairline, scrollspy, below-the-fold reveals, keyboard-operable project tabs). `enhance.css` is inlined *after* Chota (minified by `build-critical-css.sh`) so it wins ties — notably it restores the accessible `#0a7a45` primary-button green that Chota's `#17c16f` otherwise overrides (contrast 3:1 → Lighthouse a11y 95). Animate only `transform`/`opacity`; never hide above-the-fold content; keep all motion behind `prefers-reduced-motion: no-preference`; reveals apply only after `enhance.js` adds `.js-reveal`.
+
+## Content integrity check (run after any UI/styling change)
+
+`scripts/integrity-check.js` fingerprints every built page — visible text, headings, links, images + alt, form fields, aria labels, title/meta — ignoring CSS/JS/classes. UI work must leave it green:
+
+```bash
+bundle exec jekyll build && npm run integrity      # fails with a per-page diff if content changed
+npm run integrity:update                           # ONLY when a content change is intentional; commit the new baseline
+```
+
+The baseline is `scripts/integrity-baseline.json` (not published — `scripts/` is in Jekyll's exclude). Pages whose content is injected at runtime (the blog feed cards) aren't covered; check those in a browser.
+
+## Blog theme (blog.grvpanchal.me)
+
+The Blogger theme can't be changed via the API. `assets/css/blogger-theme.css` is the source of truth for the CSS pasted into Blogger → Theme → Edit HTML, just before `</head>`, inside `<style>/*<![CDATA[*/ … /*]]>*/</style>`.
