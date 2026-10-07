@@ -2,17 +2,27 @@
   pillar: CEO
   phase: start
   name: CEO Start — Personal Peak Performance
-  description: ''
-  integrations: []
+  description: >-
+    Morning body-mind check. Routes the goal you start to a running coach (today's easy-jog pace from recent Strava
+    runs), a lifting analyst (session plan from your Jefit history) or a mindfulness guide (a short intention practice).
+  integrations:
+    - Strava
+    - Jefit
+    - OpenRouter
   screenshot: null
-  active: true
+  active: false
   json_path: /workflows/ceo-start.json
 - id: ceo-end
   pillar: CEO
   phase: end
   name: CEO End — Personal Peak Performance
-  description: ''
-  integrations: []
+  description: >-
+    End-of-day review for run, lift and meditation goals. AI reviewers grade today against this week's training load
+    (pace, heart rate, muscle split, practice type) and return an HTML scorecard as the goal reward.
+  integrations:
+    - Strava
+    - Jefit
+    - OpenRouter
   screenshot: null
   active: true
   json_path: /workflows/ceo-end.json
@@ -20,17 +30,28 @@
   pillar: COO
   phase: start
   name: COO Start — Daily Operating Rhythm
-  description: ''
-  integrations: []
+  description: >-
+    Opens the day. A define agent sets the intention and governing principles; a plan agent turns them into a
+    time-blocked plan with focus levels and success criteria.
+  integrations:
+    - OpenRouter
   screenshot: null
-  active: true
+  active: false
   json_path: /workflows/coo-start.json
 - id: coo-end
   pillar: COO
   phase: end
   name: COO End — Daily Operating Rhythm
-  description: ''
-  integrations: []
+  description: >-
+    Closes each operating step: materialises ticked plan items into day tasks, writes the office-work wrap from what you
+    completed, publishes a morning principles blog with outfit images from your "fit" selfie, and renders the nightly
+    reflect dashboard.
+  integrations:
+    - Telegram
+    - Google Drive
+    - Blogger
+    - Chess.com
+    - OpenRouter
   screenshot: null
   active: true
   json_path: /workflows/coo-end.json
@@ -38,26 +59,40 @@
   pillar: CTO
   phase: start
   name: CTO Start — Technical Quality & Delivery
-  description: ''
-  integrations: []
+  description: >-
+    Technical-leverage kickoff. Tech, delivery and skills agents give a ranked certification/stack plan, the day's
+    biggest delivery time-sink and quality risk, and the one skill to sharpen.
+  integrations:
+    - Perplexity
   screenshot: null
-  active: true
+  active: false
   json_path: /workflows/cto-start.json
 - id: cto-end
   pillar: CTO
   phase: end
   name: CTO End — Technical Quality & Delivery
-  description: ''
-  integrations: []
+  description: >-
+    Technical-leverage close-out. The same tech, delivery and skills agents reflect on what shipped and set the next
+    concrete step.
+  integrations:
+    - Perplexity
   screenshot: null
-  active: true
+  active: false
   json_path: /workflows/cto-end.json
 - id: cio-start
   pillar: CIO
   phase: start
   name: CIO Start - Leverage Building
-  description: ''
-  integrations: []
+  description: >-
+    Leverage audit grounded in real numbers: social and LinkedIn analytics, blog and site traffic, job pipeline,
+    collaborators and certifications. Media, labour, capital and tech agents each recommend where to build leverage
+    today.
+  integrations:
+    - Google Analytics
+    - Google Sheets
+    - LinkedIn
+    - Upload-Post
+    - Perplexity
   screenshot: null
   active: true
   json_path: /workflows/cio-start.json
@@ -65,8 +100,11 @@
   pillar: CIO
   phase: end
   name: CIO End — Leverage Building
-  description: ''
-  integrations: []
+  description: >-
+    Leverage close-out. Labour, media and capital agents reflect on delegation, reach and brand-valuation progress, and
+    close the loop on the routine.
+  integrations:
+    - Perplexity
   screenshot: null
   active: true
   json_path: /workflows/cio-end.json
@@ -74,8 +112,12 @@
   pillar: CFO
   phase: start
   name: CFO Start — Financial Guardrails
-  description: ''
-  integrations: []
+  description: >-
+    Financial guardrails for the day. Reads your portfolio statement and last three months of spending, then a coach
+    working through the Five Levels of Financial Freedom adds concrete actions as subtasks and logs your trajectory.
+  integrations:
+    - Google Sheets
+    - OpenRouter
   screenshot: null
   active: true
   json_path: /workflows/cfo-start.json
@@ -83,8 +125,12 @@
   pillar: CFO
   phase: end
   name: CFO End — Financial Guardrails
-  description: ''
-  integrations: []
+  description: >-
+    Evaluates the day's financial actions against your portfolio and spending data, tracks progress toward the next
+    level of financial freedom, and returns an HTML report as the reward.
+  integrations:
+    - Google Sheets
+    - OpenRouter
   screenshot: null
   active: true
   json_path: /workflows/cfo-end.json
@@ -92,8 +138,16 @@
   pillar: CXO
   phase: start
   name: CXO Start - Response Desk
-  description: ''
-  integrations: []
+  description: >-
+    Response desk. Summarises the day's WhatsApp, Instagram and LinkedIn messages, then drafts empathetic, value-adding
+    replies to unread Gmail (saved as drafts, never sent) and logs a daily messaging summary.
+  integrations:
+    - WhatsApp
+    - Instagram
+    - LinkedIn
+    - Gmail
+    - Google Sheets
+    - OpenRouter
   screenshot: null
   active: true
   json_path: /workflows/cxo-start.json
@@ -101,17 +155,26 @@
   pillar: CXO
   phase: end
   name: CXO End — Contribution & Service
-  description: ''
-  integrations: []
+  description: >-
+    Contribution and service close-out. Empathize, ideate and implement agents reflect on the people you served today
+    and propose kind, concrete follow-ups.
+  integrations:
+    - Perplexity
   screenshot: null
-  active: true
+  active: false
   json_path: /workflows/cxo-end.json
 - id: cmo-start
   pillar: CMO
   phase: start
   name: CMO Start - Campaign Planner
-  description: ''
-  integrations: []
+  description: >-
+    Campaign planner. Researches real statistics on the topic, writes a flagship blog post and hero image, scripts
+    channel-specific versions (explainer video, reels, X, LinkedIn, Facebook, TikTok) and creates them as subtasks.
+  integrations:
+    - Perplexity
+    - OpenRouter
+    - Google Drive
+    - Google Sheets
   screenshot: null
   active: true
   json_path: /workflows/cmo-start.json
@@ -119,8 +182,16 @@
   pillar: CMO
   phase: end
   name: CMO End - Campaign Publisher
-  description: ''
-  integrations: []
+  description: >-
+    Campaign publisher. Posts the approved campaign to Blogger and social channels, dispatches the video formats, then
+    projects performance from prior social analytics and reports it as the reward.
+  integrations:
+    - Blogger
+    - Upload-Post
+    - LinkedIn
+    - Google Gemini
+    - Google Drive
+    - OpenRouter
   screenshot: null
   active: true
   json_path: /workflows/cmo-end.json
