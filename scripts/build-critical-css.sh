@@ -15,7 +15,7 @@ CSS_DIR=assets/css
 
 {
   echo '<!-- Critical CSS inlined to eliminate render-blocking requests on the home page.'
-  echo '     Source files: assets/css/chota.min.css, style.min.css, blog-feed.css.'
+  echo '     Source files: assets/css/style.min.css, blog-feed.css, chota.min.css, enhance.css.'
   echo '     Regenerate with ./scripts/build-critical-css.sh after editing those. -->'
   echo '<style>'
   # Order matters: Chota must come LAST so it wins equal-specificity ties against
@@ -32,6 +32,11 @@ CSS_DIR=assets/css
   sed 's#\.\./\.\./assets/img/#/assets/img/#g' "$CSS_DIR/blog-feed.css"
   echo ''
   cat "$CSS_DIR/chota.min.css"
+  echo ''
+  # UI enhancements go after Chota on purpose: they refine Chota's defaults (focus rings,
+  # accessible primary-button colour, tab underline) and must win those ties.
+  # Minified (comments + whitespace stripped): this ships inline on every home page load.
+  perl -0pe 's{/\*.*?\*/}{}gs; s/\s+/ /g; s/\s*([{};,>])\s*/$1/g; s/;}/}/g; s/^\s+|\s+$//g' "$CSS_DIR/enhance.css"
   echo ''
   echo '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}'
   echo '</style>'
