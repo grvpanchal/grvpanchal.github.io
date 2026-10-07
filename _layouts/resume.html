@@ -248,7 +248,7 @@
           {%- if item.image -%}
           <img{% if item.large %} class="img-64"{% endif %} src="{{ item.image }}" alt="{{ item.text }}" />
           {%- elsif item.icon -%}
-          <img src="https://icongr.am/devicon/{{ item.icon }}-{{ item.icon_variant | default: 'original' }}.svg" alt="{{ item.text | downcase }}" />
+          <img src="/assets/img/skills/{{ item.icon }}-{{ item.icon_variant | default: 'original' }}.svg" alt="{{ item.text | downcase }}" />
           {%- endif -%}
           {{ item.text }}
         </div>
