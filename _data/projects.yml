@@ -1,7 +1,7 @@
 # Projects shown under each sector on the home page.
 # `sector` matches a `slug` in _data/sectors.yml.
 # `active: true` puts the project under the CURRENT heading; false puts it under PREVIOUS.
-# `icon` (optional) is a devicon slug from https://icongr.am/devicon/{icon}-original.svg
+# `icon` (optional) is a Devicon slug (https://devicon.dev); not currently rendered for tags.
 # Leave `icon` off for concepts that have no logo (e.g., PWA, Performance).
 
 # === Professional ===

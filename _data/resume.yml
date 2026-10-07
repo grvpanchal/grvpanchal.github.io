@@ -63,7 +63,7 @@ resume_skills:
       - { text: Webpack, icon: webpack }
       - { text: Vite, image: /assets/img/vite.png }
       - { text: Babel, icon: babel }
-      - { text: AWS, icon: amazonwebservices }
+      - { text: AWS, icon: amazonwebservices, icon_variant: original-wordmark }
       - { text: Claude Code, image: /assets/img/claude-code.svg }
 
   - category: Certified

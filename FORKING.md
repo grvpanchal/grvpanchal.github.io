@@ -58,7 +58,7 @@ These are list-shaped — easier to edit YAML directly than via a wizard.
 
 ### Projects (`_data/sectors.yml` + `_data/projects.yml`)
 
-`sectors.yml` defines the tabs on the homepage Projects section. `projects.yml` contains entries; each `sector` field references a slug from `sectors.yml`. `active: true` puts the entry under "CURRENT"; `false` under "PREVIOUS". `tags` accepts `{name, icon}` where `icon` is a [devicon](https://icongr.am/devicon) slug.
+`sectors.yml` defines the tabs on the homepage Projects section. `projects.yml` contains entries; each `sector` field references a slug from `sectors.yml`. `active: true` puts the entry under "CURRENT"; `false` under "PREVIOUS". `tags` accepts `{name, icon}` where `icon` is a [Devicon](https://devicon.dev) slug.
 
 ### Skills (`_data/skills.yml`)
 
@@ -124,4 +124,4 @@ If you set a custom domain in step 3:
 
 **Workflows page is empty.** You haven't run `npm run sync-workflows` yet, or your tags don't match the convention. Check the n8n workflow has all three tags: `evolution`, `pillar:<x>`, `phase:start|end`.
 
-**Devicon icons missing.** The slug doesn't exist on icongr.am. Browse https://icongr.am/devicon/ for the correct one, or remove the `icon:` field — the text label still renders.
+**Skill icons missing.** Skill icons are self-hosted at `assets/img/skills/{icon}-{icon_variant}.svg`. Download the SVG from a pinned Devicon release (`https://cdn.jsdelivr.net/gh/devicons/devicon@2.17.0/icons/{icon}/{icon}-{variant}.svg`, variants listed at https://devicon.dev) into that folder, or remove the `icon:` field — the text label still renders.
