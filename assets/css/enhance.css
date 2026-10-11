@@ -53,6 +53,62 @@ label:focus-visible,
 .menu {
   transition: background-color .3s ease, box-shadow .3s ease;
 }
+/* One compact row, sized like blog.grvpanchal.me's header: 72px tall, 60px on phones. */
+.menu {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.menu > .row {
+  height: 72px;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin: 0;
+}
+.menu > .row > .col {
+  flex: 0 1 auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.menu .brand h2 {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
+.menu > .row > .is-right {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
+}
+.menu .tabs {
+  gap: 32px;
+  flex-wrap: nowrap;
+}
+.menu .tabs a {
+  margin: 0;
+  padding: 2.5px 0;
+  font-size: 16px;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .menu { padding-left: 12px; padding-right: 12px; }
+  .menu > .row { height: 60px; gap: 10px; }
+  .menu .brand h2 { font-size: 17px; }
+  /* Very narrow phones: the tabs scroll sideways rather than wrap the bar taller. */
+  .menu > .row > .is-right { overflow-x: auto; scrollbar-width: none; }
+  .menu .tabs { gap: 8px; }
+  .menu .tabs a { font-size: 13px; }
+}
+@media (max-width: 360px) {
+  .menu .brand h2 { font-size: 15px; }
+  .menu .tabs a { font-size: 12px; }
+}
+/* Section spacers were sized for the old ~140px menu; keep them one bar plus breathing room. */
+.menu-spacer { padding-top: 0; padding-bottom: 0; }
+.menu-spacer div { height: 96px; }
+@media (max-width: 600px) { .menu-spacer div { height: 84px; } }
 .menu.is-scrolled {
   background-color: rgba(30, 30, 30, .82);
   -webkit-backdrop-filter: saturate(140%) blur(10px);
