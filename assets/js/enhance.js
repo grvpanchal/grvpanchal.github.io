@@ -1,6 +1,7 @@
 /**
  * Home page UI enhancements — behaviour only, never content.
  *  - Sticky menu turns glassy once stuck, with a reading-progress hairline.
+ *  - On phones a hamburger opens the nav tabs as a dropdown.
  *  - Scrollspy: the nav tab for the section in view is marked active.
  *  - Below-the-fold sections fade up as they enter the viewport.
  *  - Project tab labels become keyboard-operable (Tab + Enter/Space).
@@ -25,6 +26,26 @@
     }, { passive: true });
     window.addEventListener('resize', update, { passive: true });
     update();
+  }
+
+  // ---- Phone hamburger: the tabs open as a dropdown (CSS hides them only once .js-menu is set) ----
+  var toggle = menu && menu.querySelector('.nav-toggle');
+  if (toggle) {
+    menu.classList.add('js-menu');
+    var setOpen = function (open) {
+      menu.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    toggle.addEventListener('click', function () { setOpen(!menu.classList.contains('open')); });
+    menu.querySelectorAll('.tabs a').forEach(function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && menu.classList.contains('open')) { setOpen(false); toggle.focus(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (menu.classList.contains('open') && !menu.contains(e.target)) setOpen(false);
+    });
   }
 
   if (!('IntersectionObserver' in window)) return;
