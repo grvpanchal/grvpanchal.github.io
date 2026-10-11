@@ -83,7 +83,8 @@
             <h2 class="is-marginless">{{ owner.name }}</h2>
           </div>
           <div class="col is-right">
-            <nav class="tabs">
+            <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+            <nav class="tabs" id="site-nav">
               <a href="#blog" onclick="makeSelectionActive(this)" class="active">Blog</a>
               <a href="#projects" onclick="makeSelectionActive(this)">Projects</a>
               <a href="#contact" onclick="makeSelectionActive(this)">Contact</a>

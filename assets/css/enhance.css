@@ -53,7 +53,7 @@ label:focus-visible,
 .menu {
   transition: background-color .3s ease, box-shadow .3s ease;
 }
-/* One compact row, sized like blog.grvpanchal.me's header: 72px tall, 60px on phones. */
+/* One compact row, sized like blog.grvpanchal.me's header: 72px tall, 58px on phones. */
 .menu {
   padding-top: 0;
   padding-bottom: 0;
@@ -92,23 +92,69 @@ label:focus-visible,
   font-size: 16px;
   white-space: nowrap;
 }
-@media (max-width: 600px) {
-  .menu { padding-left: 12px; padding-right: 12px; }
-  .menu > .row { height: 60px; gap: 10px; }
-  .menu .brand h2 { font-size: 17px; }
-  /* Very narrow phones: the tabs scroll sideways rather than wrap the bar taller. */
-  .menu > .row > .is-right { overflow-x: auto; scrollbar-width: none; }
-  .menu .tabs { gap: 8px; }
-  .menu .tabs a { font-size: 13px; }
-}
-@media (max-width: 360px) {
-  .menu .brand h2 { font-size: 15px; }
-  .menu .tabs a { font-size: 12px; }
+/* Phones: a hamburger opens the tabs as a dropdown, like blog.grvpanchal.me. The toggle and the
+   hidden list only apply once enhance.js adds .js-menu, so without JS the tabs stay visible. */
+.nav-toggle { display: none; }
+@media (max-width: 640px) {
+  .menu { padding-left: 20px; padding-right: 20px; }
+  .menu > .row { height: 58px; gap: 16px; }
+  .menu .brand h2 { font-size: 21px; }
+  .menu .tabs { gap: 16px; }
+  .menu .tabs a { font-size: 14px; }
+  .js-menu .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    margin: 0 -8px 0 0;
+    padding: 8px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .js-menu .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: #f5f5f5;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  .js-menu.open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .js-menu.open .nav-toggle span:nth-child(2) { opacity: 0; }
+  .js-menu.open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .js-menu .tabs {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px 0 8px;
+    background: #1e1e1e;
+    border-top: 1px solid #2a2a2a;
+    border-bottom: 1px solid #2a2a2a;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, .25);
+  }
+  .js-menu.open .tabs { display: flex; }
+  .js-menu .tabs a {
+    display: block;
+    padding: 12px 20px;
+    font-size: 16px;
+    text-align: left;
+    border-left: 3px solid transparent;
+  }
+  .js-menu .tabs a::after { display: none; }
+  .js-menu .tabs a.active { border-left-color: var(--accent); color: var(--font-color); }
 }
 /* Section spacers were sized for the old ~140px menu; keep them one bar plus breathing room. */
 .menu-spacer { padding-top: 0; padding-bottom: 0; }
 .menu-spacer div { height: 96px; }
-@media (max-width: 600px) { .menu-spacer div { height: 84px; } }
+@media (max-width: 640px) { .menu-spacer div { height: 84px; } }
 .menu.is-scrolled {
   background-color: rgba(30, 30, 30, .82);
   -webkit-backdrop-filter: saturate(140%) blur(10px);
